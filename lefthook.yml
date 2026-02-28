@@ -1,0 +1,23 @@
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      glob: "*.{js,ts,jsx,tsx,json,jsonc}"
+      run: pnpm biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
+      stage_fixed: true
+      skip:
+        - merge
+        - rebase
+
+    typecheck:
+      glob: "*.{ts,tsx}"
+      run: pnpm turbo typecheck
+
+pre-push:
+  parallel: true
+  commands:
+    test:
+      run: pnpm turbo test
+
+    lint:
+      run: pnpm biome ci .
