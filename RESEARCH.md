@@ -1,7 +1,6 @@
 # Token Wallet: Open Source Research & Strategy
 
 - [Token Wallet: Open Source Research \& Strategy](#token-wallet-open-source-research--strategy)
-- [Token Wallet: Open Source Research \& Strategy](#token-wallet-open-source-research--strategy-1)
   - [1. Does This Already Exist?](#1-does-this-already-exist)
     - [The Big Players (Full Billing Platforms)](#the-big-players-full-billing-platforms)
     - [Libraries (Closer to Your Idea)](#libraries-closer-to-your-idea)
@@ -125,10 +124,6 @@
     - [Coverage: 90%+ or CI Fails](#coverage-90-or-ci-fails)
     - [Summary: Right Tool, Right Job](#summary-right-tool-right-job)
 
-# Token Wallet: Open Source Research & Strategy
-
----
-
 ## 1. Does This Already Exist?
 
 Short answer: **partially, but not exactly what you're building.**
@@ -208,7 +203,7 @@ A developer should be able to go from zero to "users can buy and spend tokens" i
 
 ### Architecture Overview
 
-```
+```text
 ┌─────────────────────────────────────────────────┐
 │                 Your AI Application              │
 │                                                  │
@@ -329,7 +324,7 @@ For Midtrans Snap, `createCheckout` calls the Snap API and returns the redirect 
 
 ### Data Model
 
-```
+```text
 ┌──────────────┐     ┌───────────────────┐     ┌──────────────────┐
 │    wallets    │     │   transactions    │     │    checkouts     │
 ├──────────────┤     ├───────────────────┤     ├──────────────────┤
@@ -360,7 +355,7 @@ Why TypeScript:
 
 ### Package Structure (Monorepo)
 
-```
+```text
 token-wallet/
 ├── packages/
 │   ├── core/                    # Main SDK - wallet, ledger, types
@@ -453,7 +448,7 @@ Two concurrent `spend()` calls for the same user could overdraw the balance. Sol
 
 ### What to Build First (Roadmap)
 
-**v0.1.0 — Minimum Viable Library (Week 1-3)**
+#### v0.1.0 — Minimum Viable Library (Week 1-3)
 
 - Core wallet: `getBalance()`, `spend()`, `topUp()`, `handleWebhook()`
 - Ledger: basic append-only transaction log
@@ -462,14 +457,14 @@ Two concurrent `spend()` calls for the same user could overdraw the balance. Sol
 - Basic test suite
 - README with quickstart example
 
-**v0.2.0 — Second Gateway (Week 4-5)**
+#### v0.2.0 — Second Gateway (Week 4-5)
 
 - Xendit Checkout adapter
 - Transaction history query API
 - Idempotency handling
 - Webhook retry handling
 
-**v0.3.0 — Developer Experience (Week 6-8)**
+#### v0.3.0 — Developer Experience (Week 6-8)
 
 - `token-wallet` convenience package
 - Next.js example app (full working demo)
@@ -477,7 +472,7 @@ Two concurrent `spend()` calls for the same user could overdraw the balance. Sol
 - Documentation site
 - MySQL storage adapter
 
-**v0.4.0 — Production Features (Week 9-12)**
+#### v0.4.0 — Production Features (Week 9-12)
 
 - Token expiration support
 - Rate limiting
@@ -485,7 +480,7 @@ Two concurrent `spend()` calls for the same user could overdraw the balance. Sol
 - Stripe adapter (for global reach)
 - SQLite adapter (for prototyping)
 
-**v1.0.0 — Stable Release**
+#### v1.0.0 — Stable Release
 
 - Full test coverage
 - Security audit
@@ -517,27 +512,27 @@ Before you make the repo public, have these ready:
 
 ### How to Get Your First Stars and Contributors
 
-**Week 1: Launch**
+#### Week 1: Launch
 
 - Post on Twitter/X with a demo GIF showing the 5-minute setup
 - Post on r/webdev, r/node, r/indonesia (if relevant)
 - Write a DEV.to article: "I built an open source token wallet for AI apps"
 - Share in Indonesian developer communities (Telegram groups, Discord servers)
 
-**Month 1: Content**
+#### Month 1: Content
 
 - Write "Why every AI app needs a token billing system" blog post
 - Create a YouTube tutorial showing integration with a Next.js app
 - Post comparisons: "Token Wallet vs building your own credit system"
 
-**Month 2-3: Community**
+#### Month 2-3: Community
 
 - Label easy issues as "good first issue"
 - Respond to every issue and PR within 24 hours
 - Thank every contributor publicly
 - Write a "How we handle webhook verification" technical deep-dive
 
-**Ongoing: Build in Public**
+#### Ongoing: Build in Public
 
 - Share your GitHub stats and milestones on social media
 - Talk about design decisions and trade-offs
@@ -689,7 +684,7 @@ The key insight is that "wallet tokens" are NOT the same as "AI provider tokens.
 
 Here's a concrete example:
 
-```
+```text
 Builder's COGS:
   - GPT-4o costs builder $2.50 per 1M input tokens from OpenAI
   - That's $0.0000025 per input token
@@ -961,7 +956,7 @@ The `SELECT ... FOR UPDATE` is the key. It locks the wallet row so that if two c
 
 Include this in your SECURITY.md so builders know what's handled:
 
-```
+```text
 ✅ Webhook signature verification (per-gateway cryptographic check)
 ✅ Server-side payment confirmation (API double-check)
 ✅ Amount mismatch detection (expected vs actual payment)
@@ -1037,7 +1032,7 @@ Every financial system that's serious about accuracy uses double-entry bookkeepi
 
 In your token wallet, think of it like this:
 
-```
+```text
 When a user buys 1,000 tokens for Rp 50,000:
   DEBIT:  user_wallet     +1,000 tokens   (user gains tokens)
   CREDIT: revenue_pool    -1,000 tokens   (tokens "come from" somewhere)
@@ -1053,7 +1048,7 @@ The key rule: **the sum of all debits and credits across the entire system must 
 
 Expand the transaction table to support double-entry:
 
-```
+```text
 ┌────────────────────────────────┐
 │      ledger_entries            │
 ├────────────────────────────────┤
@@ -1493,7 +1488,7 @@ const limits = await wallet.getLimitStatus(userId);
 
 The subscription models build ON TOP of the existing core, not replace it:
 
-```
+```text
 v1 Core (ships first):
   └── Wallet (balance, spend, topUp)
   └── Ledger (transactions)
@@ -1531,7 +1526,7 @@ Developers who evaluate open source libraries look at the code quality FIRST. If
 
 ### The Stack (Recommended)
 
-```
+```text
 Language:        TypeScript 5.x (strict mode)
 Runtime:         Node.js 20+ (LTS)
 Package Manager: pnpm (faster, stricter than npm)
@@ -1566,7 +1561,7 @@ Changesets:      Changesets (automated versioning + changelogs)
 
 ### Project Structure (Modern Patterns)
 
-```
+```text
 token-wallet/
 ├── packages/
 │   ├── core/
@@ -1640,7 +1635,7 @@ token-wallet/
 
 ### Key Engineering Patterns
 
-**1. Dependency Injection (not classes-everywhere OOP)**
+#### 1. Dependency Injection (not classes-everywhere OOP)
 
 Use a functional approach with dependency injection. Pass dependencies as config, not as class hierarchies.
 
@@ -1666,7 +1661,7 @@ export function createWallet(config: WalletConfig): Wallet {
 // class AbstractWallet extends BaseFinancialEntity implements IWallet { ... }
 ```
 
-**2. Error Handling with Custom Errors**
+#### 2. Error Handling with Custom Errors
 
 ```typescript
 // Define specific error types builders can catch
@@ -1700,7 +1695,7 @@ try {
 }
 ```
 
-**3. Strict TypeScript Config**
+#### 3. Strict TypeScript Config
 
 ```json
 // tsconfig.base.json
@@ -1721,7 +1716,7 @@ try {
 }
 ```
 
-**4. Semantic Versioning with Changesets**
+#### 4. Semantic Versioning with Changesets
 
 Every PR that changes behavior requires a changeset file:
 
@@ -1733,7 +1728,7 @@ pnpm changeset
 
 On merge to main, GitHub Action creates a "Version Packages" PR that bumps versions and updates CHANGELOG. On merge of THAT PR, packages auto-publish to npm. This is how tRPC, Hono, and most modern TypeScript open source projects handle releases.
 
-**5. CI Pipeline**
+#### 5. CI Pipeline
 
 ```yaml
 # .github/workflows/ci.yml
@@ -1754,7 +1749,7 @@ jobs:
       - run: pnpm turbo build               # Build all packages
 ```
 
-**6. Export Map in package.json**
+#### 6. Export Map in package.json
 
 Modern Node.js packages use the `exports` field so bundlers can tree-shake properly:
 
@@ -1839,7 +1834,7 @@ So the real question is: **how should the library handle the money side?**
 
 ### Three Approaches (And Why Only One Is Right)
 
-**Approach A: Fully Currency-Agnostic (No Config)**
+#### Approach A: Fully Currency-Agnostic (No Config)
 
 The library stores whatever currency the builder passes per checkout. No validation, no opinions.
 
@@ -1853,7 +1848,7 @@ await wallet.topUp(userId, { amount: 1000, price: 5, currency: 'USD' });
 
 **Problem:** Reporting becomes a nightmare. "How much revenue did I make this month?" can't be answered without exchange rate conversions. Margin reports break. Reconciliation becomes harder because you're comparing apples (IDR checkouts) and oranges (USD checkouts).
 
-**Approach B: Locked Currency at Install Time**
+#### Approach B: Locked Currency at Install Time
 
 The builder picks one currency during initialization. All checkouts must use it.
 
@@ -1873,7 +1868,7 @@ await wallet.topUp(userId, { amount: 1000, price: 5, currency: 'USD' });
 
 **Problem:** Too rigid. What if a builder serves both Indonesian and international users? They'd need to run two separate wallet instances. Also locks out multi-region expansion.
 
-**Approach C: Base Currency with Multi-Currency Checkout (RECOMMENDED)**
+#### Approach C: Base Currency with Multi-Currency Checkout (RECOMMENDED)
 
 Configure a **base currency** for reporting and accounting. Allow checkouts in any currency, but require the builder to provide the base-currency equivalent for each transaction. This keeps reporting clean while allowing payment flexibility.
 
@@ -1901,6 +1896,7 @@ await wallet.topUp(userId, {
 ```
 
 **Why this works:**
+
 - All internal accounting is in one currency (IDR). Margin reports, revenue summaries, reconciliation — all clean.
 - The actual payment happens in whatever currency the gateway supports. Midtrans charges in IDR. Stripe charges in USD/EUR/etc.
 - The `baseCurrencyAmount` is provided by the builder, not the library. The library doesn't do exchange rate lookups. That's the builder's responsibility (they might use a fixed rate, live API, or whatever suits their business).
@@ -1926,7 +1922,7 @@ That's it. One field. Not a currency "selection wizard" or installation step. Ju
 
 ### For the Checkout Table
 
-```
+```text
 ┌──────────────────────────┐
 │       checkouts          │
 ├──────────────────────────┤
@@ -2138,7 +2134,7 @@ const wallet = new TokenWallet({
 ### Summary Table
 
 | Use Case | Works Now? | Priority | Complexity |
-|----------|-----------|----------|------------|
+| --- | --- | --- | --- |
 | User-to-user transfers | No | Not planned | High + regulatory |
 | Refund to payment method | No | v2 | Medium |
 | Team/org shared wallets | No | v3 | Medium |
@@ -2153,6 +2149,7 @@ const wallet = new TokenWallet({
 ### Why This Section Matters
 
 Including a "Limitations" or "Not Supported" section in your README is a sign of a mature project. It:
+
 - **Saves people time** — they know immediately if this fits their use case
 - **Reduces issue noise** — fewer "does it support X?" issues
 - **Shows architectural clarity** — you understand the boundaries of your design
@@ -2188,7 +2185,7 @@ This way your project never depends on a paid SaaS for testing. Contributors can
 
 ### The Right Testing Stack
 
-```
+```text
 Unit Tests:        Vitest (fast, native TypeScript, Jest-compatible API)
 Integration Tests: Vitest + Testcontainers (real PostgreSQL in Docker)
 Webhook Tests:     Vitest + fixture payloads (captured from real gateways)
@@ -2201,7 +2198,7 @@ Coverage:          Vitest v8 provider (90%+ enforced in CI)
 
 TDD means: write the test first, watch it fail, write the code to make it pass, refactor. For a token wallet:
 
-**Layer 1: Unit Tests (80% of your tests)**
+#### Layer 1: Unit Tests (80% of your tests)
 
 Test individual functions in isolation. No database, no network.
 
@@ -2287,7 +2284,7 @@ describe('Idempotency', () => {
 });
 ```
 
-**Layer 2: Integration Tests (15% of your tests)**
+#### Layer 2: Integration Tests (15% of your tests)
 
 Test with a real database using Testcontainers (spins up PostgreSQL in Docker automatically):
 
@@ -2350,7 +2347,7 @@ describe('Spend Flow (Integration)', () => {
 });
 ```
 
-**Layer 3: E2E Tests (5% — example apps only, using Playwright)**
+#### Layer 3: E2E Tests (5% — example apps only, using Playwright)
 
 ```typescript
 // examples/nextjs/e2e/buy-tokens.spec.ts
@@ -2368,12 +2365,14 @@ test('user can buy tokens and see updated balance', async ({ page }) => {
 ### Must-Have Test Cases Before v0.1
 
 **Webhook Security:**
+
 - Valid signature → accepted
 - Invalid/missing/tampered signature → rejected
 - Replay attack (same webhook twice) → idempotent, no double credit
 - Amount mismatch (webhook vs checkout) → rejected
 
 **Balance Integrity:**
+
 - Spend with sufficient balance → succeeds
 - Spend with insufficient balance → InsufficientBalanceError, balance unchanged
 - Concurrent spends → no overdraw
@@ -2381,11 +2380,13 @@ test('user can buy tokens and see updated balance', async ({ page }) => {
 - Credit without matching checkout → rejected
 
 **Idempotency:**
+
 - Same key twice → one transaction
 - Different keys → separate transactions
 - Survives server restart (DB-level)
 
 **Reconciliation:**
+
 - Wallet balance = sum of ledger entries
 - Double-entry balances to zero
 - No orphaned checkouts
@@ -2408,7 +2409,7 @@ export default defineConfig({
 ### Summary: Right Tool, Right Job
 
 | Need | Tool | When |
-|------|------|------|
+| --- | --- | --- |
 | Unit tests (logic, errors) | Vitest | Every PR, mandatory |
 | Integration tests (DB, flows) | Vitest + Testcontainers | Every PR, mandatory |
 | Webhook verification | Vitest + fixture payloads | Every PR, mandatory |

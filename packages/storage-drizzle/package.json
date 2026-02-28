@@ -31,6 +31,9 @@
 	"dependencies": {
 		"@token-wallet/core": "workspace:*"
 	},
+	"devDependencies": {
+		"drizzle-orm": ">=0.30.0"
+	},
 	"peerDependencies": {
 		"drizzle-orm": ">=0.30.0"
 	}

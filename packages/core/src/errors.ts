@@ -46,3 +46,17 @@ export class InvalidAmountError extends TokenWalletError {
 		super(`Amount must be a positive integer, got: ${amount}`);
 	}
 }
+
+export class GatewayError extends TokenWalletError {
+	readonly code = 'GATEWAY_ERROR';
+
+	constructor(
+		public readonly gatewayName: string,
+		public readonly httpStatus: number | undefined,
+		public readonly gatewayMessage: string,
+		cause?: unknown,
+	) {
+		super(`${gatewayName} error: ${gatewayMessage}`);
+		this.cause = cause;
+	}
+}
