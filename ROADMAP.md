@@ -35,17 +35,18 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 ## Current Status
 
-The monorepo scaffold and core module are in place. Adapter packages are stubbed out but not yet implemented. No tests or documentation exist yet.
+**v0.1.0 shipped.** Core, Midtrans Snap, and Drizzle storage are fully implemented with 50 unit tests. All packages build, typecheck, and pass Biome lint.
 
 | Package | Status |
 | --- | --- |
-| `@token-wallet/core` — types, errors, wallet, ledger, checkout interfaces | ✅ Done |
-| `@token-wallet/gateway-midtrans` | 🔲 Stub |
-| `@token-wallet/gateway-xendit` | 🔲 Stub |
-| `@token-wallet/storage-drizzle` | 🔲 Stub |
-| `token-wallet` (meta-package) | 🔲 Partial |
-| Tests | 🔲 None |
-| Documentation | 🔲 None |
+| `@token-wallet/core` — wallet, ledger, checkout, types, errors | ✅ Done |
+| `@token-wallet/gateway-midtrans` | ✅ Done |
+| `@token-wallet/gateway-xendit` | 🔲 Stub (v0.2.0) |
+| `@token-wallet/storage-drizzle` | ✅ Done |
+| `token-wallet` (meta-package) | ✅ Done |
+| Tests (core + midtrans) | ✅ 50 tests |
+| Storage integration tests | 🔲 Deferred — requires PostgreSQL (v0.2.0) |
+| Documentation | 🔲 v0.3.0 |
 
 ---
 
@@ -64,27 +65,29 @@ The monorepo scaffold and core module are in place. Adapter packages are stubbed
 
 **Storage adapter (`@token-wallet/storage-drizzle`)**
 
-- [ ] Drizzle schema: `wallets`, `transactions`, `checkouts` tables
-- [ ] `StorageAdapter` implementation with `SELECT FOR UPDATE` on balance reads
-- [ ] Idempotency key deduplication at the DB level
-- [ ] PostgreSQL as the primary target; MySQL and SQLite via Drizzle dialect switching
+- [x] Drizzle schema: `wallets`, `transactions`, `checkouts` tables (BIGINT for IDR amounts)
+- [x] `StorageAdapter` implementation with `SELECT FOR UPDATE` on balance reads
+- [x] Idempotency key deduplication at the DB level (UNIQUE constraint + `IdempotencyConflictError`)
+- [ ] MySQL and SQLite dialect support (PostgreSQL only for now)
 
 **Midtrans gateway adapter (`@token-wallet/gateway-midtrans`)**
 
-- [ ] `createCheckout` — call Snap API, return `redirect_url`
-- [ ] `verifyWebhook` — SHA512 signature verification (`order_id + status_code + gross_amount + ServerKey`)
+- [x] `createCheckout` — call Snap API, return `redirect_url`
+- [x] `verifyWebhook` — SHA512 signature verification (`order_id + status_code + gross_amount + ServerKey`)
+- [x] `parseWebhookPayload` — maps Midtrans statuses to gateway-agnostic `WebhookStatus`
 - [ ] `getPaymentStatus` — poll Midtrans for status (fallback if webhook is delayed)
 
 **Meta-package (`token-wallet`)**
 
-- [ ] Re-export core + gateway-midtrans + storage-drizzle for a single-install experience
+- [x] Re-export core + gateway-midtrans + storage-drizzle for a single-install experience
 
 #### Tests
 
-- [ ] Core: `spend()`, `topUp()`, `getBalance()`, `canSpend()` — happy paths and edge cases
-- [ ] Ledger: append-only invariant, idempotency, concurrent debit prevention
-- [ ] Midtrans adapter: webhook signature verification (valid and tampered payloads)
-- [ ] Storage: idempotency key conflict, balance lock behavior
+- [x] Core: `spend()`, `topUp()`, `getBalance()`, `canSpend()` — happy paths and edge cases
+- [x] Ledger: append-only invariant, idempotency, invalid amount validation
+- [x] Midtrans adapter: webhook signature verification (valid, tampered, wrong key, non-object), status mapping (all 6 statuses)
+- [x] Checkout: `createSession` persistence, `handleWebhook` full flow including eventual consistency path
+- [ ] Storage integration tests (requires PostgreSQL / Testcontainers — deferred to v0.2.0)
 
 #### Repo essentials
 
@@ -105,6 +108,7 @@ The monorepo scaffold and core module are in place. Adapter packages are stubbed
 - Full Xendit Checkout support (payment links, e-wallets, QRIS, virtual accounts)
 - Webhook retry handling — Xendit retries up to 6 times; duplicate credits are impossible
 - Transaction history API for building "my usage" screens in their app
+- Storage integration tests so the DB-level invariants are machine-verified
 
 ### What to build
 
@@ -112,17 +116,36 @@ The monorepo scaffold and core module are in place. Adapter packages are stubbed
 
 - [ ] `createCheckout` — create Xendit Payment Link, return `invoice_url`
 - [ ] `verifyWebhook` — `x-callback-token` header verification
+- [ ] `parseWebhookPayload` — map Xendit statuses to `WebhookStatus`
 - [ ] `getPaymentStatus` — poll Xendit invoice status
+
+**Midtrans gap (carried from v0.1.0)**
+
+- [ ] `getPaymentStatus` — poll Midtrans for status (fallback if webhook is delayed)
 
 #### Ledger query API
 
 - [ ] `getTransactions(userId, { limit, offset, type })` — paginated transaction history
 - [ ] `getCheckouts(userId, { limit, offset, status })` — purchase history
 
+#### Reliability
+
+- [ ] `handleWebhook` return type: `{ action: 'credited' | 'skipped' | 'duplicate' }` for richer HTTP responses
+- [ ] Configurable fetch timeout on `createCheckout` (currently uses fetch default)
+
 #### Tests
 
+- [ ] Storage integration tests with Testcontainers (PostgreSQL) — `SELECT FOR UPDATE`, unique constraint, concurrent debit prevention
 - [ ] Xendit adapter: webhook verification, idempotency under retry storms
 - [ ] Ledger: transaction pagination, filtering by type
+
+#### Repo essentials (carried from v0.1.0)
+
+- [ ] `README.md` with installation + 5-minute quickstart
+- [ ] `CONTRIBUTING.md`
+- [ ] `SECURITY.md`
+- [ ] `CHANGELOG.md`
+- [ ] GitHub Actions CI: lint + typecheck + test on every PR
 
 ---
 
