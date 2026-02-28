@@ -81,7 +81,7 @@ describe('createCheckoutManager', () => {
 			await expect(manager.handleWebhook(WEBHOOK)).rejects.toThrow(WebhookVerificationError);
 		});
 
-		it('credits the ledger on success status', async () => {
+		it('credits the ledger on success status and returns credited', async () => {
 			const storage = createMockStorage();
 			await storage.saveCheckout({
 				id: 'order-test',
@@ -93,51 +93,104 @@ describe('createCheckoutManager', () => {
 			} satisfies CheckoutSession);
 
 			const manager = createCheckoutManager(createMockGateway(), createLedger(storage), storage);
-			await manager.handleWebhook(WEBHOOK);
+			const result = await manager.handleWebhook(WEBHOOK);
 
+			expect(result).toEqual({ action: 'credited' });
 			await expect(storage.getBalance('user1')).resolves.toBe(100000);
 		});
 
-		it.each(['failed', 'expired', 'pending'] as const)(
-			'skips silently on %s status',
-			async (status) => {
-				const storage = createMockStorage();
-				await storage.saveCheckout({
-					id: 'order-test',
-					userId: 'user1',
-					amount: 100000,
-					redirectUrl: 'https://example.com/pay',
-					status: 'pending',
-					createdAt: new Date(),
-				} satisfies CheckoutSession);
+		it('skips on failed status and returns non_success_status', async () => {
+			const storage = createMockStorage();
+			await storage.saveCheckout({
+				id: 'order-test',
+				userId: 'user1',
+				amount: 100000,
+				redirectUrl: 'https://example.com/pay',
+				status: 'pending',
+				createdAt: new Date(),
+			} satisfies CheckoutSession);
 
-				const manager = createCheckoutManager(
-					createMockGateway({
-						webhookPayload: { orderId: 'order-test', status, grossAmount: 100000 },
-					}),
-					createLedger(storage),
-					storage,
-				);
-				await manager.handleWebhook(WEBHOOK);
+			const manager = createCheckoutManager(
+				createMockGateway({
+					webhookPayload: { orderId: 'order-test', status: 'failed', grossAmount: 100000 },
+				}),
+				createLedger(storage),
+				storage,
+			);
+			const result = await manager.handleWebhook(WEBHOOK);
 
-				// No credits should have been applied
-				await expect(storage.getBalance('user1')).resolves.toBe(0);
-			},
-		);
+			expect(result).toEqual({ action: 'skipped', reason: 'non_success_status' });
+			// No credits should have been applied
+			await expect(storage.getBalance('user1')).resolves.toBe(0);
+			// Checkout should be marked failed
+			const session = await storage.findCheckout('order-test');
+			expect(session?.status).toBe('failed');
+		});
 
-		it('skips silently when findCheckout returns null', async () => {
+		it('skips on expired status and marks checkout as failed', async () => {
+			const storage = createMockStorage();
+			await storage.saveCheckout({
+				id: 'order-test',
+				userId: 'user1',
+				amount: 100000,
+				redirectUrl: 'https://example.com/pay',
+				status: 'pending',
+				createdAt: new Date(),
+			} satisfies CheckoutSession);
+
+			const manager = createCheckoutManager(
+				createMockGateway({
+					webhookPayload: { orderId: 'order-test', status: 'expired', grossAmount: 100000 },
+				}),
+				createLedger(storage),
+				storage,
+			);
+			const result = await manager.handleWebhook(WEBHOOK);
+
+			expect(result).toEqual({ action: 'skipped', reason: 'non_success_status' });
+			const session = await storage.findCheckout('order-test');
+			expect(session?.status).toBe('failed');
+		});
+
+		it('skips on pending status without updating checkout', async () => {
+			const storage = createMockStorage();
+			await storage.saveCheckout({
+				id: 'order-test',
+				userId: 'user1',
+				amount: 100000,
+				redirectUrl: 'https://example.com/pay',
+				status: 'pending',
+				createdAt: new Date(),
+			} satisfies CheckoutSession);
+
+			const manager = createCheckoutManager(
+				createMockGateway({
+					webhookPayload: { orderId: 'order-test', status: 'pending', grossAmount: 100000 },
+				}),
+				createLedger(storage),
+				storage,
+			);
+			const result = await manager.handleWebhook(WEBHOOK);
+
+			expect(result).toEqual({ action: 'skipped', reason: 'non_success_status' });
+			const session = await storage.findCheckout('order-test');
+			expect(session?.status).toBe('pending');
+		});
+
+		it('skips when findCheckout returns null and returns session_not_found', async () => {
 			const storage = createMockStorage();
 			// No checkout saved — findCheckout will return null
 			const ledger = createLedger(storage);
 			const creditSpy = vi.spyOn(ledger, 'credit');
 			const manager = createCheckoutManager(createMockGateway(), ledger, storage);
 
-			await manager.handleWebhook(WEBHOOK);
+			const result = await manager.handleWebhook(WEBHOOK);
 
+			expect(result).toEqual({ action: 'skipped', reason: 'session_not_found' });
 			expect(creditSpy).not.toHaveBeenCalled();
 		});
 
-		it('skips silently when session.status is paid (primary idempotency)', async () => {
+		it('skips when session.status is paid and returns already_processed', async () => {
 			const storage = createMockStorage();
 			await storage.saveCheckout({
 				id: 'order-test',
@@ -152,12 +205,13 @@ describe('createCheckoutManager', () => {
 			const creditSpy = vi.spyOn(ledger, 'credit');
 			const manager = createCheckoutManager(createMockGateway(), ledger, storage);
 
-			await manager.handleWebhook(WEBHOOK);
+			const result = await manager.handleWebhook(WEBHOOK);
 
+			expect(result).toEqual({ action: 'skipped', reason: 'already_processed' });
 			expect(creditSpy).not.toHaveBeenCalled();
 		});
 
-		it('is idempotent: still calls updateCheckoutStatus when ledger throws IdempotencyConflictError', async () => {
+		it('returns duplicate when ledger throws IdempotencyConflictError', async () => {
 			const storage = createMockStorage();
 			// Save checkout as pending (status update failed on prior delivery)
 			await storage.saveCheckout({
@@ -178,8 +232,9 @@ describe('createCheckoutManager', () => {
 			const updateSpy = vi.spyOn(storage, 'updateCheckoutStatus');
 			const manager = createCheckoutManager(createMockGateway(), createLedger(storage), storage);
 
-			await manager.handleWebhook(WEBHOOK);
+			const result = await manager.handleWebhook(WEBHOOK);
 
+			expect(result).toEqual({ action: 'duplicate' });
 			expect(updateSpy).toHaveBeenCalledWith('order-test', 'paid');
 		});
 
@@ -228,7 +283,7 @@ describe('createCheckoutManager', () => {
 			expect(session?.status).toBe('paid');
 		});
 
-		it('returns null from parseWebhookPayload — skips silently', async () => {
+		it('returns unparseable when parseWebhookPayload returns null', async () => {
 			const storage = createMockStorage();
 			const ledger = createLedger(storage);
 			const creditSpy = vi.spyOn(ledger, 'credit');
@@ -238,7 +293,8 @@ describe('createCheckoutManager', () => {
 				storage,
 			);
 
-			await expect(manager.handleWebhook(WEBHOOK)).resolves.toBeUndefined();
+			const result = await manager.handleWebhook(WEBHOOK);
+			expect(result).toEqual({ action: 'skipped', reason: 'unparseable' });
 			expect(creditSpy).not.toHaveBeenCalled();
 		});
 

@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
-import { describe, expect, it } from 'vitest';
+import { GatewayError } from '@token-wallet/core';
+import { describe, expect, it, vi } from 'vitest';
 import { createMidtransGateway } from '../index.js';
 
 const SERVER_KEY = 'test-server-key-abc123';
@@ -57,6 +58,10 @@ describe('createMidtransGateway', () => {
 		it('resolves false for payload missing order_id', async () => {
 			const { order_id: _removed, ...withoutOrderId } = VALID_PAYLOAD;
 			await expect(gateway.verifyWebhook(withoutOrderId, VALID_SIGNATURE)).resolves.toBe(false);
+		});
+
+		it('resolves false for invalid hex signature', async () => {
+			await expect(gateway.verifyWebhook(VALID_PAYLOAD, 'not-valid-hex')).resolves.toBe(false);
 		});
 	});
 
@@ -127,6 +132,64 @@ describe('createMidtransGateway', () => {
 				status: 'success',
 				grossAmount: 75000.5,
 			});
+		});
+	});
+
+	describe('getPaymentStatus', () => {
+		it.each([
+			['settlement', 'success'] as const,
+			['capture', 'success'] as const,
+			['cancel', 'failed'] as const,
+			['deny', 'failed'] as const,
+			['expire', 'expired'] as const,
+			['pending', 'pending'] as const,
+		])('maps transaction_status "%s" to "%s"', async (transactionStatus, expected) => {
+			const mockResponse = {
+				ok: true,
+				json: async () => ({ transaction_status: transactionStatus }),
+			};
+			const fetchSpy = vi
+				.spyOn(globalThis, 'fetch')
+				.mockResolvedValueOnce(mockResponse as Response);
+
+			const status = await gateway.getPaymentStatus('order-abc');
+			expect(status).toBe(expected);
+			expect(fetchSpy).toHaveBeenCalledOnce();
+
+			fetchSpy.mockRestore();
+		});
+
+		it('throws GatewayError on non-ok response', async () => {
+			const mockResponse = {
+				ok: false,
+				status: 404,
+				text: async () => 'Not Found',
+			};
+			const fetchSpy = vi
+				.spyOn(globalThis, 'fetch')
+				.mockResolvedValueOnce(mockResponse as Response);
+
+			await expect(gateway.getPaymentStatus('order-abc')).rejects.toThrow(GatewayError);
+
+			fetchSpy.mockRestore();
+		});
+
+		it('uses api host not snap host', async () => {
+			const mockResponse = {
+				ok: true,
+				json: async () => ({ transaction_status: 'settlement' }),
+			};
+			const fetchSpy = vi
+				.spyOn(globalThis, 'fetch')
+				.mockResolvedValueOnce(mockResponse as Response);
+
+			await gateway.getPaymentStatus('order-abc');
+
+			const url = fetchSpy.mock.calls[0]?.[0];
+			expect(url).toContain('api.sandbox.midtrans.com');
+			expect(url).not.toContain('app.sandbox.midtrans.com');
+
+			fetchSpy.mockRestore();
 		});
 	});
 });

@@ -11,7 +11,9 @@
     - [What users get](#what-users-get-1)
     - [What to build](#what-to-build-1)
       - [Ledger query API](#ledger-query-api)
+      - [Reliability](#reliability)
       - [Tests](#tests-1)
+      - [Repo essentials](#repo-essentials-1)
   - [v0.3.0 — Developer Experience](#v030--developer-experience)
     - [What users get](#what-users-get-2)
     - [What to build](#what-to-build-2)
@@ -35,18 +37,19 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 ## Current Status
 
-**v0.1.0 shipped.** Core, Midtrans Snap, and Drizzle storage are fully implemented with 50 unit tests. All packages build, typecheck, and pass Biome lint.
+**v0.2.0 shipped.** Core, Midtrans Snap, Xendit Checkout, and Drizzle storage are fully implemented with 100+ tests. All packages build, typecheck, and pass Biome lint.
 
 | Package | Status |
 | --- | --- |
 | `@token-wallet/core` — wallet, ledger, checkout, types, errors | ✅ Done |
 | `@token-wallet/gateway-midtrans` | ✅ Done |
-| `@token-wallet/gateway-xendit` | 🔲 Stub (v0.2.0) |
+| `@token-wallet/gateway-xendit` | ✅ Done |
 | `@token-wallet/storage-drizzle` | ✅ Done |
 | `token-wallet` (meta-package) | ✅ Done |
-| Tests (core + midtrans) | ✅ 50 tests |
-| Storage integration tests | 🔲 Deferred — requires PostgreSQL (v0.2.0) |
-| Documentation | 🔲 v0.3.0 |
+| Tests (core + midtrans + xendit + integration) | ✅ 100+ tests |
+| Storage integration tests | ✅ Done (requires `DATABASE_URL`) |
+| Repo essentials (README, CONTRIBUTING, SECURITY, CHANGELOG) | ✅ Done |
+| Documentation site | 🔲 v0.3.0 |
 
 ---
 
@@ -75,7 +78,7 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 - [x] `createCheckout` — call Snap API, return `redirect_url`
 - [x] `verifyWebhook` — SHA512 signature verification (`order_id + status_code + gross_amount + ServerKey`)
 - [x] `parseWebhookPayload` — maps Midtrans statuses to gateway-agnostic `WebhookStatus`
-- [ ] `getPaymentStatus` — poll Midtrans for status (fallback if webhook is delayed)
+- [x] `getPaymentStatus` — poll Midtrans Status API for payment status
 
 **Meta-package (`token-wallet`)**
 
@@ -85,17 +88,17 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 - [x] Core: `spend()`, `topUp()`, `getBalance()`, `canSpend()` — happy paths and edge cases
 - [x] Ledger: append-only invariant, idempotency, invalid amount validation
-- [x] Midtrans adapter: webhook signature verification (valid, tampered, wrong key, non-object), status mapping (all 6 statuses)
+- [x] Midtrans adapter: webhook signature verification (valid, tampered, wrong key, non-object), status mapping (all 6 statuses), getPaymentStatus
 - [x] Checkout: `createSession` persistence, `handleWebhook` full flow including eventual consistency path
-- [ ] Storage integration tests (requires PostgreSQL / Testcontainers — deferred to v0.2.0)
+- [x] Storage integration tests (PostgreSQL via Neon)
 
 #### Repo essentials
 
-- [ ] `README.md` with installation + 5-minute quickstart
-- [ ] `CONTRIBUTING.md`
-- [ ] `SECURITY.md` (responsible disclosure process)
-- [ ] `CHANGELOG.md`
-- [ ] GitHub Actions CI: lint + typecheck + test on every PR
+- [x] `README.md` with installation + 5-minute quickstart
+- [x] `CONTRIBUTING.md`
+- [x] `SECURITY.md` (responsible disclosure process)
+- [x] `CHANGELOG.md`
+- [x] GitHub Actions CI: lint + typecheck + test on every PR
 
 ---
 
@@ -114,38 +117,42 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 **Xendit gateway adapter (`@token-wallet/gateway-xendit`)**
 
-- [ ] `createCheckout` — create Xendit Payment Link, return `invoice_url`
-- [ ] `verifyWebhook` — `x-callback-token` header verification
-- [ ] `parseWebhookPayload` — map Xendit statuses to `WebhookStatus`
-- [ ] `getPaymentStatus` — poll Xendit invoice status
+- [x] `createCheckout` — create Xendit invoice, return `invoice_url`
+- [x] `verifyWebhook` — `x-callback-token` header verification (timing-safe)
+- [x] `parseWebhookPayload` — map Xendit statuses to `WebhookStatus`
+- [x] `getPaymentStatus` — poll Xendit invoice status
 
-**Midtrans gap (carried from v0.1.0)**
+**Midtrans improvements**
 
-- [ ] `getPaymentStatus` — poll Midtrans for status (fallback if webhook is delayed)
+- [x] `getPaymentStatus` — poll Midtrans Status API for payment status
+- [x] Timing-safe webhook verification (`crypto.timingSafeEqual`)
+- [x] Dual base hosts (`snapHost` for Snap API, `apiHost` for Status API)
+- [x] Configurable `timeoutMs` on fetch calls
 
 #### Ledger query API
 
-- [ ] `getTransactions(userId, { limit, offset, type })` — paginated transaction history
-- [ ] `getCheckouts(userId, { limit, offset, status })` — purchase history
+- [x] `getTransactions(userId, { limit, offset, type })` — paginated transaction history
+- [x] `getCheckouts(userId, { limit, offset, status })` — purchase history
 
 #### Reliability
 
-- [ ] `handleWebhook` return type: `{ action: 'credited' | 'skipped' | 'duplicate' }` for richer HTTP responses
-- [ ] Configurable fetch timeout on `createCheckout` (currently uses fetch default)
+- [x] `handleWebhook` return type: `{ action: 'credited' | 'skipped' | 'duplicate', reason? }` for richer HTTP responses
+- [x] Expired/failed webhooks update checkout status to `'failed'`
+- [x] Configurable fetch timeout on `createCheckout` and `getPaymentStatus`
 
 #### Tests
 
-- [ ] Storage integration tests with Testcontainers (PostgreSQL) — `SELECT FOR UPDATE`, unique constraint, concurrent debit prevention
-- [ ] Xendit adapter: webhook verification, idempotency under retry storms
-- [ ] Ledger: transaction pagination, filtering by type
+- [x] Storage integration tests with Neon PostgreSQL — `SELECT FOR UPDATE`, unique constraint, concurrent debit prevention
+- [x] Xendit adapter: webhook verification, status mapping, createCheckout, getPaymentStatus
+- [x] Ledger: transaction pagination, filtering by type, validation errors
 
-#### Repo essentials (carried from v0.1.0)
+#### Repo essentials
 
-- [ ] `README.md` with installation + 5-minute quickstart
-- [ ] `CONTRIBUTING.md`
-- [ ] `SECURITY.md`
-- [ ] `CHANGELOG.md`
-- [ ] GitHub Actions CI: lint + typecheck + test on every PR
+- [x] `README.md` with installation + 5-minute quickstart + architecture diagram
+- [x] `CONTRIBUTING.md`
+- [x] `SECURITY.md`
+- [x] `CHANGELOG.md`
+- [x] GitHub Actions CI: lint + typecheck + test on every PR (integration tests on main)
 
 ---
 

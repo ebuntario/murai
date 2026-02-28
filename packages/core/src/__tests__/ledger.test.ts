@@ -74,4 +74,103 @@ describe('createLedger', () => {
 		const foundAgain = await storage.findEntry('key-1');
 		expect(foundAgain?.amount).toBe(originalAmount);
 	});
+
+	describe('getTransactions', () => {
+		it('throws when storage does not implement getTransactions', async () => {
+			const storage = createMockStorage();
+			// Create a storage without getTransactions
+			const { getTransactions: _, ...storageWithout } = storage;
+			const ledger = createLedger(storageWithout as typeof storage);
+			await expect(ledger.getTransactions('user1')).rejects.toThrow(
+				'Storage adapter does not implement getTransactions',
+			);
+		});
+
+		it('returns transactions for a user', async () => {
+			const storage = createMockStorage();
+			const ledger = createLedger(storage);
+			await ledger.credit('user1', 100, 'c-1');
+			await ledger.credit('user1', 200, 'c-2');
+
+			const txns = await ledger.getTransactions('user1');
+			expect(txns).toHaveLength(2);
+		});
+
+		it('respects limit parameter', async () => {
+			const storage = createMockStorage();
+			const ledger = createLedger(storage);
+			await ledger.credit('user1', 100, 'c-1');
+			await ledger.credit('user1', 200, 'c-2');
+			await ledger.credit('user1', 300, 'c-3');
+
+			const txns = await ledger.getTransactions('user1', { limit: 2 });
+			expect(txns).toHaveLength(2);
+		});
+
+		it('respects offset parameter', async () => {
+			const storage = createMockStorage();
+			const ledger = createLedger(storage);
+			await ledger.credit('user1', 100, 'c-1');
+			await ledger.credit('user1', 200, 'c-2');
+			await ledger.credit('user1', 300, 'c-3');
+
+			const txns = await ledger.getTransactions('user1', { offset: 2 });
+			expect(txns).toHaveLength(1);
+		});
+
+		it('filters by credit type', async () => {
+			const storage = createMockStorage();
+			const ledger = createLedger(storage);
+			await ledger.credit('user1', 500, 'c-1');
+			await ledger.debit('user1', 100, 'd-1');
+			await ledger.credit('user1', 200, 'c-2');
+
+			const credits = await ledger.getTransactions('user1', { type: 'credit' });
+			expect(credits).toHaveLength(2);
+			for (const t of credits) {
+				expect(t.amount).toBeGreaterThan(0);
+			}
+		});
+
+		it('filters by debit type', async () => {
+			const storage = createMockStorage();
+			const ledger = createLedger(storage);
+			await ledger.credit('user1', 500, 'c-1');
+			await ledger.debit('user1', 100, 'd-1');
+			await ledger.debit('user1', 50, 'd-2');
+
+			const debits = await ledger.getTransactions('user1', { type: 'debit' });
+			expect(debits).toHaveLength(2);
+			for (const t of debits) {
+				expect(t.amount).toBeLessThan(0);
+			}
+		});
+
+		it('returns empty array for user with no transactions', async () => {
+			const ledger = createLedger(createMockStorage());
+			const txns = await ledger.getTransactions('ghost');
+			expect(txns).toEqual([]);
+		});
+
+		it('throws for invalid limit (0)', async () => {
+			const ledger = createLedger(createMockStorage());
+			await expect(ledger.getTransactions('user1', { limit: 0 })).rejects.toThrow(
+				InvalidAmountError,
+			);
+		});
+
+		it('throws for invalid limit (> 100)', async () => {
+			const ledger = createLedger(createMockStorage());
+			await expect(ledger.getTransactions('user1', { limit: 101 })).rejects.toThrow(
+				InvalidAmountError,
+			);
+		});
+
+		it('throws for negative offset', async () => {
+			const ledger = createLedger(createMockStorage());
+			await expect(ledger.getTransactions('user1', { offset: -1 })).rejects.toThrow(
+				InvalidAmountError,
+			);
+		});
+	});
 });

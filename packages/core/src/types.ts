@@ -2,8 +2,33 @@
 
 export type WebhookStatus = 'success' | 'failed' | 'pending' | 'expired';
 
+export type WebhookAction = 'credited' | 'skipped' | 'duplicate';
+
+export type WebhookSkipReason =
+	| 'unparseable'
+	| 'non_success_status'
+	| 'session_not_found'
+	| 'already_processed';
+
+export interface WebhookResult {
+	action: WebhookAction;
+	reason?: WebhookSkipReason;
+}
+
 export interface WalletConfig {
 	storage: StorageAdapter;
+}
+
+export interface TransactionQuery {
+	limit?: number;
+	offset?: number;
+	type?: 'credit' | 'debit';
+}
+
+export interface CheckoutQuery {
+	limit?: number;
+	offset?: number;
+	status?: CheckoutSession['status'];
 }
 
 export interface Wallet {
@@ -11,6 +36,8 @@ export interface Wallet {
 	canSpend(userId: string, amount: number): Promise<boolean>;
 	spend(userId: string, amount: number, idempotencyKey: string): Promise<void>;
 	topUp(userId: string, amount: number, idempotencyKey: string): Promise<void>;
+	getTransactions(userId: string, query?: TransactionQuery): Promise<LedgerEntry[]>;
+	getCheckouts(userId: string, query?: CheckoutQuery): Promise<CheckoutSession[]>;
 }
 
 export interface LedgerEntry {
@@ -45,6 +72,10 @@ export interface StorageAdapter {
 	saveCheckout(session: CheckoutSession): Promise<CheckoutSession>;
 	findCheckout(id: string): Promise<CheckoutSession | null>;
 	updateCheckoutStatus(id: string, status: CheckoutSession['status']): Promise<void>;
+	/** Optional — paginated transaction history */
+	getTransactions?(userId: string, query?: TransactionQuery): Promise<LedgerEntry[]>;
+	/** Optional — paginated checkout history */
+	getCheckouts?(userId: string, query?: CheckoutQuery): Promise<CheckoutSession[]>;
 }
 
 export interface PaymentGatewayAdapter {
@@ -58,4 +89,6 @@ export interface PaymentGatewayAdapter {
 	parseWebhookPayload(
 		payload: unknown,
 	): { orderId: string; status: WebhookStatus; grossAmount: number } | null;
+	/** Optional — poll gateway for payment status */
+	getPaymentStatus?(id: string): Promise<WebhookStatus>;
 }

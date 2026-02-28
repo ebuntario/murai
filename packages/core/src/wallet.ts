@@ -1,8 +1,16 @@
-// Public API: getBalance, canSpend, spend, topUp
+// Public API: getBalance, canSpend, spend, topUp, getTransactions, getCheckouts
 
-import { InsufficientBalanceError } from './errors.js';
+import { InsufficientBalanceError, InvalidAmountError } from './errors.js';
 import { createLedger } from './ledger.js';
-import type { StorageAdapter, Wallet, WalletConfig } from './types.js';
+import type {
+	CheckoutQuery,
+	CheckoutSession,
+	LedgerEntry,
+	StorageAdapter,
+	TransactionQuery,
+	Wallet,
+	WalletConfig,
+} from './types.js';
 
 export function createWallet(config: WalletConfig): Wallet {
 	const storage: StorageAdapter = config.storage;
@@ -29,5 +37,24 @@ export function createWallet(config: WalletConfig): Wallet {
 		await ledger.credit(userId, amount, idempotencyKey);
 	}
 
-	return { getBalance, canSpend, spend, topUp };
+	async function getTransactions(userId: string, query?: TransactionQuery): Promise<LedgerEntry[]> {
+		return ledger.getTransactions(userId, query);
+	}
+
+	async function getCheckouts(userId: string, query?: CheckoutQuery): Promise<CheckoutSession[]> {
+		if (!storage.getCheckouts) {
+			throw new Error('Storage adapter does not implement getCheckouts');
+		}
+		const limit = query?.limit ?? 50;
+		const offset = query?.offset ?? 0;
+		if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+			throw new InvalidAmountError(limit);
+		}
+		if (!Number.isInteger(offset) || offset < 0) {
+			throw new InvalidAmountError(offset);
+		}
+		return storage.getCheckouts(userId, { ...query, limit, offset });
+	}
+
+	return { getBalance, canSpend, spend, topUp, getTransactions, getCheckouts };
 }

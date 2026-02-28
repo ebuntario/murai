@@ -4,8 +4,14 @@
 
 import { randomUUID } from 'node:crypto';
 import { IdempotencyConflictError, InsufficientBalanceError } from '@token-wallet/core';
-import type { CheckoutSession, LedgerEntry, StorageAdapter } from '@token-wallet/core';
-import { eq } from 'drizzle-orm';
+import type {
+	CheckoutQuery,
+	CheckoutSession,
+	LedgerEntry,
+	StorageAdapter,
+	TransactionQuery,
+} from '@token-wallet/core';
+import { and, desc, eq, gt, lt } from 'drizzle-orm';
 import {
 	type PgDatabase,
 	type PgQueryResultHKT,
@@ -211,5 +217,69 @@ export function createDrizzleStorage<HKT extends PgQueryResultHKT>(
 		await db.update(checkouts).set({ status, updatedAt: new Date() }).where(eq(checkouts.id, id));
 	}
 
-	return { getBalance, appendEntry, findEntry, saveCheckout, findCheckout, updateCheckoutStatus };
+	async function getTransactions(userId: string, query?: TransactionQuery): Promise<LedgerEntry[]> {
+		const limit = query?.limit ?? 50;
+		const offset = query?.offset ?? 0;
+
+		const conditions = [eq(transactions.userId, userId)];
+		if (query?.type === 'credit') {
+			conditions.push(gt(transactions.amount, 0));
+		} else if (query?.type === 'debit') {
+			conditions.push(lt(transactions.amount, 0));
+		}
+
+		const rows = await db
+			.select()
+			.from(transactions)
+			.where(and(...conditions))
+			.orderBy(desc(transactions.createdAt))
+			.limit(limit)
+			.offset(offset);
+
+		return rows.map((row) => ({
+			id: row.id,
+			userId: row.userId,
+			amount: row.amount,
+			idempotencyKey: row.idempotencyKey,
+			createdAt: row.createdAt,
+		}));
+	}
+
+	async function getCheckouts(userId: string, query?: CheckoutQuery): Promise<CheckoutSession[]> {
+		const limit = query?.limit ?? 50;
+		const offset = query?.offset ?? 0;
+
+		const conditions = [eq(checkouts.userId, userId)];
+		if (query?.status) {
+			conditions.push(eq(checkouts.status, query.status));
+		}
+
+		const rows = await db
+			.select()
+			.from(checkouts)
+			.where(and(...conditions))
+			.orderBy(desc(checkouts.createdAt))
+			.limit(limit)
+			.offset(offset);
+
+		return rows.map((row) => ({
+			id: row.id,
+			userId: row.userId,
+			amount: row.amount,
+			redirectUrl: row.redirectUrl,
+			status: row.status as CheckoutSession['status'],
+			createdAt: row.createdAt,
+		}));
+	}
+
+	return {
+		getBalance,
+		appendEntry,
+		findEntry,
+		saveCheckout,
+		findCheckout,
+		updateCheckoutStatus,
+		getTransactions,
+		getCheckouts,
+	};
 }
