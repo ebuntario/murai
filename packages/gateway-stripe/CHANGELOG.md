@@ -1,5 +1,14 @@
 # @murai-wallet/gateway-stripe
 
+## 1.0.3
+
+### Patch Changes
+
+- [`d61b797`](https://github.com/ebuntario/murai/commit/d61b7975433ce22a850dad9c8315a8b17a3509a9) Thanks [@ethanbuntario](https://github.com/ethanbuntario)! - Rename meta-package from unscoped `murai` to `@murai-wallet/murai`.
+
+- Updated dependencies [[`d61b797`](https://github.com/ebuntario/murai/commit/d61b7975433ce22a850dad9c8315a8b17a3509a9)]:
+  - @murai-wallet/core@1.0.3
+
 ## 1.0.2
 
 ### Patch Changes
