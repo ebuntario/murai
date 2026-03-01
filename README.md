@@ -9,6 +9,10 @@ Add credit-based billing to any app in under 30 minutes — with first-class sup
 
 ---
 
+## Why the Name?
+
+**Murai** is named after the [Murai Batu](https://en.wikipedia.org/wiki/White-rumped_shama) (*Copsychus malabaricus*), Indonesia's most prized songbird — famous across the archipelago for its melodic voice and spirited character. The name signals this project's Indonesian origin and its first-class support for Indonesian payment gateways like Midtrans and Xendit. Just as the Murai Batu is a champion among songbirds, Murai aims to be the go-to token wallet for Indonesian SaaS and AI applications.
+
 ## Why Murai?
 
 Building token/credit billing from scratch means solving atomic balance updates, idempotent webhooks, double-charge prevention, and payment gateway integration — before writing a single line of product code.
