@@ -76,6 +76,19 @@
 - In-memory mock not exported - benchmarks can't import without fragile relative paths
 - 7 error classes now (added InvalidExpirationError, InvalidMetadataError in v0.4.0)
 
+## OSS Adoption Readiness Review Key Findings
+- CRITICAL: meta-package `export *` with optional peerDeps crashes at runtime (ERR_MODULE_NOT_FOUND)
+- CRITICAL: `changeset publish --provenance` is NOT a valid flag - use NPM_CONFIG_PROVENANCE=true
+- CRITICAL: workflow_run trigger creates race with concurrent pushes - use branch protection instead
+- CRITICAL: Plan modifies .github/ which is protected by CLAUDE.md
+- No LICENSE file in sub-package dirs - npm pack won't include root LICENSE
+- @changesets/changelog-github needs install + repo field in config
+- publint/attw as npx = version drift + cold cache penalty; pin as devDeps
+- Node 20 EOL April 2026 - lowering engines is questionable
+- First npm publish cannot use provenance (bootstrap sequence)
+- All packages at 1.0.0 now but never published
+- tsup.config.ts identical across all 6 packages - no external config anywhere
+
 ## Patterns & Conventions
 - Error codes: SCREAMING_SNAKE_CASE on readonly `code` field
 - All mutations require idempotencyKey
@@ -86,3 +99,5 @@
 - CI: lint, typecheck, build, test (no docs build step currently)
 - pnpm-workspace.yaml: packages/*, apps/*, docs (no examples/*)
 - Vitest bench available (v3.2.4) but not configured in vitest.config.ts
+- No external config in any tsup.config.ts - relies on auto-externalization
+- All packages at version 1.0.0 but never published to npm
