@@ -2,12 +2,14 @@ import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
+	site: 'https://ebuntario.github.io',
+	base: '/murai/',
 	integrations: [
 		starlight({
 			title: 'Murai',
 			description: 'Payment-gateway-agnostic token wallet for AI/SaaS applications',
 			social: {
-				github: 'https://github.com/user/murai',
+				github: 'https://github.com/ebuntario/murai',
 			},
 			sidebar: [
 				{
