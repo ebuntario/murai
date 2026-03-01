@@ -7,11 +7,12 @@ import { IdempotencyConflictError, InsufficientBalanceError } from '@token-walle
 import type {
 	CheckoutQuery,
 	CheckoutSession,
+	ExpireResult,
 	LedgerEntry,
 	StorageAdapter,
 	TransactionQuery,
 } from '@token-wallet/core';
-import { and, desc, eq, gt, lt } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, isNotNull, isNull, lt, lte, or, sql } from 'drizzle-orm';
 import {
 	type PgDatabase,
 	type PgQueryResultHKT,
@@ -37,6 +38,10 @@ const transactions = pgTable('transactions', {
 	amount: bigint('amount', { mode: 'number' }).notNull(),
 	idempotencyKey: text('idempotency_key').notNull().unique(),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+	expiresAt: timestamp('expires_at', { withTimezone: true }),
+	remaining: bigint('remaining', { mode: 'number' }),
+	expiredAt: timestamp('expired_at', { withTimezone: true }),
+	metadata: text('metadata'),
 });
 
 const checkouts = pgTable('checkouts', {
@@ -63,6 +68,20 @@ function isUniqueViolation(error: unknown): boolean {
 		'code' in error &&
 		(error as { code: unknown }).code === PG_UNIQUE_VIOLATION
 	);
+}
+
+function toLedgerEntry(row: typeof transactions.$inferSelect): LedgerEntry {
+	return {
+		id: row.id,
+		userId: row.userId,
+		amount: row.amount,
+		idempotencyKey: row.idempotencyKey,
+		createdAt: row.createdAt,
+		expiresAt: row.expiresAt,
+		remaining: row.remaining,
+		expiredAt: row.expiredAt,
+		metadata: row.metadata,
+	};
 }
 
 // ---------------------------------------------------------------------------
@@ -109,9 +128,58 @@ export function createDrizzleStorage<HKT extends PgQueryResultHKT>(
 					throw new Error(`Wallet row missing for userId: ${entry.userId}`);
 				}
 
-				// 3. Guard for debit (negative amount)
-				if (entry.amount < 0 && wallet.balance < Math.abs(entry.amount)) {
-					throw new InsufficientBalanceError(entry.userId, Math.abs(entry.amount), wallet.balance);
+				// 3. For debits: FIFO bucket consumption
+				if (entry.amount < 0) {
+					const debitAmount = Math.abs(entry.amount);
+
+					// Query active credit buckets (not expired, remaining > 0)
+					const buckets = await tx
+						.select()
+						.from(transactions)
+						.where(
+							and(
+								eq(transactions.userId, entry.userId),
+								gt(transactions.amount, 0),
+								gt(transactions.remaining, 0),
+								or(isNull(transactions.expiresAt), gt(transactions.expiresAt, new Date())),
+							),
+						)
+						.orderBy(
+							// NULLS LAST: entries with expiresAt first, then by createdAt
+							sql`${transactions.expiresAt} ASC NULLS LAST`,
+							asc(transactions.createdAt),
+						)
+						.for('update');
+
+					if (buckets.length > 0) {
+						// Calculate spendable balance from buckets
+						let spendableBalance = 0;
+						for (const b of buckets) {
+							spendableBalance += b.remaining ?? 0;
+						}
+
+						if (spendableBalance < debitAmount) {
+							throw new InsufficientBalanceError(entry.userId, debitAmount, spendableBalance);
+						}
+
+						// Consume FIFO
+						let remaining = debitAmount;
+						for (const bucket of buckets) {
+							if (remaining <= 0) break;
+							const bucketRemaining = bucket.remaining ?? 0;
+							const consume = Math.min(bucketRemaining, remaining);
+							await tx
+								.update(transactions)
+								.set({ remaining: bucketRemaining - consume })
+								.where(eq(transactions.id, bucket.id));
+							remaining -= consume;
+						}
+					} else {
+						// No FIFO buckets — fall back to materialized balance check
+						if (wallet.balance < debitAmount) {
+							throw new InsufficientBalanceError(entry.userId, debitAmount, wallet.balance);
+						}
+					}
 				}
 
 				// 4. Update balance atomically
@@ -129,6 +197,10 @@ export function createDrizzleStorage<HKT extends PgQueryResultHKT>(
 						amount: entry.amount,
 						idempotencyKey: entry.idempotencyKey,
 						createdAt: new Date(),
+						expiresAt: entry.expiresAt ?? null,
+						remaining: entry.remaining ?? null,
+						expiredAt: entry.expiredAt ?? null,
+						metadata: entry.metadata ?? null,
 					})
 					.returning();
 
@@ -136,13 +208,7 @@ export function createDrizzleStorage<HKT extends PgQueryResultHKT>(
 					throw new Error('Failed to insert ledger entry');
 				}
 
-				return {
-					id: inserted.id,
-					userId: inserted.userId,
-					amount: inserted.amount,
-					idempotencyKey: inserted.idempotencyKey,
-					createdAt: inserted.createdAt,
-				};
+				return toLedgerEntry(inserted);
 			});
 		} catch (error) {
 			if (isUniqueViolation(error)) {
@@ -159,13 +225,7 @@ export function createDrizzleStorage<HKT extends PgQueryResultHKT>(
 			.where(eq(transactions.idempotencyKey, idempotencyKey));
 		const row = result[0];
 		if (!row) return null;
-		return {
-			id: row.id,
-			userId: row.userId,
-			amount: row.amount,
-			idempotencyKey: row.idempotencyKey,
-			createdAt: row.createdAt,
-		};
+		return toLedgerEntry(row);
 	}
 
 	async function saveCheckout(session: CheckoutSession): Promise<CheckoutSession> {
@@ -227,6 +287,12 @@ export function createDrizzleStorage<HKT extends PgQueryResultHKT>(
 		} else if (query?.type === 'debit') {
 			conditions.push(lt(transactions.amount, 0));
 		}
+		if (query?.from) {
+			conditions.push(gte(transactions.createdAt, query.from));
+		}
+		if (query?.to) {
+			conditions.push(lte(transactions.createdAt, query.to));
+		}
 
 		const rows = await db
 			.select()
@@ -236,13 +302,7 @@ export function createDrizzleStorage<HKT extends PgQueryResultHKT>(
 			.limit(limit)
 			.offset(offset);
 
-		return rows.map((row) => ({
-			id: row.id,
-			userId: row.userId,
-			amount: row.amount,
-			idempotencyKey: row.idempotencyKey,
-			createdAt: row.createdAt,
-		}));
+		return rows.map(toLedgerEntry);
 	}
 
 	async function getCheckouts(userId: string, query?: CheckoutQuery): Promise<CheckoutSession[]> {
@@ -272,6 +332,84 @@ export function createDrizzleStorage<HKT extends PgQueryResultHKT>(
 		}));
 	}
 
+	async function expireCredits(userId: string, now: Date): Promise<ExpireResult> {
+		return db.transaction(async (tx) => {
+			// Lock wallet row
+			await tx.select().from(wallets).where(eq(wallets.userId, userId)).for('update');
+
+			// Find expired credit buckets with remaining > 0
+			const expiredBuckets = await tx
+				.select()
+				.from(transactions)
+				.where(
+					and(
+						eq(transactions.userId, userId),
+						gt(transactions.amount, 0),
+						gt(transactions.remaining, 0),
+						isNotNull(transactions.expiresAt),
+						lt(transactions.expiresAt, now),
+					),
+				)
+				.for('update');
+
+			let expiredCount = 0;
+			let expiredAmount = 0;
+
+			for (const bucket of expiredBuckets) {
+				const amount = bucket.remaining ?? 0;
+				if (amount <= 0) continue;
+
+				expiredAmount += amount;
+				expiredCount++;
+
+				// Insert debit entry for expiration
+				await tx.insert(transactions).values({
+					id: randomUUID(),
+					userId,
+					amount: -amount,
+					idempotencyKey: `expire:${bucket.idempotencyKey}`,
+					createdAt: new Date(),
+					metadata: null,
+				});
+
+				// Zero out the bucket and mark expired
+				await tx
+					.update(transactions)
+					.set({ remaining: 0, expiredAt: now })
+					.where(eq(transactions.id, bucket.id));
+			}
+
+			// Update wallet balance
+			if (expiredAmount > 0) {
+				const walletRows = await tx.select().from(wallets).where(eq(wallets.userId, userId));
+				const wallet = walletRows[0];
+				if (wallet) {
+					await tx
+						.update(wallets)
+						.set({ balance: wallet.balance - expiredAmount })
+						.where(eq(wallets.userId, userId));
+				}
+			}
+
+			return { expiredCount, expiredAmount };
+		});
+	}
+
+	async function getUsersWithExpirableCredits(now: Date): Promise<string[]> {
+		const rows = await db
+			.selectDistinct({ userId: transactions.userId })
+			.from(transactions)
+			.where(
+				and(
+					gt(transactions.amount, 0),
+					gt(transactions.remaining, 0),
+					isNotNull(transactions.expiresAt),
+					lt(transactions.expiresAt, now),
+				),
+			);
+		return rows.map((r) => r.userId);
+	}
+
 	return {
 		getBalance,
 		appendEntry,
@@ -281,5 +419,7 @@ export function createDrizzleStorage<HKT extends PgQueryResultHKT>(
 		updateCheckoutStatus,
 		getTransactions,
 		getCheckouts,
+		expireCredits,
+		getUsersWithExpirableCredits,
 	};
 }
