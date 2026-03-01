@@ -5,11 +5,11 @@
 	"fixed": [],
 	"linked": [
 		[
-			"@murai/core",
-			"@murai/gateway-midtrans",
-			"@murai/gateway-xendit",
-			"@murai/gateway-stripe",
-			"@murai/storage-drizzle",
+			"@murai-wallet/core",
+			"@murai-wallet/gateway-midtrans",
+			"@murai-wallet/gateway-xendit",
+			"@murai-wallet/gateway-stripe",
+			"@murai-wallet/storage-drizzle",
 			"murai"
 		]
 	],

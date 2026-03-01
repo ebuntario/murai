@@ -1,17 +1,17 @@
-# @murai/core
+# @murai-wallet/core
 
 Core wallet, ledger, and checkout manager for [Murai](https://github.com/ebuntario/murai) — a payment-gateway-agnostic token wallet library for AI/SaaS applications.
 
 ## Install
 
 ```bash
-npm install @murai/core
+npm install @murai-wallet/core
 ```
 
 ## Usage
 
 ```typescript
-import { createWallet, createLedger, createCheckoutManager } from '@murai/core';
+import { createWallet, createLedger, createCheckoutManager } from '@murai-wallet/core';
 
 // Create wallet with your storage adapter
 const wallet = createWallet({ storage });

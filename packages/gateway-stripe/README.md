@@ -1,4 +1,4 @@
-# @murai/gateway-stripe
+# @murai-wallet/gateway-stripe
 
 Stripe Checkout payment gateway adapter for [Murai](https://github.com/ebuntario/murai).
 
@@ -7,20 +7,20 @@ Supports global card payments, Apple Pay, and Google Pay via Stripe Checkout.
 ## Install
 
 ```bash
-npm install @murai/gateway-stripe @murai/core stripe
+npm install @murai-wallet/gateway-stripe @murai-wallet/core stripe
 ```
 
 ## Usage
 
 ```typescript
-import { createStripeGateway } from '@murai/gateway-stripe';
+import { createStripeGateway } from '@murai-wallet/gateway-stripe';
 
 const gateway = createStripeGateway({
   secretKey: process.env.STRIPE_SECRET_KEY,
   webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
 });
 
-// Use with createCheckoutManager from @murai/core
+// Use with createCheckoutManager from @murai-wallet/core
 ```
 
 ## Features

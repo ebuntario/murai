@@ -10,10 +10,10 @@ Murai is a monorepo with five packages. You can install the meta-package for con
 | Package | npm | Purpose |
 |---|---|---|
 | `murai` | [![npm](https://img.shields.io/npm/v/murai)](https://www.npmjs.com/package/murai) | Meta-package — single install, re-exports everything |
-| `@murai/core` | [![npm](https://img.shields.io/npm/v/@murai/core)](https://www.npmjs.com/package/@murai/core) | Wallet, ledger, checkout manager, types, errors |
-| `@murai/gateway-midtrans` | [![npm](https://img.shields.io/npm/v/@murai/gateway-midtrans)](https://www.npmjs.com/package/@murai/gateway-midtrans) | Midtrans Snap adapter |
-| `@murai/gateway-xendit` | [![npm](https://img.shields.io/npm/v/@murai/gateway-xendit)](https://www.npmjs.com/package/@murai/gateway-xendit) | Xendit Checkout adapter |
-| `@murai/storage-drizzle` | [![npm](https://img.shields.io/npm/v/@murai/storage-drizzle)](https://www.npmjs.com/package/@murai/storage-drizzle) | Drizzle ORM storage (PostgreSQL) |
+| `@murai-wallet/core` | [![npm](https://img.shields.io/npm/v/@murai-wallet/core)](https://www.npmjs.com/package/@murai-wallet/core) | Wallet, ledger, checkout manager, types, errors |
+| `@murai-wallet/gateway-midtrans` | [![npm](https://img.shields.io/npm/v/@murai-wallet/gateway-midtrans)](https://www.npmjs.com/package/@murai-wallet/gateway-midtrans) | Midtrans Snap adapter |
+| `@murai-wallet/gateway-xendit` | [![npm](https://img.shields.io/npm/v/@murai-wallet/gateway-xendit)](https://www.npmjs.com/package/@murai-wallet/gateway-xendit) | Xendit Checkout adapter |
+| `@murai-wallet/storage-drizzle` | [![npm](https://img.shields.io/npm/v/@murai-wallet/storage-drizzle)](https://www.npmjs.com/package/@murai-wallet/storage-drizzle) | Drizzle ORM storage (PostgreSQL) |
 
 ## Architecture diagram
 
@@ -61,10 +61,10 @@ Domain errors that extend `MuraiError`: `InsufficientBalanceError`, `Idempotency
 
 ```
 murai (meta-package)
-├── @murai/core
-├── @murai/gateway-midtrans  → depends on core
-├── @murai/gateway-xendit    → depends on core
-└── @murai/storage-drizzle   → depends on core
+├── @murai-wallet/core
+├── @murai-wallet/gateway-midtrans  → depends on core
+├── @murai-wallet/gateway-xendit    → depends on core
+└── @murai-wallet/storage-drizzle   → depends on core
 ```
 
-Gateway and storage adapters depend only on `@murai/core` for its types and errors. They have no dependency on each other, so you can use Midtrans without Xendit and vice versa.
+Gateway and storage adapters depend only on `@murai-wallet/core` for its types and errors. They have no dependency on each other, so you can use Midtrans without Xendit and vice versa.

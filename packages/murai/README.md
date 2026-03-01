@@ -43,11 +43,11 @@ await wallet.spend('user_123', 5_000, 'usage-key');
 
 | Package | Description |
 | --- | --- |
-| `@murai/core` | Wallet, ledger, checkout manager, types, errors |
-| `@murai/gateway-midtrans` | Midtrans Snap adapter |
-| `@murai/gateway-xendit` | Xendit Checkout adapter |
-| `@murai/gateway-stripe` | Stripe Checkout adapter |
-| `@murai/storage-drizzle` | Drizzle ORM storage (PostgreSQL) |
+| `@murai-wallet/core` | Wallet, ledger, checkout manager, types, errors |
+| `@murai-wallet/gateway-midtrans` | Midtrans Snap adapter |
+| `@murai-wallet/gateway-xendit` | Xendit Checkout adapter |
+| `@murai-wallet/gateway-stripe` | Stripe Checkout adapter |
+| `@murai-wallet/storage-drizzle` | Drizzle ORM storage (PostgreSQL) |
 
 ## Documentation
 

@@ -157,11 +157,11 @@ const checkouts = await wallet.getCheckouts('user_123', {
 | Package | Description |
 | --- | --- |
 | [`murai`](./packages/murai) | Meta-package — single install, re-exports everything |
-| [`@murai/core`](./packages/core) | Wallet, ledger, checkout manager, types, errors |
-| [`@murai/gateway-midtrans`](./packages/gateway-midtrans) | Midtrans Snap adapter |
-| [`@murai/gateway-stripe`](./packages/gateway-stripe) | Stripe Checkout adapter |
-| [`@murai/gateway-xendit`](./packages/gateway-xendit) | Xendit Checkout adapter |
-| [`@murai/storage-drizzle`](./packages/storage-drizzle) | Drizzle ORM storage (PostgreSQL) |
+| [`@murai-wallet/core`](./packages/core) | Wallet, ledger, checkout manager, types, errors |
+| [`@murai-wallet/gateway-midtrans`](./packages/gateway-midtrans) | Midtrans Snap adapter |
+| [`@murai-wallet/gateway-stripe`](./packages/gateway-stripe) | Stripe Checkout adapter |
+| [`@murai-wallet/gateway-xendit`](./packages/gateway-xendit) | Xendit Checkout adapter |
+| [`@murai-wallet/storage-drizzle`](./packages/storage-drizzle) | Drizzle ORM storage (PostgreSQL) |
 
 ## Architecture
 

@@ -1,10 +1,10 @@
-// @murai/gateway-xendit
+// @murai-wallet/gateway-xendit
 // Xendit Checkout payment gateway adapter
 
 import { timingSafeEqual } from 'node:crypto';
 import { randomUUID } from 'node:crypto';
-import { GatewayError } from '@murai/core';
-import type { CheckoutSession, PaymentGatewayAdapter, WebhookStatus } from '@murai/core';
+import { GatewayError } from '@murai-wallet/core';
+import type { CheckoutSession, PaymentGatewayAdapter, WebhookStatus } from '@murai-wallet/core';
 
 export interface XenditConfig {
 	secretKey: string;

@@ -1,11 +1,11 @@
-# @murai/storage-drizzle
+# @murai-wallet/storage-drizzle
 
 Drizzle ORM storage adapter for [Murai](https://github.com/ebuntario/murai) — PostgreSQL with row-level locking.
 
 ## Install
 
 ```bash
-npm install @murai/storage-drizzle @murai/core drizzle-orm postgres
+npm install @murai-wallet/storage-drizzle @murai-wallet/core drizzle-orm postgres
 ```
 
 ## Usage
@@ -13,12 +13,12 @@ npm install @murai/storage-drizzle @murai/core drizzle-orm postgres
 ```typescript
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { createDrizzleStorage } from '@murai/storage-drizzle';
+import { createDrizzleStorage } from '@murai-wallet/storage-drizzle';
 
 const sql = postgres(process.env.DATABASE_URL);
 const storage = createDrizzleStorage(drizzle(sql));
 
-// Use with createWallet from @murai/core
+// Use with createWallet from @murai-wallet/core
 ```
 
 ## Features

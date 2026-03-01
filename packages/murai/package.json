@@ -53,10 +53,10 @@
 		"node": ">=22"
 	},
 	"dependencies": {
-		"@murai/core": "workspace:*",
-		"@murai/gateway-midtrans": "workspace:*",
-		"@murai/gateway-stripe": "workspace:*",
-		"@murai/gateway-xendit": "workspace:*",
-		"@murai/storage-drizzle": "workspace:*"
+		"@murai-wallet/core": "workspace:*",
+		"@murai-wallet/gateway-midtrans": "workspace:*",
+		"@murai-wallet/gateway-stripe": "workspace:*",
+		"@murai-wallet/gateway-xendit": "workspace:*",
+		"@murai-wallet/storage-drizzle": "workspace:*"
 	}
 }

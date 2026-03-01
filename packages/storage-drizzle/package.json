@@ -1,5 +1,5 @@
 {
-	"name": "@murai/storage-drizzle",
+	"name": "@murai-wallet/storage-drizzle",
 	"version": "1.0.1",
 	"type": "module",
 	"description": "Drizzle ORM storage adapter for murai (PostgreSQL)",
@@ -40,7 +40,7 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@murai/core": "workspace:*"
+		"@murai-wallet/core": "workspace:*"
 	},
 	"devDependencies": {
 		"drizzle-orm": ">=0.30.0"

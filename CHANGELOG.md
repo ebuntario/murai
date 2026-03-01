@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file.
 - **`expireTokens(userId)`** — atomically debits remaining tokens from expired credit buckets; idempotent (safe to call repeatedly)
 - **Usage reporting** — `getUsageReport(userId, { from, to })` aggregates credits, debits, and provider cost over a date range
 - **Spend/topUp metadata** — optional `metadata` parameter (JSON string, <4KB) on `spend` and `topUp`; `cost` field convention for recording AI provider cost
-- **Stripe Checkout gateway adapter** (`@murai/gateway-stripe`) — `createCheckout`, `verifyWebhook` (HMAC-SHA256 with `rawBody`), `parseWebhookPayload`, `getPaymentStatus`
+- **Stripe Checkout gateway adapter** (`@murai-wallet/gateway-stripe`) — `createCheckout`, `verifyWebhook` (HMAC-SHA256 with `rawBody`), `parseWebhookPayload`, `getPaymentStatus`
 - **`rawBody` parameter on `verifyWebhook`** — `PaymentGatewayAdapter.verifyWebhook` now accepts optional third `rawBody` parameter (required by Stripe, ignored by Midtrans/Xendit)
 - **New error types** — `InvalidExpirationError` (past `expiresAt`), `InvalidMetadataError` (invalid JSON, oversized, bad `cost`)
 - **New types** — `ExpireResult`, `UsageReport`
@@ -62,7 +62,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Xendit Checkout gateway adapter** (`@murai/gateway-xendit`) — `createCheckout`, `verifyWebhook`, `parseWebhookPayload`, `getPaymentStatus`
+- **Xendit Checkout gateway adapter** (`@murai-wallet/gateway-xendit`) — `createCheckout`, `verifyWebhook`, `parseWebhookPayload`, `getPaymentStatus`
 - **Midtrans `getPaymentStatus`** — poll Midtrans Status API for payment status
 - **Ledger query API** — `getTransactions(userId, { limit, offset, type })` with pagination (1-100) and credit/debit filtering
 - **Checkout query API** — `getCheckouts(userId, { limit, offset, status })` with pagination and status filtering
@@ -84,7 +84,7 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
-- **`schemas.ts`** — unused type aliases removed from `@murai/core`
+- **`schemas.ts`** — unused type aliases removed from `@murai-wallet/core`
 
 ## [0.1.0] - 2026-02-27
 

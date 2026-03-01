@@ -67,43 +67,43 @@ importers:
 
   packages/gateway-midtrans:
     dependencies:
-      '@murai/core':
+      '@murai-wallet/core':
         specifier: workspace:*
         version: link:../core
 
   packages/gateway-stripe:
     dependencies:
-      '@murai/core':
+      '@murai-wallet/core':
         specifier: workspace:*
         version: link:../core
 
   packages/gateway-xendit:
     dependencies:
-      '@murai/core':
+      '@murai-wallet/core':
         specifier: workspace:*
         version: link:../core
 
   packages/murai:
     dependencies:
-      '@murai/core':
+      '@murai-wallet/core':
         specifier: workspace:*
         version: link:../core
-      '@murai/gateway-midtrans':
+      '@murai-wallet/gateway-midtrans':
         specifier: workspace:*
         version: link:../gateway-midtrans
-      '@murai/gateway-stripe':
+      '@murai-wallet/gateway-stripe':
         specifier: workspace:*
         version: link:../gateway-stripe
-      '@murai/gateway-xendit':
+      '@murai-wallet/gateway-xendit':
         specifier: workspace:*
         version: link:../gateway-xendit
-      '@murai/storage-drizzle':
+      '@murai-wallet/storage-drizzle':
         specifier: workspace:*
         version: link:../storage-drizzle
 
   packages/storage-drizzle:
     dependencies:
-      '@murai/core':
+      '@murai-wallet/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:

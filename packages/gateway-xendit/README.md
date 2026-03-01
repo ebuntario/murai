@@ -1,4 +1,4 @@
-# @murai/gateway-xendit
+# @murai-wallet/gateway-xendit
 
 Xendit Checkout payment gateway adapter for [Murai](https://github.com/ebuntario/murai).
 
@@ -7,20 +7,20 @@ Supports OVO, DANA, ShopeePay, QRIS, and virtual accounts via Xendit Checkout.
 ## Install
 
 ```bash
-npm install @murai/gateway-xendit @murai/core
+npm install @murai-wallet/gateway-xendit @murai-wallet/core
 ```
 
 ## Usage
 
 ```typescript
-import { createXenditGateway } from '@murai/gateway-xendit';
+import { createXenditGateway } from '@murai-wallet/gateway-xendit';
 
 const gateway = createXenditGateway({
   secretKey: process.env.XENDIT_SECRET_KEY,
   callbackToken: process.env.XENDIT_CALLBACK_TOKEN,
 });
 
-// Use with createCheckoutManager from @murai/core
+// Use with createCheckoutManager from @murai-wallet/core
 ```
 
 ## Features

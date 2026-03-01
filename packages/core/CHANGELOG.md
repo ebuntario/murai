@@ -1,4 +1,4 @@
-# @murai/core
+# @murai-wallet/core
 
 ## 1.0.1
 

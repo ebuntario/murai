@@ -22,9 +22,9 @@ pnpm changeset            # Create a changeset for versioning
 ### Single package
 
 ```bash
-pnpm --filter @murai/core build
-pnpm --filter @murai/core test
-pnpm --filter @murai/core typecheck
+pnpm --filter @murai-wallet/core build
+pnpm --filter @murai-wallet/core test
+pnpm --filter @murai-wallet/core typecheck
 ```
 
 ## Architecture
@@ -41,10 +41,10 @@ pnpm --filter @murai/core typecheck
 
 ### Monorepo packages
 
-- `packages/core` — `@murai/core` — wallet, ledger, checkout, types
-- `packages/gateway-midtrans` — `@murai/gateway-midtrans` — Midtrans Snap adapter
-- `packages/gateway-xendit` — `@murai/gateway-xendit` — Xendit Checkout adapter
-- `packages/storage-drizzle` — `@murai/storage-drizzle` — Drizzle ORM adapter (PostgreSQL primary)
+- `packages/core` — `@murai-wallet/core` — wallet, ledger, checkout, types
+- `packages/gateway-midtrans` — `@murai-wallet/gateway-midtrans` — Midtrans Snap adapter
+- `packages/gateway-xendit` — `@murai-wallet/gateway-xendit` — Xendit Checkout adapter
+- `packages/storage-drizzle` — `@murai-wallet/storage-drizzle` — Drizzle ORM adapter (PostgreSQL primary)
 - `packages/murai` — `murai` — convenience meta-package
 
 ### Key patterns

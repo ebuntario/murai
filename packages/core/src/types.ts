@@ -1,4 +1,4 @@
-// Public TypeScript interfaces for @murai/core
+// Public TypeScript interfaces for @murai-wallet/core
 
 export type WebhookStatus = 'success' | 'failed' | 'pending' | 'expired';
 

@@ -1,5 +1,5 @@
 {
-	"name": "@murai/gateway-xendit",
+	"name": "@murai-wallet/gateway-xendit",
 	"version": "1.0.1",
 	"type": "module",
 	"description": "Xendit Checkout payment gateway adapter for murai",
@@ -40,6 +40,6 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@murai/core": "workspace:*"
+		"@murai-wallet/core": "workspace:*"
 	}
 }

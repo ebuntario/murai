@@ -1,4 +1,4 @@
-# @murai/storage-drizzle
+# @murai-wallet/storage-drizzle
 
 ## 1.0.1
 
@@ -7,7 +7,7 @@
 - [`44903d4`](https://github.com/ebuntario/murai/commit/44903d410d746ad71c8dd0c920b5dad435f15dbb) Thanks [@ethanbuntario](https://github.com/ethanbuntario)! - Initial public release of Murai — a payment-gateway-agnostic token wallet for AI/SaaS applications.
 
 - Updated dependencies [[`44903d4`](https://github.com/ebuntario/murai/commit/44903d410d746ad71c8dd0c920b5dad435f15dbb)]:
-  - @murai/core@1.0.1
+  - @murai-wallet/core@1.0.1
 
 ## 1.0.0
 
@@ -18,4 +18,4 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @murai/core@1.0.0
+  - @murai-wallet/core@1.0.0

@@ -1,10 +1,10 @@
-// @murai/gateway-midtrans
+// @murai-wallet/gateway-midtrans
 // Midtrans Snap payment gateway adapter
 
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { randomUUID } from 'node:crypto';
-import { GatewayError } from '@murai/core';
-import type { CheckoutSession, PaymentGatewayAdapter, WebhookStatus } from '@murai/core';
+import { GatewayError } from '@murai-wallet/core';
+import type { CheckoutSession, PaymentGatewayAdapter, WebhookStatus } from '@murai-wallet/core';
 
 export interface MidtransConfig {
 	serverKey: string;

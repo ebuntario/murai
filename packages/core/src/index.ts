@@ -1,4 +1,4 @@
-// @murai/core
+// @murai-wallet/core
 export * from './types.js';
 export * from './errors.js';
 export * from './ledger.js';

@@ -1,9 +1,9 @@
-// Integration tests for @murai/storage-drizzle against a real PostgreSQL database.
+// Integration tests for @murai-wallet/storage-drizzle against a real PostgreSQL database.
 // Skipped if DATABASE_URL is not set.
-// Run: DATABASE_URL=<neon_url> pnpm --filter @murai/storage-drizzle test
+// Run: DATABASE_URL=<neon_url> pnpm --filter @murai-wallet/storage-drizzle test
 
-import { IdempotencyConflictError, InsufficientBalanceError } from '@murai/core';
-import type { CheckoutSession, StorageAdapter } from '@murai/core';
+import { IdempotencyConflictError, InsufficientBalanceError } from '@murai-wallet/core';
+import type { CheckoutSession, StorageAdapter } from '@murai-wallet/core';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 // @ts-expect-error — Biome requires dot notation but TS noPropertyAccessFromIndexSignature wants bracket; suppress TS

@@ -1,4 +1,4 @@
-# @murai/gateway-midtrans
+# @murai-wallet/gateway-midtrans
 
 Midtrans Snap payment gateway adapter for [Murai](https://github.com/ebuntario/murai).
 
@@ -7,13 +7,13 @@ Supports GoPay, ShopeePay, QRIS, bank transfer, and credit card via Midtrans Sna
 ## Install
 
 ```bash
-npm install @murai/gateway-midtrans @murai/core
+npm install @murai-wallet/gateway-midtrans @murai-wallet/core
 ```
 
 ## Usage
 
 ```typescript
-import { createMidtransGateway } from '@murai/gateway-midtrans';
+import { createMidtransGateway } from '@murai-wallet/gateway-midtrans';
 
 const gateway = createMidtransGateway({
   serverKey: process.env.MIDTRANS_SERVER_KEY,
@@ -21,7 +21,7 @@ const gateway = createMidtransGateway({
   sandbox: true,
 });
 
-// Use with createCheckoutManager from @murai/core
+// Use with createCheckoutManager from @murai-wallet/core
 ```
 
 ## Features

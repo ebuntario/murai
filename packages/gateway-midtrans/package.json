@@ -1,5 +1,5 @@
 {
-	"name": "@murai/gateway-midtrans",
+	"name": "@murai-wallet/gateway-midtrans",
 	"version": "1.0.1",
 	"type": "module",
 	"description": "Midtrans Snap payment gateway adapter for murai",
@@ -37,7 +37,7 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@murai/core": "workspace:*"
+		"@murai-wallet/core": "workspace:*"
 	},
 	"engines": {
 		"node": ">=22"

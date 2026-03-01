@@ -1,4 +1,4 @@
-// Typed error hierarchy for @murai/core
+// Typed error hierarchy for @murai-wallet/core
 
 export abstract class MuraiError extends Error {
 	abstract readonly code: string;

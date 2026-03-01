@@ -1,5 +1,5 @@
 import { createHmac } from 'node:crypto';
-import { GatewayError } from '@murai/core';
+import { GatewayError } from '@murai-wallet/core';
 import { describe, expect, it, vi } from 'vitest';
 import { createStripeGateway } from '../index.js';
 

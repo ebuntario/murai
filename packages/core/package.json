@@ -1,5 +1,5 @@
 {
-	"name": "@murai/core",
+	"name": "@murai-wallet/core",
 	"version": "1.0.1",
 	"type": "module",
 	"description": "Core wallet, ledger, and checkout manager for murai",

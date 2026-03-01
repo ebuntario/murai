@@ -1,4 +1,4 @@
-import { GatewayError } from '@murai/core';
+import { GatewayError } from '@murai-wallet/core';
 import { describe, expect, it, vi } from 'vitest';
 import { createXenditGateway } from '../index.js';
 

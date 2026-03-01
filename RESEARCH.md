@@ -365,27 +365,27 @@ murai/
 │   │   │   ├── checkout.ts      # Checkout manager
 │   │   │   ├── types.ts         # All TypeScript interfaces
 │   │   │   └── index.ts         # Public API exports
-│   │   ├── package.json         # @murai/core
+│   │   ├── package.json         # @murai-wallet/core
 │   │   └── tsconfig.json
 │   │
 │   ├── gateway-midtrans/        # Midtrans Snap adapter
 │   │   ├── src/
 │   │   │   └── adapter.ts       # MidtransAdapter implements PaymentGatewayAdapter
-│   │   └── package.json         # @murai/gateway-midtrans
+│   │   └── package.json         # @murai-wallet/gateway-midtrans
 │   │
 │   ├── gateway-xendit/          # Xendit Checkout adapter
 │   │   ├── src/
 │   │   │   └── adapter.ts       # XenditAdapter implements PaymentGatewayAdapter
-│   │   └── package.json         # @murai/gateway-xendit
+│   │   └── package.json         # @murai-wallet/gateway-xendit
 │   │
 │   ├── gateway-stripe/          # Stripe Checkout adapter (for global reach)
 │   │   └── ...
 │   │
 │   ├── storage-postgres/        # PostgreSQL storage adapter
-│   │   └── package.json         # @murai/storage-postgres
+│   │   └── package.json         # @murai-wallet/storage-postgres
 │   │
 │   ├── storage-mysql/           # MySQL storage adapter
-│   │   └── package.json         # @murai/storage-mysql
+│   │   └── package.json         # @murai-wallet/storage-mysql
 │   │
 │   └── murai/            # Convenience meta-package (re-exports core + all adapters)
 │       └── package.json         # murai (the "just works" package)
@@ -634,8 +634,8 @@ await wallet.spend(userId, cost, {
 You don't need to build a pricing engine, but you can provide a lightweight helper that builders can optionally use:
 
 ```typescript
-// Optional: @murai/pricing-helper (separate package)
-import { PricingTable } from '@murai/pricing-helper';
+// Optional: @murai-wallet/pricing-helper (separate package)
+import { PricingTable } from '@murai-wallet/pricing-helper';
 
 const pricing = new PricingTable({
   'gpt-4o':        { inputPer1k: 5, outputPer1k: 15 },
@@ -1547,7 +1547,7 @@ Changesets:      Changesets (automated versioning + changelogs)
 
 **pnpm** — The modern standard for monorepos. Stricter dependency resolution (prevents phantom deps), faster installs, built-in workspace support. Most serious TypeScript open source projects use pnpm now (tRPC, Hono, Drizzle all use it).
 
-**Turborepo** — Handles the monorepo build orchestration. When you change `@murai/core`, it knows to rebuild `@murai/gateway-midtrans` too. Caches builds so CI is fast.
+**Turborepo** — Handles the monorepo build orchestration. When you change `@murai-wallet/core`, it knows to rebuild `@murai-wallet/gateway-midtrans` too. Caches builds so CI is fast.
 
 **tsup** — Bundles your TypeScript into both ESM and CommonJS outputs. This means your library works with `import` (modern) and `require()` (legacy). One config file, zero hassle. Way simpler than raw tsc or rollup.
 
@@ -1606,7 +1606,7 @@ murai/
 │   │   │   ├── adapter.ts            # StorageAdapter implementation
 │   │   │   ├── migrations/           # SQL migration files
 │   │   │   └── index.ts
-│   │   └── package.json              # @murai/storage-drizzle
+│   │   └── package.json              # @murai-wallet/storage-drizzle
 │   │
 │   └── murai/                  # Meta-package
 │       └── package.json
@@ -1755,7 +1755,7 @@ Modern Node.js packages use the `exports` field so bundlers can tree-shake prope
 
 ```json
 {
-  "name": "@murai/core",
+  "name": "@murai-wallet/core",
   "version": "0.1.0",
   "type": "module",
   "exports": {

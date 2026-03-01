@@ -33,7 +33,7 @@ Requires Node.js >= 22 and pnpm >= 10.
 Storage integration tests run against a real PostgreSQL database (e.g. Neon):
 
 ```bash
-DATABASE_URL=postgres://user:pass@host/db pnpm --filter @murai/storage-drizzle test
+DATABASE_URL=postgres://user:pass@host/db pnpm --filter @murai-wallet/storage-drizzle test
 ```
 
 Without `DATABASE_URL`, integration tests are automatically skipped.
