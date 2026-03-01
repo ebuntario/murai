@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2026-03-01
+
+### Added
+
+- **90% test coverage threshold** — CI now enforces 90% minimum on statements, branches, functions, and lines (up from 80%)
+- **Security audit** — `SECURITY_AUDIT.md` documents all security measures: timing-safe webhook verification, idempotency constraints, row-level locking, SQL injection surface, amount and metadata validation
+- **Performance benchmarks** — `benchmarks/spend.bench.ts` using `vitest bench` for sequential spend, concurrent spend, topUp+spend cycles, and getBalance reads
+- **Migration guide** — `MIGRATION.md` covers upgrade paths from every prior version with code diff examples
+- **Code of Conduct** — Contributor Covenant v2.1
+
+### Changed
+
+- **All packages bumped to 1.0.0** — semantic versioning stability guarantee: no breaking changes without a major version bump
+
 ## [0.4.0] - 2026-03-01
 
 ### Added

@@ -37,16 +37,16 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 ## Current Status
 
-**v0.4.0 shipped.** Token expiration, usage reporting, Stripe gateway, and updated documentation are live.
+**v1.0.0 shipped.** All packages are at 1.0.0 with semantic versioning stability guarantees. The library is production-ready with three gateways, PostgreSQL storage, token expiration, usage reporting, 90%+ test coverage, a security audit, and comprehensive documentation.
 
 | Package | Status |
 | --- | --- |
-| `@token-wallet/core` — wallet, ledger, checkout, types, errors | ✅ Done |
-| `@token-wallet/gateway-midtrans` | ✅ Done |
-| `@token-wallet/gateway-xendit` | ✅ Done |
-| `@token-wallet/gateway-stripe` | ✅ Done |
-| `@token-wallet/storage-drizzle` | ✅ Done |
-| `token-wallet` (meta-package) | ✅ Done |
+| `@token-wallet/core` — wallet, ledger, checkout, types, errors | ✅ 1.0.0 |
+| `@token-wallet/gateway-midtrans` | ✅ 1.0.0 |
+| `@token-wallet/gateway-xendit` | ✅ 1.0.0 |
+| `@token-wallet/gateway-stripe` | ✅ 1.0.0 |
+| `@token-wallet/storage-drizzle` | ✅ 1.0.0 |
+| `token-wallet` (meta-package) | ✅ 1.0.0 |
 | Tests (core + midtrans + xendit + stripe + integration) | ✅ 139+ tests |
 | Storage integration tests | ✅ Done (requires `DATABASE_URL`) |
 | Repo essentials (README, CONTRIBUTING, SECURITY, CHANGELOG) | ✅ Done |
@@ -54,6 +54,11 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 | Next.js example app | ✅ Done |
 | Token expiration (FIFO buckets) | ✅ Done |
 | Usage reporting | ✅ Done |
+| 90%+ test coverage in CI | ✅ Done |
+| Security audit | ✅ Done |
+| Performance benchmarks | ✅ Done |
+| Migration guide | ✅ Done |
+| Code of Conduct | ✅ Done |
 
 ---
 
@@ -236,11 +241,11 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 ### What to build
 
-- [ ] 90%+ test coverage enforced in CI
-- [ ] Security audit (webhook verification, idempotency, race conditions, SQL injection surface)
-- [ ] Performance benchmarks for high-throughput spend operations
-- [ ] `MIGRATION.md` — upgrade guides from each prior version
-- [ ] `CODE_OF_CONDUCT.md`
+- [x] 90%+ test coverage enforced in CI
+- [x] Security audit (webhook verification, idempotency, race conditions, SQL injection surface)
+- [x] Performance benchmarks for high-throughput spend operations
+- [x] `MIGRATION.md` — upgrade guides from each prior version
+- [x] `CODE_OF_CONDUCT.md`
 
 ---
 

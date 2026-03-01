@@ -1,6 +1,6 @@
 {
 	"name": "@token-wallet/storage-drizzle",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"type": "module",
 	"description": "Drizzle ORM storage adapter for token-wallet (PostgreSQL, MySQL, SQLite)",
 	"license": "MIT",

@@ -59,6 +59,23 @@
 - metadata as unvalidated string with no size limit - needs schema + validation
 - Ledger interface (exported) must be updated for expiresAt/metadata but plan doesn't show it
 
+## v1.0.0 Review Key Findings
+- TOCTOU races in spend() and ledger idempotency STILL not fixed at v1.0 planning stage
+- getUsageReport silently capped at 100 txns with hardcoded limit - data correctness bug
+- All packages at 0.0.1 - never published to npm - version history in CHANGELOG is narrative only
+- WebhookAction still missing 'failed' (flagged in v0.2.0 review, never addressed)
+- CheckoutSession still missing updatedAt (flagged in v0.4.0 review, never addressed)
+- CLAUDE.md still references deleted schemas.ts (flagged in v0.2.0 review, never fixed)
+- Changesets config: linked=[], fixed=[], updateInternalDependencies=patch, access=public
+- release.yml uses changesets/action - creates Release PR, then publishes on merge
+- expireTokens/getCheckouts/getTransactions throw bare Error, not TokenWalletError
+- InvalidAmountError reused for pagination validation (semantic mismatch)
+- token-wallet meta-package description/keywords don't mention Stripe
+- CHANGELOG.md is in .gitignore - needs git add -f
+- Benchmark files at monorepo root won't work without Turborepo bench task + vitest bench config
+- In-memory mock not exported - benchmarks can't import without fragile relative paths
+- 7 error classes now (added InvalidExpirationError, InvalidMetadataError in v0.4.0)
+
 ## Patterns & Conventions
 - Error codes: SCREAMING_SNAKE_CASE on readonly `code` field
 - All mutations require idempotencyKey
@@ -67,3 +84,5 @@
 - Biome: tabs (2 width), lineWidth 100, `any` banned
 - Pre-commit: biome check + turbo typecheck (lefthook)
 - CI: lint, typecheck, build, test (no docs build step currently)
+- pnpm-workspace.yaml: packages/*, apps/*, docs (no examples/*)
+- Vitest bench available (v3.2.4) but not configured in vitest.config.ts

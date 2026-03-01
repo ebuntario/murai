@@ -1,6 +1,6 @@
 {
 	"name": "token-wallet",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"type": "module",
 	"description": "Lightweight token wallet library for AI/SaaS apps — with Midtrans & Xendit support",
 	"license": "MIT",

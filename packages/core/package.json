@@ -1,6 +1,6 @@
 {
 	"name": "@token-wallet/core",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"type": "module",
 	"description": "Core wallet, ledger, and checkout manager for token-wallet",
 	"license": "MIT",

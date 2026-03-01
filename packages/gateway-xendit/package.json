@@ -1,6 +1,6 @@
 {
 	"name": "@token-wallet/gateway-xendit",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"type": "module",
 	"description": "Xendit Checkout payment gateway adapter for token-wallet",
 	"license": "MIT",
