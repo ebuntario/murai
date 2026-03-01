@@ -42,6 +42,7 @@
 	"dependencies": {
 		"@token-wallet/core": "workspace:*",
 		"@token-wallet/gateway-midtrans": "workspace:*",
+		"@token-wallet/gateway-stripe": "workspace:*",
 		"@token-wallet/gateway-xendit": "workspace:*",
 		"@token-wallet/storage-drizzle": "workspace:*"
 	}
