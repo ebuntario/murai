@@ -21,6 +21,17 @@
 	},
 	"files": ["dist"],
 	"sideEffects": false,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ebuntario/murai.git",
+		"directory": "packages/gateway-xendit"
+	},
+	"homepage": "https://ebuntario.github.io/murai",
+	"bugs": "https://github.com/ebuntario/murai/issues",
+	"keywords": ["xendit", "payment", "gateway", "indonesia", "checkout"],
+	"engines": {
+		"node": ">=22"
+	},
 	"scripts": {
 		"build": "tsup",
 		"dev": "tsup --watch",

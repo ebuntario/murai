@@ -21,6 +21,14 @@
 	},
 	"files": ["dist"],
 	"sideEffects": false,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ebuntario/murai.git",
+		"directory": "packages/gateway-stripe"
+	},
+	"homepage": "https://ebuntario.github.io/murai",
+	"bugs": "https://github.com/ebuntario/murai/issues",
+	"keywords": ["stripe", "payment", "gateway", "checkout"],
 	"scripts": {
 		"build": "tsup",
 		"dev": "tsup --watch",

@@ -21,6 +21,14 @@
 	},
 	"files": ["dist"],
 	"sideEffects": false,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ebuntario/murai.git",
+		"directory": "packages/gateway-midtrans"
+	},
+	"homepage": "https://ebuntario.github.io/murai",
+	"bugs": "https://github.com/ebuntario/murai/issues",
+	"keywords": ["midtrans", "payment", "gateway", "indonesia", "snap"],
 	"scripts": {
 		"build": "tsup",
 		"dev": "tsup --watch",

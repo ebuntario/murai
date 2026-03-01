@@ -3,7 +3,7 @@
 ## Setup
 
 ```bash
-git clone https://github.com/user/murai.git
+git clone https://github.com/ebuntario/murai.git
 cd murai
 pnpm install
 pnpm build

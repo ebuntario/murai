@@ -2,7 +2,7 @@
 	"name": "murai",
 	"version": "1.0.0",
 	"type": "module",
-	"description": "Lightweight token wallet library for AI/SaaS apps — with Midtrans & Xendit support",
+	"description": "Lightweight token wallet library for AI/SaaS apps — with Midtrans, Xendit & Stripe support",
 	"license": "MIT",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
@@ -21,6 +21,13 @@
 	},
 	"files": ["dist"],
 	"sideEffects": false,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ebuntario/murai.git",
+		"directory": "packages/murai"
+	},
+	"homepage": "https://ebuntario.github.io/murai",
+	"bugs": "https://github.com/ebuntario/murai/issues",
 	"keywords": [
 		"token",
 		"wallet",
@@ -28,6 +35,9 @@
 		"billing",
 		"midtrans",
 		"xendit",
+		"stripe",
+		"payment",
+		"gateway",
 		"indonesia",
 		"ai",
 		"saas"
@@ -38,6 +48,9 @@
 		"typecheck": "tsc --noEmit",
 		"test": "vitest run --passWithNoTests",
 		"clean": "rm -rf dist"
+	},
+	"engines": {
+		"node": ">=22"
 	},
 	"dependencies": {
 		"@murai/core": "workspace:*",

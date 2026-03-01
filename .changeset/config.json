@@ -1,9 +1,18 @@
 {
 	"$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
-	"changelog": "@changesets/cli/changelog",
+	"changelog": ["@changesets/changelog-github", { "repo": "ebuntario/murai" }],
 	"commit": false,
 	"fixed": [],
-	"linked": [],
+	"linked": [
+		[
+			"@murai/core",
+			"@murai/gateway-midtrans",
+			"@murai/gateway-xendit",
+			"@murai/gateway-stripe",
+			"@murai/storage-drizzle",
+			"murai"
+		]
+	],
 	"access": "public",
 	"baseBranch": "main",
 	"updateInternalDependencies": "patch",

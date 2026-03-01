@@ -4,7 +4,9 @@
 
 Add credit-based billing to any app in under 30 minutes — with first-class support for Indonesian payment gateways.
 
-[![CI](https://github.com/user/murai/actions/workflows/ci.yml/badge.svg)](https://github.com/user/murai/actions/workflows/ci.yml)
+[![CI](https://github.com/ebuntario/murai/actions/workflows/ci.yml/badge.svg)](https://github.com/ebuntario/murai/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/murai.svg)](https://www.npmjs.com/package/murai)
+[![npm downloads](https://img.shields.io/npm/dm/murai.svg)](https://www.npmjs.com/package/murai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
@@ -219,12 +221,12 @@ Webhook verification uses `crypto.timingSafeEqual` to prevent timing attacks. Se
 
 Full documentation with guides, API reference, and tutorials:
 
-- [Installation](./docs/src/content/docs/getting-started/installation.mdx)
-- [Quick Start](./docs/src/content/docs/getting-started/quickstart.mdx)
-- [Next.js Integration](./docs/src/content/docs/guides/nextjs-integration.mdx)
-- [Webhook Verification](./docs/src/content/docs/guides/webhook-verification.mdx)
-- [Architecture](./docs/src/content/docs/guides/architecture.mdx)
-- [API Reference](./docs/src/content/docs/api-reference/core.mdx)
+- [Installation](https://ebuntario.github.io/murai/getting-started/installation/)
+- [Quick Start](https://ebuntario.github.io/murai/getting-started/quickstart/)
+- [Next.js Integration](https://ebuntario.github.io/murai/guides/nextjs-integration/)
+- [Webhook Verification](https://ebuntario.github.io/murai/guides/webhook-verification/)
+- [Architecture](https://ebuntario.github.io/murai/guides/architecture/)
+- [API Reference](https://ebuntario.github.io/murai/api-reference/core/)
 
 ### Example app
 

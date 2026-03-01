@@ -1,6 +1,6 @@
 # Murai — Next.js Example
 
-A working example of [murai](https://github.com/user/murai) integrated with Next.js 15 App Router and Midtrans Snap.
+A working example of [murai](https://github.com/ebuntario/murai) integrated with Next.js 15 App Router and Midtrans Snap.
 
 ## What's included
 
@@ -24,7 +24,7 @@ cd examples/nextjs
 pnpm install
 ```
 
-1. **Create `.env.local`** (copy from `.env.example`):
+2. **Create `.env.local`** (copy from `.env.example`):
 
 ```bash
 DATABASE_URL=postgres://user:pass@host/dbname
@@ -33,7 +33,7 @@ MIDTRANS_CLIENT_KEY=SB-Mid-client-...
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
 
-1. **Create database tables:**
+3. **Create database tables:**
 
 ```sql
 CREATE TABLE wallets (
@@ -60,7 +60,7 @@ CREATE TABLE checkouts (
 );
 ```
 
-1. **Run:**
+4. **Run:**
 
 ```bash
 pnpm dev

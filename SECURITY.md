@@ -6,7 +6,7 @@ If you discover a security vulnerability in Murai, please report it responsibly.
 
 **Do not open a public GitHub issue for security vulnerabilities.**
 
-Instead, email the maintainers directly with:
+Instead, please use [GitHub's private vulnerability reporting](https://github.com/ebuntario/murai/security/advisories/new) with:
 
 1. A description of the vulnerability
 2. Steps to reproduce

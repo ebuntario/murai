@@ -38,7 +38,6 @@ pnpm --filter @murai/core typecheck
 | `checkout.ts` | Payment gateway abstraction, webhook handling |
 | `errors.ts` | Typed error hierarchy (`InsufficientBalanceError`, etc.) |
 | `types.ts` | Public TypeScript interfaces |
-| `schemas.ts` | Zod validation schemas |
 
 ### Monorepo packages
 

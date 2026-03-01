@@ -2,7 +2,7 @@
 	"name": "@murai/storage-drizzle",
 	"version": "1.0.0",
 	"type": "module",
-	"description": "Drizzle ORM storage adapter for murai (PostgreSQL, MySQL, SQLite)",
+	"description": "Drizzle ORM storage adapter for murai (PostgreSQL)",
 	"license": "MIT",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
@@ -21,6 +21,17 @@
 	},
 	"files": ["dist"],
 	"sideEffects": false,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ebuntario/murai.git",
+		"directory": "packages/storage-drizzle"
+	},
+	"homepage": "https://ebuntario.github.io/murai",
+	"bugs": "https://github.com/ebuntario/murai/issues",
+	"keywords": ["drizzle", "orm", "storage", "postgresql", "database"],
+	"engines": {
+		"node": ">=22"
+	},
 	"scripts": {
 		"build": "tsup",
 		"dev": "tsup --watch",
