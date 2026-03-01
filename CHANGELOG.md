@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-03-01
+
+### Added
+
+- **FIFO bucket-based token expiration** — `topUp` accepts optional `expiresAt` date; spends consume earliest-expiring buckets first (NULLS LAST for non-expiring credits)
+- **`expireTokens(userId)`** — atomically debits remaining tokens from expired credit buckets; idempotent (safe to call repeatedly)
+- **Usage reporting** — `getUsageReport(userId, { from, to })` aggregates credits, debits, and provider cost over a date range
+- **Spend/topUp metadata** — optional `metadata` parameter (JSON string, <4KB) on `spend` and `topUp`; `cost` field convention for recording AI provider cost
+- **Stripe Checkout gateway adapter** (`@token-wallet/gateway-stripe`) — `createCheckout`, `verifyWebhook` (HMAC-SHA256 with `rawBody`), `parseWebhookPayload`, `getPaymentStatus`
+- **`rawBody` parameter on `verifyWebhook`** — `PaymentGatewayAdapter.verifyWebhook` now accepts optional third `rawBody` parameter (required by Stripe, ignored by Midtrans/Xendit)
+- **New error types** — `InvalidExpirationError` (past `expiresAt`), `InvalidMetadataError` (invalid JSON, oversized, bad `cost`)
+- **New types** — `ExpireResult`, `UsageReport`
+- **Date range filtering** — `TransactionQuery` now supports `from` and `to` for date-based queries
+- **Drizzle schema columns** — `expires_at`, `remaining`, `expired_at`, `metadata` on transactions table
+- **Drizzle `expireCredits`** — atomic credit expiration with row locking
+- **Drizzle `getUsersWithExpirableCredits`** — find users with credits ready to expire
+- **Documentation** — Token Expiration guide, Usage Reporting guide, Stripe API reference, updated all existing docs
+- **21 Stripe adapter tests** — webhook verification, status mapping, createCheckout, getPaymentStatus
+- **139+ total tests** across all packages
+
+### Changed
+
+- **`Wallet.spend` signature** — added optional `options?: { metadata?: string }` parameter
+- **`Wallet.topUp` signature** — added optional `options?: { expiresAt?: Date; metadata?: string }` parameter
+- **`CheckoutManager.handleWebhook` params** — added optional `rawBody?: string | Buffer`
+- **`LedgerEntry` interface** — added `expiresAt`, `remaining`, `expiredAt`, `metadata` fields (all optional, backward compatible)
+- **`StorageAdapter` interface** — added optional `expireCredits` and `getUsersWithExpirableCredits` methods
+
+## [0.3.0] - 2026-03-01
+
+### Added
+
+- **Documentation site** — Starlight (Astro) docs with 13 pages: installation, quickstart, project structure, architecture, webhook verification, choosing a gateway, Next.js integration, and full API reference (core, midtrans, xendit, drizzle, types, errors)
+- **Next.js example app** (`examples/nextjs/`) — standalone Next.js 15 App Router demo with Tailwind CSS, Midtrans Snap, balance display, top-up/spend actions, webhook handler, and transaction history
+- **Typechecked code examples** — `docs/src/examples/*.ts` files imported via `?raw` into MDX pages; CI build catches stale examples
+- **Pagefind search** — full-text search across all documentation pages
+- **Hono webhook snippet** — code example in Next.js integration guide (no separate app)
+
+### Changed
+
+- **`pnpm-workspace.yaml`** — added `docs` workspace, removed `examples/*` (example app is standalone)
+
 ## [0.2.0] - 2026-02-28
 
 ### Added

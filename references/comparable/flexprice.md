@@ -1,4 +1,5 @@
 # Flexprice - README Reference
+
 **Source:** github.com/flexprice/flexprice | **Stars:** 3,500+ | **License:** AGPL v3 + Commercial
 
 ## Key Patterns to Learn From

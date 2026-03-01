@@ -1,4 +1,5 @@
 # Lago - README Reference
+
 **Source:** github.com/getlago/lago | **Stars:** 12,000+ | **License:** AGPL v3
 
 ## Key Patterns to Learn From

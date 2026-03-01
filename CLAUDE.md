@@ -20,6 +20,7 @@ pnpm changeset            # Create a changeset for versioning
 ```
 
 ### Single package
+
 ```bash
 pnpm --filter @token-wallet/core build
 pnpm --filter @token-wallet/core test
@@ -31,7 +32,7 @@ pnpm --filter @token-wallet/core typecheck
 ### Three core modules (`packages/core/src/`)
 
 | File | Responsibility |
-|---|---|
+| --- | --- |
 | `wallet.ts` | Public API: `getBalance`, `canSpend`, `spend`, `topUp` |
 | `ledger.ts` | Append-only transaction log, double-entry accounting |
 | `checkout.ts` | Payment gateway abstraction, webhook handling |
@@ -50,6 +51,7 @@ pnpm --filter @token-wallet/core typecheck
 ### Key patterns
 
 **Functional DI (not class hierarchies):**
+
 ```ts
 export function createWallet(config: WalletConfig): Wallet {
   const storage = resolveStorage(config.storage, config.storageConfig);
@@ -59,6 +61,7 @@ export function createWallet(config: WalletConfig): Wallet {
 ```
 
 **Typed domain errors:**
+
 ```ts
 export class InsufficientBalanceError extends TokenWalletError { ... }
 export class WebhookVerificationError extends TokenWalletError { ... }

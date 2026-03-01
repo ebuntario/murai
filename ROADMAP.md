@@ -37,19 +37,23 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 ## Current Status
 
-**v0.2.0 shipped.** Core, Midtrans Snap, Xendit Checkout, and Drizzle storage are fully implemented with 100+ tests. All packages build, typecheck, and pass Biome lint.
+**v0.4.0 shipped.** Token expiration, usage reporting, Stripe gateway, and updated documentation are live.
 
 | Package | Status |
 | --- | --- |
 | `@token-wallet/core` — wallet, ledger, checkout, types, errors | ✅ Done |
 | `@token-wallet/gateway-midtrans` | ✅ Done |
 | `@token-wallet/gateway-xendit` | ✅ Done |
+| `@token-wallet/gateway-stripe` | ✅ Done |
 | `@token-wallet/storage-drizzle` | ✅ Done |
 | `token-wallet` (meta-package) | ✅ Done |
-| Tests (core + midtrans + xendit + integration) | ✅ 100+ tests |
+| Tests (core + midtrans + xendit + stripe + integration) | ✅ 139+ tests |
 | Storage integration tests | ✅ Done (requires `DATABASE_URL`) |
 | Repo essentials (README, CONTRIBUTING, SECURITY, CHANGELOG) | ✅ Done |
-| Documentation site | 🔲 v0.3.0 |
+| Documentation site (Starlight) | ✅ Done |
+| Next.js example app | ✅ Done |
+| Token expiration (FIFO buckets) | ✅ Done |
+| Usage reporting | ✅ Done |
 
 ---
 
@@ -122,7 +126,7 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 - [x] `parseWebhookPayload` — map Xendit statuses to `WebhookStatus`
 - [x] `getPaymentStatus` — poll Xendit invoice status
 
-**Midtrans improvements**
+#### Midtrans improvements
 
 - [x] `getPaymentStatus` — poll Midtrans Status API for payment status
 - [x] Timing-safe webhook verification (`crypto.timingSafeEqual`)
@@ -162,23 +166,28 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 ### What users get
 
-- Working example apps to copy from
-- Documentation site with full API reference and guides
+- Working Next.js example app to copy from
+- Documentation site with full API reference and guides (Starlight)
+- Hono webhook snippet in docs (no separate app)
 
 ### What to build
 
 #### Example apps
 
-- [ ] `examples/nextjs/` — Next.js App Router: top-up flow, webhook route, balance display, spend on AI call
-- [ ] `examples/hono/` — Hono API: same flow, minimal setup
+- [x] `examples/nextjs/` — Next.js App Router: top-up flow, webhook route, balance display, spend action
+- [x] Hono webhook snippet in Next.js integration guide
 
 #### Documentation site
 
-- [ ] Quickstart guide (5 minutes to working wallet)
-- [ ] API reference (auto-generated from types + hand-written descriptions)
-- [ ] "How webhook verification works" guide
-- [ ] "Choosing between Midtrans and Xendit" guide
-- [ ] Architecture explainer (ledger, idempotency, race conditions)
+- [x] Starlight docs site (`docs/`) with Pagefind search
+- [x] Quickstart guide (5 minutes to working wallet)
+- [x] Hand-written API reference (6 pages — core, midtrans, xendit, drizzle, types, errors)
+- [x] "How webhook verification works" guide
+- [x] "Choosing between Midtrans and Xendit" guide
+- [x] Architecture explainer (ledger, idempotency, race conditions)
+- [x] Next.js integration guide (references example app)
+- [x] Installation guide, project structure page
+- [x] Typechecked code examples (`docs/src/examples/*.ts` with `?raw` imports)
 
 ---
 
@@ -196,19 +205,22 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 #### Token expiration
 
-- [ ] `expires_at` field on credits
-- [ ] `expireTokens()` job — callable by a cron, marks expired credits in the ledger
-- [ ] `getBalance()` respects expiration automatically
+- [x] FIFO bucket-based expiration — each `topUp` creates a bucket with `remaining` and optional `expiresAt`
+- [x] `expireTokens()` job — callable by a cron, atomically debits remaining tokens from expired buckets
+- [x] FIFO spend ordering — earliest-expiring buckets consumed first, NULLS LAST for non-expiring
 
-#### Margin reporting
+#### Usage reporting
 
-- [ ] `getMarginReport(userId, dateRange)` — revenue collected vs. cost recorded in metadata
-- [ ] Structured `metadata` convention for recording AI provider cost at spend time
+- [x] `getUsageReport(userId, dateRange)` — aggregates credits, debits, and provider cost over a date range
+- [x] Structured `metadata` convention for recording AI provider cost at spend time (`{ "cost": 0.05 }`)
+- [x] Metadata validation — valid JSON, <4KB, cost must be non-negative finite number
 
-**Stripe gateway adapter (`@token-wallet/gateway-stripe`)**
+**Stripe gateway adapter (`@token-wallet/gateway-stripe`)** (added beyond original scope)
 
-- [ ] `createCheckout` — Stripe Checkout Session
-- [ ] `verifyWebhook` — Stripe HMAC signature verification
+- [x] `createCheckout` — Stripe Checkout Sessions API (form-encoded)
+- [x] `verifyWebhook` — HMAC-SHA256 with `rawBody`, 5-minute timestamp tolerance
+- [x] `parseWebhookPayload` — `checkout.session.completed` and `checkout.session.expired`
+- [x] `getPaymentStatus` — maps Stripe `payment_status` to `WebhookStatus`
 
 ---
 

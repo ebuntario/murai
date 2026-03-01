@@ -18,17 +18,19 @@ Token Wallet handles all of that so you can focus on your product:
 - **Atomic balance operations** — no overdrafts, no double-charges, ever
 - **Append-only ledger** — every transaction is permanently recorded and auditable
 - **Idempotent webhooks** — safe under retry storms from any gateway
-- **Gateway-agnostic** — swap Midtrans for Xendit (or both) without changing your wallet code
-- **Transaction history** — paginated queries with type and status filtering
+- **Gateway-agnostic** — Midtrans, Xendit, and Stripe built-in; add your own with a simple interface
+- **Token expiration** — FIFO bucket-based credit expiration with `expireTokens()` cron job
+- **Usage reporting** — track provider cost metadata and generate usage reports
+- **Transaction history** — paginated queries with type, status, and date filtering
 - **Timing-safe verification** — `crypto.timingSafeEqual` on all webhook signatures
 
 ## Supported Gateways
 
 | Gateway | Status | Payment Methods |
-|---|---|---|
+| --- | --- | --- |
 | **Midtrans Snap** | Stable | GoPay, ShopeePay, QRIS, bank transfer, credit card |
 | **Xendit Checkout** | Stable | OVO, DANA, ShopeePay, QRIS, virtual accounts |
-| **Stripe** | [Planned (v0.4)](./ROADMAP.md) | Global card payments |
+| **Stripe Checkout** | Stable | Global card payments, Apple Pay, Google Pay |
 
 Custom gateways can be added by implementing the `PaymentGatewayAdapter` interface.
 
@@ -147,16 +149,17 @@ const checkouts = await wallet.getCheckouts('user_123', {
 ## Packages
 
 | Package | Description |
-|---|---|
+| --- | --- |
 | [`token-wallet`](./packages/token-wallet) | Meta-package — single install, re-exports everything |
 | [`@token-wallet/core`](./packages/core) | Wallet, ledger, checkout manager, types, errors |
 | [`@token-wallet/gateway-midtrans`](./packages/gateway-midtrans) | Midtrans Snap adapter |
+| [`@token-wallet/gateway-stripe`](./packages/gateway-stripe) | Stripe Checkout adapter |
 | [`@token-wallet/gateway-xendit`](./packages/gateway-xendit) | Xendit Checkout adapter |
 | [`@token-wallet/storage-drizzle`](./packages/storage-drizzle) | Drizzle ORM storage (PostgreSQL) |
 
 ## Architecture
 
-```
+```text
 ┌──────────────┐     ┌──────────────┐     ┌──────────────────┐
 │   Your App   │────▶│    Wallet    │────▶│  Ledger (core)   │
 │              │     │   (core)     │     │  append-only log │
@@ -171,10 +174,11 @@ const checkouts = await wallet.getCheckouts('user_123', {
                      │   Gateway   │        │   Drizzle   │
                      │   Adapter   │        │ PostgreSQL  │
                      └─────────────┘        └─────────────┘
-                     Midtrans │ Xendit
+                  Midtrans │ Stripe │ Xendit
 ```
 
 **Key invariants:**
+
 - Ledger entries are append-only — never updated or deleted
 - Balance reads during writes use `SELECT FOR UPDATE` (row-level locking)
 - All webhook credits use idempotency keys derived from the order ID
@@ -182,12 +186,13 @@ const checkouts = await wallet.getCheckouts('user_123', {
 ## API Reference
 
 | Function | Returns |
-|---|---|
-| `createWallet({ storage })` | `{ getBalance, canSpend, spend, topUp, getTransactions, getCheckouts }` |
+| --- | --- |
+| `createWallet({ storage })` | `{ getBalance, canSpend, spend, topUp, expireTokens, getUsageReport, getTransactions, getCheckouts }` |
 | `createLedger(storage)` | `{ credit, debit, getBalance, getTransactions }` |
 | `createCheckoutManager(gateway, ledger, storage)` | `{ createSession, handleWebhook }` |
 | `createDrizzleStorage(db)` | `StorageAdapter` implementation |
 | `createMidtransGateway(config)` | `PaymentGatewayAdapter` with `getPaymentStatus` |
+| `createStripeGateway(config)` | `PaymentGatewayAdapter` with `getPaymentStatus` |
 | `createXenditGateway(config)` | `PaymentGatewayAdapter` with `getPaymentStatus` |
 
 ## Development
@@ -206,9 +211,24 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full development guide.
 
 Webhook verification uses `crypto.timingSafeEqual` to prevent timing attacks. See [SECURITY.md](./SECURITY.md) for our disclosure process.
 
+## Documentation
+
+Full documentation with guides, API reference, and tutorials:
+
+- [Installation](./docs/src/content/docs/getting-started/installation.mdx)
+- [Quick Start](./docs/src/content/docs/getting-started/quickstart.mdx)
+- [Next.js Integration](./docs/src/content/docs/guides/nextjs-integration.mdx)
+- [Webhook Verification](./docs/src/content/docs/guides/webhook-verification.mdx)
+- [Architecture](./docs/src/content/docs/guides/architecture.mdx)
+- [API Reference](./docs/src/content/docs/api-reference/core.mdx)
+
+### Example app
+
+A working Next.js example is available at [`examples/nextjs/`](./examples/nextjs) — includes dashboard, top-up flow, webhook handler, and spend action.
+
 ## Roadmap
 
-See [ROADMAP.md](./ROADMAP.md) for planned features (Stripe gateway, token expiration, example apps).
+See [ROADMAP.md](./ROADMAP.md) for planned features.
 
 ## License
 
