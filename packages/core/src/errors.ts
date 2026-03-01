@@ -47,6 +47,22 @@ export class InvalidAmountError extends TokenWalletError {
 	}
 }
 
+export class InvalidExpirationError extends TokenWalletError {
+	readonly code = 'INVALID_EXPIRATION';
+
+	constructor(public readonly expiresAt: Date) {
+		super(`Expiration date must be in the future, got: ${expiresAt.toISOString()}`);
+	}
+}
+
+export class InvalidMetadataError extends TokenWalletError {
+	readonly code = 'INVALID_METADATA';
+
+	constructor(public readonly reason: string) {
+		super(`Invalid metadata: ${reason}`);
+	}
+}
+
 export class GatewayError extends TokenWalletError {
 	readonly code = 'GATEWAY_ERROR';
 

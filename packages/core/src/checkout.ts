@@ -16,7 +16,11 @@ export interface CheckoutManager {
 		successRedirectUrl: string;
 		failureRedirectUrl: string;
 	}): Promise<CheckoutSession>;
-	handleWebhook(params: { payload: unknown; signature: string }): Promise<WebhookResult>;
+	handleWebhook(params: {
+		payload: unknown;
+		signature: string;
+		rawBody?: string | Buffer;
+	}): Promise<WebhookResult>;
 }
 
 export function createCheckoutManager(
@@ -38,9 +42,10 @@ export function createCheckoutManager(
 	async function handleWebhook(params: {
 		payload: unknown;
 		signature: string;
+		rawBody?: string | Buffer;
 	}): Promise<WebhookResult> {
 		// 1. Verify signature
-		const valid = await gateway.verifyWebhook(params.payload, params.signature);
+		const valid = await gateway.verifyWebhook(params.payload, params.signature, params.rawBody);
 		if (!valid) {
 			throw new WebhookVerificationError();
 		}

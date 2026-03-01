@@ -7,9 +7,28 @@
 import { IdempotencyConflictError, InvalidAmountError } from './errors.js';
 import type { LedgerEntry, StorageAdapter, TransactionQuery } from './types.js';
 
+export interface CreditOptions {
+	expiresAt?: Date;
+	metadata?: string;
+}
+
+export interface DebitOptions {
+	metadata?: string;
+}
+
 export interface Ledger {
-	credit(userId: string, amount: number, idempotencyKey: string): Promise<LedgerEntry>;
-	debit(userId: string, amount: number, idempotencyKey: string): Promise<LedgerEntry>;
+	credit(
+		userId: string,
+		amount: number,
+		idempotencyKey: string,
+		options?: CreditOptions,
+	): Promise<LedgerEntry>;
+	debit(
+		userId: string,
+		amount: number,
+		idempotencyKey: string,
+		options?: DebitOptions,
+	): Promise<LedgerEntry>;
 	getBalance(userId: string): Promise<number>;
 	getTransactions(userId: string, query?: TransactionQuery): Promise<LedgerEntry[]>;
 }
@@ -19,6 +38,7 @@ export function createLedger(storage: StorageAdapter): Ledger {
 		userId: string,
 		amount: number,
 		idempotencyKey: string,
+		options?: CreditOptions,
 	): Promise<LedgerEntry> {
 		if (!Number.isInteger(amount) || amount <= 0) {
 			throw new InvalidAmountError(amount);
@@ -27,13 +47,21 @@ export function createLedger(storage: StorageAdapter): Ledger {
 		if (existing) {
 			throw new IdempotencyConflictError(idempotencyKey);
 		}
-		return storage.appendEntry({ userId, amount, idempotencyKey });
+		return storage.appendEntry({
+			userId,
+			amount,
+			idempotencyKey,
+			expiresAt: options?.expiresAt ?? null,
+			remaining: amount,
+			metadata: options?.metadata ?? null,
+		});
 	}
 
 	async function debit(
 		userId: string,
 		amount: number,
 		idempotencyKey: string,
+		options?: DebitOptions,
 	): Promise<LedgerEntry> {
 		if (!Number.isInteger(amount) || amount <= 0) {
 			throw new InvalidAmountError(amount);
@@ -42,7 +70,12 @@ export function createLedger(storage: StorageAdapter): Ledger {
 		if (existing) {
 			throw new IdempotencyConflictError(idempotencyKey);
 		}
-		return storage.appendEntry({ userId, amount: -amount, idempotencyKey });
+		return storage.appendEntry({
+			userId,
+			amount: -amount,
+			idempotencyKey,
+			metadata: options?.metadata ?? null,
+		});
 	}
 
 	async function getTransactions(userId: string, query?: TransactionQuery): Promise<LedgerEntry[]> {
