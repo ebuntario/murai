@@ -18,4 +18,5 @@ await wallet.spend('user_123', 2_000, 'usage-xyz');
 
 // Run this via cron (e.g., daily) to expire old credits
 const result = await wallet.expireTokens('user_123');
+// biome-ignore lint/suspicious/noConsole: example script
 console.log(`Expired ${result.expiredCount} buckets, ${result.expiredAmount} tokens`);

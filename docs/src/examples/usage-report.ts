@@ -18,7 +18,11 @@ const report = await wallet.getUsageReport('user_123', {
 	to: new Date(),
 });
 
+// biome-ignore lint/suspicious/noConsole: example script
 console.log(`Credits: ${report.totalCredits}`);
+// biome-ignore lint/suspicious/noConsole: example script
 console.log(`Debits: ${report.totalDebits}`);
+// biome-ignore lint/suspicious/noConsole: example script
 console.log(`Provider cost: $${report.totalProviderCost.toFixed(4)}`);
+// biome-ignore lint/suspicious/noConsole: example script
 console.log(`Transactions: ${report.transactionCount}`);
