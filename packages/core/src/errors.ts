@@ -1,6 +1,6 @@
-// Typed error hierarchy for @token-wallet/core
+// Typed error hierarchy for @murai/core
 
-export abstract class TokenWalletError extends Error {
+export abstract class MuraiError extends Error {
 	abstract readonly code: string;
 
 	constructor(message: string) {
@@ -9,7 +9,7 @@ export abstract class TokenWalletError extends Error {
 	}
 }
 
-export class InsufficientBalanceError extends TokenWalletError {
+export class InsufficientBalanceError extends MuraiError {
 	readonly code = 'INSUFFICIENT_BALANCE';
 
 	constructor(
@@ -23,7 +23,7 @@ export class InsufficientBalanceError extends TokenWalletError {
 	}
 }
 
-export class IdempotencyConflictError extends TokenWalletError {
+export class IdempotencyConflictError extends MuraiError {
 	readonly code = 'IDEMPOTENCY_CONFLICT';
 
 	constructor(public readonly idempotencyKey: string) {
@@ -31,7 +31,7 @@ export class IdempotencyConflictError extends TokenWalletError {
 	}
 }
 
-export class WebhookVerificationError extends TokenWalletError {
+export class WebhookVerificationError extends MuraiError {
 	readonly code = 'WEBHOOK_VERIFICATION_FAILED';
 
 	constructor(message = 'Webhook signature verification failed') {
@@ -39,7 +39,7 @@ export class WebhookVerificationError extends TokenWalletError {
 	}
 }
 
-export class InvalidAmountError extends TokenWalletError {
+export class InvalidAmountError extends MuraiError {
 	readonly code = 'INVALID_AMOUNT';
 
 	constructor(public readonly amount: number) {
@@ -47,7 +47,7 @@ export class InvalidAmountError extends TokenWalletError {
 	}
 }
 
-export class InvalidExpirationError extends TokenWalletError {
+export class InvalidExpirationError extends MuraiError {
 	readonly code = 'INVALID_EXPIRATION';
 
 	constructor(public readonly expiresAt: Date) {
@@ -55,7 +55,7 @@ export class InvalidExpirationError extends TokenWalletError {
 	}
 }
 
-export class InvalidMetadataError extends TokenWalletError {
+export class InvalidMetadataError extends MuraiError {
 	readonly code = 'INVALID_METADATA';
 
 	constructor(public readonly reason: string) {
@@ -63,7 +63,7 @@ export class InvalidMetadataError extends TokenWalletError {
 	}
 }
 
-export class GatewayError extends TokenWalletError {
+export class GatewayError extends MuraiError {
 	readonly code = 'GATEWAY_ERROR';
 
 	constructor(

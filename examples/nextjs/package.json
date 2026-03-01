@@ -1,5 +1,5 @@
 {
-	"name": "token-wallet-nextjs-example",
+	"name": "murai-nextjs-example",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
@@ -14,7 +14,7 @@
 		"postgres": "^3.4.0",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
-		"token-wallet": "^0.2.0"
+		"murai": "^0.2.0"
 	},
 	"devDependencies": {
 		"@types/node": "^22.0.0",

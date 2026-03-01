@@ -1,5 +1,5 @@
 {
-	"name": "token-wallet-monorepo",
+	"name": "murai-monorepo",
 	"private": true,
 	"type": "module",
 	"packageManager": "pnpm@10.4.1",

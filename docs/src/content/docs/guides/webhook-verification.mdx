@@ -15,7 +15,7 @@ Midtrans sends a `signature_key` in the webhook body, computed as:
 SHA512(order_id + status_code + gross_amount + server_key)
 ```
 
-Token Wallet recomputes this hash from the payload fields and your server key, then compares using `crypto.timingSafeEqual`:
+Murai recomputes this hash from the payload fields and your server key, then compares using `crypto.timingSafeEqual`:
 
 ```ts
 const hash = createHash('sha512')
@@ -42,7 +42,7 @@ const result = await checkout.handleWebhook({
 
 ### Xendit — Callback token
 
-Xendit uses a simpler approach: a shared secret sent in the `x-callback-token` header. Token Wallet compares it using `crypto.timingSafeEqual`:
+Xendit uses a simpler approach: a shared secret sent in the `x-callback-token` header. Murai compares it using `crypto.timingSafeEqual`:
 
 ```ts
 const sigBuf = Buffer.from(signature);
@@ -78,7 +78,7 @@ A naive `===` comparison returns `false` at the first mismatched byte. An attack
 
 Not all webhooks mean "payment succeeded." Gateways send webhooks for expired, failed, and pending statuses too.
 
-Token Wallet handles these automatically:
+Murai handles these automatically:
 - **`success`** → credit the ledger, mark checkout as `paid`
 - **`expired` / `failed`** → mark checkout as `failed` (no credit)
 - **`pending`** → skip (no action needed)

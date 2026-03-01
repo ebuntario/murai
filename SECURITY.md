@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in Token Wallet, please report it responsibly.
+If you discover a security vulnerability in Murai, please report it responsibly.
 
 **Do not open a public GitHub issue for security vulnerabilities.**
 
@@ -27,7 +27,7 @@ The following are in scope for security reports:
 
 ## Security Measures
 
-Token Wallet implements the following security measures:
+Murai implements the following security measures:
 
 - **Timing-safe webhook verification** — `crypto.timingSafeEqual` for both Midtrans (SHA512) and Xendit (callback token)
 - **Idempotency keys** — unique constraints at both application and database levels

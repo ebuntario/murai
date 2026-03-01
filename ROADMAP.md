@@ -1,6 +1,6 @@
-# Token Wallet — Roadmap
+# Murai — Roadmap
 
-- [Token Wallet — Roadmap](#token-wallet--roadmap)
+- [Murai — Roadmap](#murai--roadmap)
   - [Current Status](#current-status)
   - [v0.1.0 — Minimum Viable Library](#v010--minimum-viable-library)
     - [What users get](#what-users-get)
@@ -41,12 +41,12 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 | Package | Status |
 | --- | --- |
-| `@token-wallet/core` — wallet, ledger, checkout, types, errors | ✅ 1.0.0 |
-| `@token-wallet/gateway-midtrans` | ✅ 1.0.0 |
-| `@token-wallet/gateway-xendit` | ✅ 1.0.0 |
-| `@token-wallet/gateway-stripe` | ✅ 1.0.0 |
-| `@token-wallet/storage-drizzle` | ✅ 1.0.0 |
-| `token-wallet` (meta-package) | ✅ 1.0.0 |
+| `@murai/core` — wallet, ledger, checkout, types, errors | ✅ 1.0.0 |
+| `@murai/gateway-midtrans` | ✅ 1.0.0 |
+| `@murai/gateway-xendit` | ✅ 1.0.0 |
+| `@murai/gateway-stripe` | ✅ 1.0.0 |
+| `@murai/storage-drizzle` | ✅ 1.0.0 |
+| `murai` (meta-package) | ✅ 1.0.0 |
 | Tests (core + midtrans + xendit + stripe + integration) | ✅ 139+ tests |
 | Storage integration tests | ✅ Done (requires `DATABASE_URL`) |
 | Repo essentials (README, CONTRIBUTING, SECURITY, CHANGELOG) | ✅ Done |
@@ -75,21 +75,21 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 ### What to build
 
-**Storage adapter (`@token-wallet/storage-drizzle`)**
+**Storage adapter (`@murai/storage-drizzle`)**
 
 - [x] Drizzle schema: `wallets`, `transactions`, `checkouts` tables (BIGINT for IDR amounts)
 - [x] `StorageAdapter` implementation with `SELECT FOR UPDATE` on balance reads
 - [x] Idempotency key deduplication at the DB level (UNIQUE constraint + `IdempotencyConflictError`)
 - [ ] MySQL and SQLite dialect support (PostgreSQL only for now)
 
-**Midtrans gateway adapter (`@token-wallet/gateway-midtrans`)**
+**Midtrans gateway adapter (`@murai/gateway-midtrans`)**
 
 - [x] `createCheckout` — call Snap API, return `redirect_url`
 - [x] `verifyWebhook` — SHA512 signature verification (`order_id + status_code + gross_amount + ServerKey`)
 - [x] `parseWebhookPayload` — maps Midtrans statuses to gateway-agnostic `WebhookStatus`
 - [x] `getPaymentStatus` — poll Midtrans Status API for payment status
 
-**Meta-package (`token-wallet`)**
+**Meta-package (`murai`)**
 
 - [x] Re-export core + gateway-midtrans + storage-drizzle for a single-install experience
 
@@ -124,7 +124,7 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 ### What to build
 
-**Xendit gateway adapter (`@token-wallet/gateway-xendit`)**
+**Xendit gateway adapter (`@murai/gateway-xendit`)**
 
 - [x] `createCheckout` — create Xendit invoice, return `invoice_url`
 - [x] `verifyWebhook` — `x-callback-token` header verification (timing-safe)
@@ -167,7 +167,7 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 
 ## v0.3.0 — Developer Experience
 
-> **Goal:** Any developer can integrate token-wallet into a real Next.js or Express app by following a documented example — without reading the source code.
+> **Goal:** Any developer can integrate murai into a real Next.js or Express app by following a documented example — without reading the source code.
 
 ### What users get
 
@@ -220,7 +220,7 @@ A lightweight, payment-gateway-agnostic token wallet library for AI/SaaS applica
 - [x] Structured `metadata` convention for recording AI provider cost at spend time (`{ "cost": 0.05 }`)
 - [x] Metadata validation — valid JSON, <4KB, cost must be non-negative finite number
 
-**Stripe gateway adapter (`@token-wallet/gateway-stripe`)** (added beyond original scope)
+**Stripe gateway adapter (`@murai/gateway-stripe`)** (added beyond original scope)
 
 - [x] `createCheckout` — Stripe Checkout Sessions API (form-encoded)
 - [x] `verifyWebhook` — HMAC-SHA256 with `rawBody`, 5-minute timestamp tolerance
@@ -258,7 +258,7 @@ These are real, considered ideas from the research phase — but explicitly not 
 | **Subscription model** — recurring credit top-ups (e.g., "1,000 tokens/month") | Needs a scheduler integration; complex cancellation logic |
 | **DOKU gateway adapter** | Third Indonesian gateway; lower priority than Midtrans/Xendit |
 | **SQLite storage adapter** (standalone, no Drizzle) | Good for prototyping and tests; Drizzle already supports SQLite via dialect |
-| **`@token-wallet/pricing-helper`** | Optional table for mapping AI model token costs to wallet token cost |
+| **`@murai/pricing-helper`** | Optional table for mapping AI model token costs to wallet token cost |
 | **Multi-wallet per user** | e.g., one wallet per product or subscription tier |
 | **Team/shared wallets** | Shared balance across org members |
 

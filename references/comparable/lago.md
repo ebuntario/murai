@@ -15,7 +15,7 @@
 
 Lago is an open-source metering and usage-based billing API. Supports event-driven usage tracking, flexible pricing plans (pay-as-you-go + hybrid), coupons, add-ons (one-time charges), automatic invoicing, and prepaid credits. Uses Docker/Docker Compose. Has client libraries for Go, JavaScript, Python, Ruby. AGPL licensed with emphasis on no vendor lock-in and no percentage-of-revenue pricing.
 
-## What Token Wallet Can Copy
+## What Murai Can Copy
 
 - Competitive positioning works if done tastefully ("Unlike X, we focus on Y")
 - Docker quickstart for self-hosted deployments

@@ -1,8 +1,8 @@
 {
-	"name": "@token-wallet/core",
+	"name": "@murai/core",
 	"version": "1.0.0",
 	"type": "module",
-	"description": "Core wallet, ledger, and checkout manager for token-wallet",
+	"description": "Core wallet, ledger, and checkout manager for murai",
 	"license": "MIT",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",

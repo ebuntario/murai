@@ -3,7 +3,7 @@ title: Choosing a Gateway
 description: Midtrans vs Xendit vs Stripe — feature comparison for payment integration
 ---
 
-Token Wallet ships with three built-in gateway adapters: Midtrans Snap, Xendit Checkout, and Stripe Checkout. This guide helps you choose the right one for your app.
+Murai ships with three built-in gateway adapters: Midtrans Snap, Xendit Checkout, and Stripe Checkout. This guide helps you choose the right one for your app.
 
 ## Feature comparison
 
@@ -45,7 +45,7 @@ Token Wallet ships with three built-in gateway adapters: Midtrans Snap, Xendit C
 
 ## Using multiple gateways
 
-Token Wallet is gateway-agnostic — you can use multiple gateways in the same app:
+Murai is gateway-agnostic — you can use multiple gateways in the same app:
 
 ```ts
 import {
@@ -54,7 +54,7 @@ import {
   createStripeGateway,
   createCheckoutManager,
   createLedger,
-} from 'token-wallet';
+} from 'murai';
 
 const midtrans = createMidtransGateway({ /* config */ });
 const xendit = createXenditGateway({ /* config */ });
@@ -80,7 +80,7 @@ function pickCheckout(preference: string) {
 Stripe is now built-in as of v0.4.0. If you need a different payment provider (DOKU, PayMongo, etc.), implement the `PaymentGatewayAdapter` interface:
 
 ```ts
-import type { PaymentGatewayAdapter } from 'token-wallet';
+import type { PaymentGatewayAdapter } from 'murai';
 
 const myGateway: PaymentGatewayAdapter = {
   async createCheckout(params) {

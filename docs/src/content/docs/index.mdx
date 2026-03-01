@@ -1,5 +1,5 @@
 ---
-title: Token Wallet
+title: Murai
 description: Payment-gateway-agnostic token wallet for AI/SaaS applications
 template: splash
 hero:
@@ -10,7 +10,7 @@ hero:
       icon: right-arrow
       variant: primary
     - text: View on GitHub
-      link: https://github.com/user/token-wallet
+      link: https://github.com/user/murai
       icon: external
 ---
 
@@ -48,7 +48,7 @@ import {
   createLedger,
   createDrizzleStorage,
   createMidtransGateway,
-} from 'token-wallet';
+} from 'murai';
 
 const storage = createDrizzleStorage(db);
 const gateway = createMidtransGateway({ serverKey, clientKey, sandbox: true });

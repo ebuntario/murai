@@ -15,7 +15,7 @@
 
 go-payment is a Go payment processing library acting as a proxy for Midtrans SNAP and Xendit (eWallets and invoicing). Features: multiple payment channels through unified API, seamless gateway switching, configurable admin/installment fees, invoice generation, payment callback storage. Uses GORM for database, YAML for config, environment variables for credentials. Provides REST API endpoints for callbacks and payment processing.
 
-## What Token Wallet Can Copy
+## What Murai Can Copy
 
 - **List every supported payment method explicitly** — Indonesian devs will scan for their preferred method
 - YAML or env-based configuration is developer-friendly
@@ -26,4 +26,4 @@ go-payment is a Go payment processing library acting as a proxy for Midtrans SNA
 
 ## Key Difference From Your Project
 
-go-payment is a payment ROUTING library (routes to the right gateway). Your token-wallet is a BILLING library (manages credits/tokens with payment gateway integration). go-payment doesn't manage balances, transactions, or token economics. That's the gap you fill.
+go-payment is a payment ROUTING library (routes to the right gateway). Your murai is a BILLING library (manages credits/tokens with payment gateway integration). go-payment doesn't manage balances, transactions, or token economics. That's the gap you fill.

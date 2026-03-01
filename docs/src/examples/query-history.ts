@@ -1,4 +1,4 @@
-import type { Wallet } from 'token-wallet';
+import type { Wallet } from 'murai';
 
 async function getUserDashboard(wallet: Wallet, userId: string) {
 	// Current balance

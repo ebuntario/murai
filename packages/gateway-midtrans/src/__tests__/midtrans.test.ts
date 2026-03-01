@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { GatewayError } from '@token-wallet/core';
+import { GatewayError } from '@murai/core';
 import { describe, expect, it, vi } from 'vitest';
 import { createMidtransGateway } from '../index.js';
 

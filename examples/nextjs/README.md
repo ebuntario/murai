@@ -1,6 +1,6 @@
-# Token Wallet — Next.js Example
+# Murai — Next.js Example
 
-A working example of [token-wallet](https://github.com/user/token-wallet) integrated with Next.js 15 App Router and Midtrans Snap.
+A working example of [murai](https://github.com/user/murai) integrated with Next.js 15 App Router and Midtrans Snap.
 
 ## What's included
 

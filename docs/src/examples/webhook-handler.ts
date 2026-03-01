@@ -1,4 +1,4 @@
-import type { CheckoutManager, WebhookResult } from 'token-wallet';
+import type { CheckoutManager, WebhookResult } from 'murai';
 
 // Example: Express / Hono / any framework
 async function handleMidtransWebhook(

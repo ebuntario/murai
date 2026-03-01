@@ -1,19 +1,19 @@
-# Token Wallet
+# Murai
 
 **Payment-gateway-agnostic token wallet for AI/SaaS applications.**
 
 Add credit-based billing to any app in under 30 minutes — with first-class support for Indonesian payment gateways.
 
-[![CI](https://github.com/user/token-wallet/actions/workflows/ci.yml/badge.svg)](https://github.com/user/token-wallet/actions/workflows/ci.yml)
+[![CI](https://github.com/user/murai/actions/workflows/ci.yml/badge.svg)](https://github.com/user/murai/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-## Why Token Wallet?
+## Why Murai?
 
 Building token/credit billing from scratch means solving atomic balance updates, idempotent webhooks, double-charge prevention, and payment gateway integration — before writing a single line of product code.
 
-Token Wallet handles all of that so you can focus on your product:
+Murai handles all of that so you can focus on your product:
 
 - **Atomic balance operations** — no overdrafts, no double-charges, ever
 - **Append-only ledger** — every transaction is permanently recorded and auditable
@@ -39,9 +39,9 @@ Custom gateways can be added by implementing the `PaymentGatewayAdapter` interfa
 ### Install
 
 ```bash
-npm install token-wallet drizzle-orm postgres
+npm install murai drizzle-orm postgres
 # or
-pnpm add token-wallet drizzle-orm postgres
+pnpm add murai drizzle-orm postgres
 ```
 
 ### Create the database tables
@@ -82,7 +82,7 @@ import {
   createLedger,
   createDrizzleStorage,
   createMidtransGateway,
-} from 'token-wallet';
+} from 'murai';
 
 // 1. Storage
 const sql = postgres(process.env.DATABASE_URL);
@@ -150,12 +150,12 @@ const checkouts = await wallet.getCheckouts('user_123', {
 
 | Package | Description |
 | --- | --- |
-| [`token-wallet`](./packages/token-wallet) | Meta-package — single install, re-exports everything |
-| [`@token-wallet/core`](./packages/core) | Wallet, ledger, checkout manager, types, errors |
-| [`@token-wallet/gateway-midtrans`](./packages/gateway-midtrans) | Midtrans Snap adapter |
-| [`@token-wallet/gateway-stripe`](./packages/gateway-stripe) | Stripe Checkout adapter |
-| [`@token-wallet/gateway-xendit`](./packages/gateway-xendit) | Xendit Checkout adapter |
-| [`@token-wallet/storage-drizzle`](./packages/storage-drizzle) | Drizzle ORM storage (PostgreSQL) |
+| [`murai`](./packages/murai) | Meta-package — single install, re-exports everything |
+| [`@murai/core`](./packages/core) | Wallet, ledger, checkout manager, types, errors |
+| [`@murai/gateway-midtrans`](./packages/gateway-midtrans) | Midtrans Snap adapter |
+| [`@murai/gateway-stripe`](./packages/gateway-stripe) | Stripe Checkout adapter |
+| [`@murai/gateway-xendit`](./packages/gateway-xendit) | Xendit Checkout adapter |
+| [`@murai/storage-drizzle`](./packages/storage-drizzle) | Drizzle ORM storage (PostgreSQL) |
 
 ## Architecture
 

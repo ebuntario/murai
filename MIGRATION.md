@@ -1,6 +1,6 @@
 # Migration Guide
 
-This guide covers upgrade paths between every version of token-wallet.
+This guide covers upgrade paths between every version of murai.
 
 ---
 
@@ -37,11 +37,11 @@ res.status(200).json(result);
 
 ### Removed: `schemas.ts`
 
-The `schemas.ts` file (unused type aliases) was removed from `@token-wallet/core`. If you imported from it directly, remove those imports — the types are available from `types.ts`.
+The `schemas.ts` file (unused type aliases) was removed from `@murai/core`. If you imported from it directly, remove those imports — the types are available from `types.ts`.
 
 ### New features (non-breaking)
 
-- **Xendit gateway** — `@token-wallet/gateway-xendit` is now available
+- **Xendit gateway** — `@murai/gateway-xendit` is now available
 - **Ledger query API** — `getTransactions()` and `getCheckouts()` with pagination
 - **Midtrans improvements** — `getPaymentStatus()`, timing-safe verification, dual hosts, configurable timeout
 - **Expired/failed webhook handling** — checkout status updated to `'failed'`
@@ -71,7 +71,7 @@ No code changes are required to upgrade.
 - **Token expiration** — `topUp` accepts optional `expiresAt`; `expireTokens()` for cron-driven expiration
 - **Usage reporting** — `getUsageReport(userId, { from, to })`
 - **Metadata on spend/topUp** — optional `metadata` parameter (JSON string, <4KB)
-- **Stripe gateway** — `@token-wallet/gateway-stripe`
+- **Stripe gateway** — `@murai/gateway-stripe`
 - **`rawBody` on `verifyWebhook`** — optional third parameter (required by Stripe, ignored by others)
 
 ### New optional interfaces

@@ -1,8 +1,8 @@
-# Security Audit — token-wallet v1.0.0
+# Security Audit — murai v1.0.0
 
 Last reviewed: 2026-03-01
 
-This document summarizes the security measures in the token-wallet library, covering webhook verification, idempotency, race conditions, injection surfaces, and input validation.
+This document summarizes the security measures in the murai library, covering webhook verification, idempotency, race conditions, injection surfaces, and input validation.
 
 ---
 
@@ -123,7 +123,7 @@ User-supplied metadata on `spend()` and `topUp()` is validated before storage.
 
 ## 7. Error Hierarchy
 
-All domain errors extend `TokenWalletError` (defined in `packages/core/src/errors.ts`) with a typed `code` string for programmatic error handling:
+All domain errors extend `MuraiError` (defined in `packages/core/src/errors.ts`) with a typed `code` string for programmatic error handling:
 
 | Error | Code | Trigger |
 | --- | --- | --- |
@@ -154,11 +154,11 @@ All domain errors extend `TokenWalletError` (defined in `packages/core/src/error
 
 ## Scope Limitations
 
-This audit covers the token-wallet library code only. It does **not** cover:
+This audit covers the murai library code only. It does **not** cover:
 
 - The security of the underlying database deployment (network access, TLS, credentials)
 - The security of the payment gateway accounts (API key rotation, IP allowlisting)
-- The application code that integrates token-wallet (input sanitization, authentication, authorization)
+- The application code that integrates murai (input sanitization, authentication, authorization)
 - Infrastructure concerns (DDoS, rate limiting, logging/monitoring)
 
 Integrators are responsible for securing their own deployment environment.

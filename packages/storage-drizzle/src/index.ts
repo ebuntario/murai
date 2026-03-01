@@ -1,9 +1,9 @@
-// @token-wallet/storage-drizzle
+// @murai/storage-drizzle
 // Drizzle ORM storage adapter — PostgreSQL (postgres.js or node-postgres)
 // Peer dependency: drizzle-orm >=0.30.0
 
 import { randomUUID } from 'node:crypto';
-import { IdempotencyConflictError, InsufficientBalanceError } from '@token-wallet/core';
+import { IdempotencyConflictError, InsufficientBalanceError } from '@murai/core';
 import type {
 	CheckoutQuery,
 	CheckoutSession,
@@ -11,7 +11,7 @@ import type {
 	LedgerEntry,
 	StorageAdapter,
 	TransactionQuery,
-} from '@token-wallet/core';
+} from '@murai/core';
 import { and, asc, desc, eq, gt, gte, isNotNull, isNull, lt, lte, or, sql } from 'drizzle-orm';
 import {
 	type PgDatabase,

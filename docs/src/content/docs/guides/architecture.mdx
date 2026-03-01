@@ -3,7 +3,7 @@ title: Architecture
 description: Append-only ledger, SELECT FOR UPDATE, and idempotency flow
 ---
 
-Token Wallet's design centers on three invariants that prevent data corruption in concurrent payment systems.
+Murai's design centers on three invariants that prevent data corruption in concurrent payment systems.
 
 ## Invariant 1: Append-only ledger
 
@@ -57,7 +57,7 @@ With SELECT FOR UPDATE (CORRECT):
 
 Payment gateways retry webhooks when they don't receive a 200 response. Without idempotency, a retry could credit the user's balance twice.
 
-Token Wallet uses **dual idempotency guards**:
+Murai uses **dual idempotency guards**:
 
 ### Guard 1: Checkout status check
 
@@ -94,7 +94,7 @@ The `UNIQUE` constraint on `idempotency_key` in the `transactions` table is the 
 
 ## Factory pattern: Functional DI
 
-Token Wallet uses factory functions with dependency injection instead of class hierarchies:
+Murai uses factory functions with dependency injection instead of class hierarchies:
 
 ```ts
 // No classes — just functions that return objects

@@ -1,6 +1,6 @@
 ---
 title: "Gateway: Stripe"
-description: "API reference for @token-wallet/gateway-stripe -- Stripe Checkout adapter"
+description: "API reference for @murai/gateway-stripe -- Stripe Checkout adapter"
 ---
 
 import { Code } from '@astrojs/starlight/components';
@@ -11,7 +11,7 @@ import stripeCode from '../../../examples/stripe-setup.ts?raw';
 Creates a Stripe Checkout payment gateway adapter.
 
 ```ts
-import { createStripeGateway } from 'token-wallet';
+import { createStripeGateway } from 'murai';
 
 const gateway = createStripeGateway({
 	secretKey: process.env.STRIPE_SECRET_KEY!,
@@ -79,7 +79,7 @@ The signature header contains a timestamp and one or more signatures:
 t=1614556828,v1=abc123...,v0=def456...
 ```
 
-Token Wallet validates the `v1` signature and enforces a **5-minute timestamp
+Murai validates the `v1` signature and enforces a **5-minute timestamp
 tolerance** to prevent replay attacks.
 
 :::caution[Raw body required]
@@ -94,7 +94,7 @@ Extracts session ID, status, and amount from the webhook event.
 
 Handled event types:
 
-| Stripe event | Token Wallet status |
+| Stripe event | Murai status |
 |---|---|
 | `checkout.session.completed` | `success` |
 | `checkout.session.expired` | `expired` |
@@ -112,7 +112,7 @@ const status = await gateway.getPaymentStatus('cs_test_abc123');
 
 Status mapping:
 
-| Stripe `payment_status` | Token Wallet status |
+| Stripe `payment_status` | Murai status |
 |---|---|
 | `paid` | `success` |
 | `no_payment_required` | `success` |

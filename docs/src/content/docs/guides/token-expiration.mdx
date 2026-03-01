@@ -7,7 +7,7 @@ import { Code } from '@astrojs/starlight/components';
 import expirationCode from '../../../examples/token-expiration.ts?raw';
 
 Credits don't last forever. Promotional tokens, trial balances, and time-limited
-top-ups all need expiration dates. Token Wallet handles this with a FIFO
+top-ups all need expiration dates. Murai handles this with a FIFO
 bucket-based expiration system that integrates seamlessly with the append-only
 ledger.
 
@@ -104,7 +104,7 @@ buckets. Here is a minimal example:
 
 ```ts
 // cron-expire.ts — run via cron (e.g., daily at midnight)
-import { createDrizzleStorage, createWallet } from 'token-wallet';
+import { createDrizzleStorage, createWallet } from 'murai';
 
 const storage = createDrizzleStorage(db);
 const wallet = createWallet({ storage });

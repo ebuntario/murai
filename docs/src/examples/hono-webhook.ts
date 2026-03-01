@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import type { CheckoutManager } from 'token-wallet';
-import { WebhookVerificationError } from 'token-wallet';
+import type { CheckoutManager } from 'murai';
+import { WebhookVerificationError } from 'murai';
 
 function createWebhookRoute(checkout: CheckoutManager) {
 	const app = new Hono();

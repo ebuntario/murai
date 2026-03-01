@@ -1,6 +1,6 @@
 import { checkout } from '@/lib/wallet';
+import { WebhookVerificationError } from 'murai';
 import { NextResponse } from 'next/server';
-import { WebhookVerificationError } from 'token-wallet';
 
 export async function POST(request: Request) {
 	const body = await request.json();

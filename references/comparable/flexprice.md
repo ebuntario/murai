@@ -16,7 +16,7 @@
 
 Flexprice is monetization infrastructure for AI-native companies. Supports usage-based, credit-based, and hybrid pricing with real-time metering. SDKs for Go, Python, JavaScript. Uses PostgreSQL, Kafka, ClickHouse, and Temporal. Docker Compose setup with dedicated UI ports for each service. Emphasizes developer-first, API-first design. Applications send usage events via SDKs, Flexprice handles aggregation, metering, and billing logic in real-time.
 
-## What Token Wallet Can Copy
+## What Murai Can Copy
 
 - **Problem-first approach is powerful** — explain the pain BEFORE the solution
 - List specific pain points your target users face

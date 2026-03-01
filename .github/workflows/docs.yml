@@ -39,7 +39,7 @@ jobs:
         run: pnpm turbo build --filter='./packages/*'
 
       - name: Build docs
-        run: pnpm --filter @token-wallet/docs build
+        run: pnpm --filter @murai/docs build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

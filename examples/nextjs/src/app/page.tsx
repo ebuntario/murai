@@ -18,11 +18,11 @@ export default async function DashboardPage() {
 		<main className="mx-auto max-w-md px-4 py-12">
 			<div className="flex items-center justify-between">
 				<div>
-					<h1 className="text-2xl font-bold">Token Wallet Demo</h1>
+					<h1 className="text-2xl font-bold">Murai Demo</h1>
 					<p className="mt-1 text-sm text-gray-500">Next.js + Midtrans Snap example</p>
 				</div>
 				<a
-					href="https://github.com/user/token-wallet/tree/main/examples/nextjs"
+					href="https://github.com/user/murai/tree/main/examples/nextjs"
 					className="text-xs text-blue-600 hover:underline"
 					target="_blank"
 					rel="noopener noreferrer"

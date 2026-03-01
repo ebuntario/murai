@@ -1,4 +1,4 @@
-// Public TypeScript interfaces for @token-wallet/core
+// Public TypeScript interfaces for @murai/core
 
 export type WebhookStatus = 'success' | 'failed' | 'pending' | 'expired';
 

@@ -1,12 +1,12 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
 import {
 	createCheckoutManager,
 	createDrizzleStorage,
 	createLedger,
 	createMidtransGateway,
 	createWallet,
-} from 'token-wallet';
+} from 'murai';
+import postgres from 'postgres';
 
 // 1. Storage — connect to PostgreSQL via Drizzle
 // biome-ignore lint/style/noNonNullAssertion: env vars validated at startup

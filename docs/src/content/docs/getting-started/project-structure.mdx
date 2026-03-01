@@ -3,17 +3,17 @@ title: Project Structure
 description: What each package does and how they fit together
 ---
 
-Token Wallet is a monorepo with five packages. You can install the meta-package for convenience or pick individual packages.
+Murai is a monorepo with five packages. You can install the meta-package for convenience or pick individual packages.
 
 ## Package overview
 
 | Package | npm | Purpose |
 |---|---|---|
-| `token-wallet` | [![npm](https://img.shields.io/npm/v/token-wallet)](https://www.npmjs.com/package/token-wallet) | Meta-package — single install, re-exports everything |
-| `@token-wallet/core` | [![npm](https://img.shields.io/npm/v/@token-wallet/core)](https://www.npmjs.com/package/@token-wallet/core) | Wallet, ledger, checkout manager, types, errors |
-| `@token-wallet/gateway-midtrans` | [![npm](https://img.shields.io/npm/v/@token-wallet/gateway-midtrans)](https://www.npmjs.com/package/@token-wallet/gateway-midtrans) | Midtrans Snap adapter |
-| `@token-wallet/gateway-xendit` | [![npm](https://img.shields.io/npm/v/@token-wallet/gateway-xendit)](https://www.npmjs.com/package/@token-wallet/gateway-xendit) | Xendit Checkout adapter |
-| `@token-wallet/storage-drizzle` | [![npm](https://img.shields.io/npm/v/@token-wallet/storage-drizzle)](https://www.npmjs.com/package/@token-wallet/storage-drizzle) | Drizzle ORM storage (PostgreSQL) |
+| `murai` | [![npm](https://img.shields.io/npm/v/murai)](https://www.npmjs.com/package/murai) | Meta-package — single install, re-exports everything |
+| `@murai/core` | [![npm](https://img.shields.io/npm/v/@murai/core)](https://www.npmjs.com/package/@murai/core) | Wallet, ledger, checkout manager, types, errors |
+| `@murai/gateway-midtrans` | [![npm](https://img.shields.io/npm/v/@murai/gateway-midtrans)](https://www.npmjs.com/package/@murai/gateway-midtrans) | Midtrans Snap adapter |
+| `@murai/gateway-xendit` | [![npm](https://img.shields.io/npm/v/@murai/gateway-xendit)](https://www.npmjs.com/package/@murai/gateway-xendit) | Xendit Checkout adapter |
+| `@murai/storage-drizzle` | [![npm](https://img.shields.io/npm/v/@murai/storage-drizzle)](https://www.npmjs.com/package/@murai/storage-drizzle) | Drizzle ORM storage (PostgreSQL) |
 
 ## Architecture diagram
 
@@ -55,16 +55,16 @@ All exported TypeScript interfaces: `Wallet`, `StorageAdapter`, `PaymentGatewayA
 
 ### `errors.ts` — Typed error hierarchy
 
-Domain errors that extend `TokenWalletError`: `InsufficientBalanceError`, `IdempotencyConflictError`, `WebhookVerificationError`, `InvalidAmountError`, `GatewayError`. Each has a typed `code` string for programmatic error handling.
+Domain errors that extend `MuraiError`: `InsufficientBalanceError`, `IdempotencyConflictError`, `WebhookVerificationError`, `InvalidAmountError`, `GatewayError`. Each has a typed `code` string for programmatic error handling.
 
 ## Dependency graph
 
 ```
-token-wallet (meta-package)
-├── @token-wallet/core
-├── @token-wallet/gateway-midtrans  → depends on core
-├── @token-wallet/gateway-xendit    → depends on core
-└── @token-wallet/storage-drizzle   → depends on core
+murai (meta-package)
+├── @murai/core
+├── @murai/gateway-midtrans  → depends on core
+├── @murai/gateway-xendit    → depends on core
+└── @murai/storage-drizzle   → depends on core
 ```
 
-Gateway and storage adapters depend only on `@token-wallet/core` for its types and errors. They have no dependency on each other, so you can use Midtrans without Xendit and vice versa.
+Gateway and storage adapters depend only on `@murai/core` for its types and errors. They have no dependency on each other, so you can use Midtrans without Xendit and vice versa.

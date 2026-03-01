@@ -1,8 +1,8 @@
 {
-	"name": "@token-wallet/storage-drizzle",
+	"name": "@murai/storage-drizzle",
 	"version": "1.0.0",
 	"type": "module",
-	"description": "Drizzle ORM storage adapter for token-wallet (PostgreSQL, MySQL, SQLite)",
+	"description": "Drizzle ORM storage adapter for murai (PostgreSQL, MySQL, SQLite)",
 	"license": "MIT",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
@@ -29,7 +29,7 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@token-wallet/core": "workspace:*"
+		"@murai/core": "workspace:*"
 	},
 	"devDependencies": {
 		"drizzle-orm": ">=0.30.0"

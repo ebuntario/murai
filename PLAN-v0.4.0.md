@@ -119,7 +119,7 @@ export interface MarginReport {
 
 ### Design
 
-New package `@token-wallet/gateway-stripe` following the exact same pattern as Midtrans and Xendit adapters. Implements `PaymentGatewayAdapter` interface.
+New package `@murai/gateway-stripe` following the exact same pattern as Midtrans and Xendit adapters. Implements `PaymentGatewayAdapter` interface.
 
 ### Package Structure
 
@@ -152,7 +152,7 @@ export function createStripeGateway(config: StripeConfig): PaymentGatewayAdapter
 
 ### Implementation Steps
 
-1. **Scaffold package** — Copy `gateway-midtrans` structure. Update `package.json` name/description. Add to `pnpm-workspace.yaml` if needed. Add `@token-wallet/core` as peer dep.
+1. **Scaffold package** — Copy `gateway-midtrans` structure. Update `package.json` name/description. Add to `pnpm-workspace.yaml` if needed. Add `@murai/core` as peer dep.
 2. **`index.ts`** — Implement:
    - `createCheckout` — POST to Stripe Checkout Sessions API (`/v1/checkout/sessions`), form-encoded. Returns `CheckoutSession` with redirect URL.
    - `verifyWebhook` — Stripe-Signature header parsing (`t=timestamp,v1=signature`), HMAC-SHA256 with `webhookSecret`, timing-safe comparison. Validates timestamp tolerance (5 minutes).
@@ -164,7 +164,7 @@ export function createStripeGateway(config: StripeConfig): PaymentGatewayAdapter
    - createCheckout: mocked fetch, success and error paths
    - getPaymentStatus: mocked fetch, success and error paths
    - parseWebhookPayload: valid event, invalid event, wrong event type
-4. **Meta-package** — Add `@token-wallet/gateway-stripe` re-export to `token-wallet/src/index.ts`.
+4. **Meta-package** — Add `@murai/gateway-stripe` re-export to `murai/src/index.ts`.
 
 ---
 

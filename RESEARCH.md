@@ -1,6 +1,6 @@
-# Token Wallet: Open Source Research & Strategy
+# Murai: Open Source Research & Strategy
 
-- [Token Wallet: Open Source Research \& Strategy](#token-wallet-open-source-research--strategy)
+- [Murai: Open Source Research \& Strategy](#murai-open-source-research--strategy)
   - [1. Does This Already Exist?](#1-does-this-already-exist)
     - [The Big Players (Full Billing Platforms)](#the-big-players-full-billing-platforms)
     - [Libraries (Closer to Your Idea)](#libraries-closer-to-your-idea)
@@ -40,7 +40,7 @@
     - [Key Design Principle](#key-design-principle)
   - [8. Margin \& COGS: How Builders Make Money](#8-margin--cogs-how-builders-make-money)
     - [The Business Problem](#the-business-problem)
-    - [How Token Wallet Enables This](#how-token-wallet-enables-this)
+    - [How Murai Enables This](#how-murai-enables-this)
     - [What Your Library Provides](#what-your-library-provides)
     - [The Margin Dashboard (Future Feature, Not v1)](#the-margin-dashboard-future-feature-not-v1)
     - [Key Takeaway](#key-takeaway)
@@ -212,7 +212,7 @@ A developer should be able to go from zero to "users can buy and spend tokens" i
                        │
                        ▼
 ┌─────────────────────────────────────────────────┐
-│              Token Wallet SDK                    │
+│              Murai SDK                    │
 │                                                  │
 │  ┌─────────────┐  ┌──────────┐  ┌────────────┐ │
 │  │   Wallet     │  │  Ledger  │  │  Checkout   │ │
@@ -250,9 +250,9 @@ A developer should be able to go from zero to "users can buy and spend tokens" i
 
 ```typescript
 // This is what a developer's code looks like:
-import { TokenWallet } from 'token-wallet';
+import { Murai } from 'murai';
 
-const wallet = new TokenWallet({
+const wallet = new Murai({
   gateway: 'midtrans',        // or 'xendit', 'stripe'
   gatewayConfig: {
     serverKey: process.env.MIDTRANS_SERVER_KEY,
@@ -356,7 +356,7 @@ Why TypeScript:
 ### Package Structure (Monorepo)
 
 ```text
-token-wallet/
+murai/
 ├── packages/
 │   ├── core/                    # Main SDK - wallet, ledger, types
 │   │   ├── src/
@@ -365,30 +365,30 @@ token-wallet/
 │   │   │   ├── checkout.ts      # Checkout manager
 │   │   │   ├── types.ts         # All TypeScript interfaces
 │   │   │   └── index.ts         # Public API exports
-│   │   ├── package.json         # @token-wallet/core
+│   │   ├── package.json         # @murai/core
 │   │   └── tsconfig.json
 │   │
 │   ├── gateway-midtrans/        # Midtrans Snap adapter
 │   │   ├── src/
 │   │   │   └── adapter.ts       # MidtransAdapter implements PaymentGatewayAdapter
-│   │   └── package.json         # @token-wallet/gateway-midtrans
+│   │   └── package.json         # @murai/gateway-midtrans
 │   │
 │   ├── gateway-xendit/          # Xendit Checkout adapter
 │   │   ├── src/
 │   │   │   └── adapter.ts       # XenditAdapter implements PaymentGatewayAdapter
-│   │   └── package.json         # @token-wallet/gateway-xendit
+│   │   └── package.json         # @murai/gateway-xendit
 │   │
 │   ├── gateway-stripe/          # Stripe Checkout adapter (for global reach)
 │   │   └── ...
 │   │
 │   ├── storage-postgres/        # PostgreSQL storage adapter
-│   │   └── package.json         # @token-wallet/storage-postgres
+│   │   └── package.json         # @murai/storage-postgres
 │   │
 │   ├── storage-mysql/           # MySQL storage adapter
-│   │   └── package.json         # @token-wallet/storage-mysql
+│   │   └── package.json         # @murai/storage-mysql
 │   │
-│   └── token-wallet/            # Convenience meta-package (re-exports core + all adapters)
-│       └── package.json         # token-wallet (the "just works" package)
+│   └── murai/            # Convenience meta-package (re-exports core + all adapters)
+│       └── package.json         # murai (the "just works" package)
 │
 ├── examples/
 │   ├── nextjs-example/          # Full Next.js example app
@@ -466,7 +466,7 @@ Two concurrent `spend()` calls for the same user could overdraw the balance. Sol
 
 #### v0.3.0 — Developer Experience (Week 6-8)
 
-- `token-wallet` convenience package
+- `murai` convenience package
 - Next.js example app (full working demo)
 - Express.js example
 - Documentation site
@@ -523,7 +523,7 @@ Before you make the repo public, have these ready:
 
 - Write "Why every AI app needs a token billing system" blog post
 - Create a YouTube tutorial showing integration with a Next.js app
-- Post comparisons: "Token Wallet vs building your own credit system"
+- Post comparisons: "Murai vs building your own credit system"
 
 #### Month 2-3: Community
 
@@ -585,7 +585,7 @@ E-wallets dominate: GoPay (88% usage), Dana (83%), OVO, ShopeePay. QRIS is the f
 
 A few suggestions for the project name (check npm and GitHub availability):
 
-- **token-wallet** — Simple, descriptive, easy to search for
+- **murai** — Simple, descriptive, easy to search for
 - **tokenvault** — Implies security and storage
 - **creditkit** — Short, memorable, developer-friendly
 - **paytokens** — Action-oriented
@@ -634,8 +634,8 @@ await wallet.spend(userId, cost, {
 You don't need to build a pricing engine, but you can provide a lightweight helper that builders can optionally use:
 
 ```typescript
-// Optional: @token-wallet/pricing-helper (separate package)
-import { PricingTable } from '@token-wallet/pricing-helper';
+// Optional: @murai/pricing-helper (separate package)
+import { PricingTable } from '@murai/pricing-helper';
 
 const pricing = new PricingTable({
   'gpt-4o':        { inputPer1k: 5, outputPer1k: 15 },
@@ -678,7 +678,7 @@ await wallet.spend(userId, cost, { reason: 'chat', metadata: { model: actualMode
 
 A builder's AI app has a cost: they pay OpenAI/Anthropic/etc. per API token used. They sell "tokens" to users at a higher price. The difference is their margin. But this is tricky because AI costs change, models have different prices, and builders need flexibility.
 
-### How Token Wallet Enables This
+### How Murai Enables This
 
 The key insight is that "wallet tokens" are NOT the same as "AI provider tokens." They're an abstract currency the builder defines. The builder sets two things: how much a user pays for wallet tokens (the sell price), and how many wallet tokens an AI operation costs (the spend rate, which factors in COGS).
 
@@ -755,7 +755,7 @@ The builder picks one gateway at initialization time. It's a one-line config cha
 
 ```typescript
 // Option A: Midtrans
-const wallet = new TokenWallet({
+const wallet = new Murai({
   gateway: 'midtrans',
   gatewayConfig: {
     serverKey: process.env.MIDTRANS_SERVER_KEY,
@@ -766,7 +766,7 @@ const wallet = new TokenWallet({
 });
 
 // Option B: Xendit
-const wallet = new TokenWallet({
+const wallet = new Murai({
   gateway: 'xendit',
   gatewayConfig: {
     secretKey: process.env.XENDIT_SECRET_KEY,
@@ -1271,7 +1271,7 @@ The most valuable thing you can do is tell a builder IMMEDIATELY when they're lo
 
 ```typescript
 // Optional: configure margin alerts
-const wallet = new TokenWallet({
+const wallet = new Murai({
   // ... other config ...
   marginAlerts: {
     enabled: true,
@@ -1547,7 +1547,7 @@ Changesets:      Changesets (automated versioning + changelogs)
 
 **pnpm** — The modern standard for monorepos. Stricter dependency resolution (prevents phantom deps), faster installs, built-in workspace support. Most serious TypeScript open source projects use pnpm now (tRPC, Hono, Drizzle all use it).
 
-**Turborepo** — Handles the monorepo build orchestration. When you change `@token-wallet/core`, it knows to rebuild `@token-wallet/gateway-midtrans` too. Caches builds so CI is fast.
+**Turborepo** — Handles the monorepo build orchestration. When you change `@murai/core`, it knows to rebuild `@murai/gateway-midtrans` too. Caches builds so CI is fast.
 
 **tsup** — Bundles your TypeScript into both ESM and CommonJS outputs. This means your library works with `import` (modern) and `require()` (legacy). One config file, zero hassle. Way simpler than raw tsc or rollup.
 
@@ -1562,7 +1562,7 @@ Changesets:      Changesets (automated versioning + changelogs)
 ### Project Structure (Modern Patterns)
 
 ```text
-token-wallet/
+murai/
 ├── packages/
 │   ├── core/
 │   │   ├── src/
@@ -1606,9 +1606,9 @@ token-wallet/
 │   │   │   ├── adapter.ts            # StorageAdapter implementation
 │   │   │   ├── migrations/           # SQL migration files
 │   │   │   └── index.ts
-│   │   └── package.json              # @token-wallet/storage-drizzle
+│   │   └── package.json              # @murai/storage-drizzle
 │   │
-│   └── token-wallet/                  # Meta-package
+│   └── murai/                  # Meta-package
 │       └── package.json
 │
 ├── apps/
@@ -1665,20 +1665,20 @@ export function createWallet(config: WalletConfig): Wallet {
 
 ```typescript
 // Define specific error types builders can catch
-export class TokenWalletError extends Error {
+export class MuraiError extends Error {
   constructor(message: string, public code: string) { super(message); }
 }
-export class InsufficientBalanceError extends TokenWalletError {
+export class InsufficientBalanceError extends MuraiError {
   constructor(public required: number, public available: number) {
     super(`Need ${required} tokens, only have ${available}`, 'INSUFFICIENT_BALANCE');
   }
 }
-export class WebhookVerificationError extends TokenWalletError {
+export class WebhookVerificationError extends MuraiError {
   constructor(reason: string) {
     super(`Webhook verification failed: ${reason}`, 'WEBHOOK_INVALID');
   }
 }
-export class IdempotencyConflictError extends TokenWalletError {
+export class IdempotencyConflictError extends MuraiError {
   constructor(key: string) {
     super(`Operation already processed: ${key}`, 'IDEMPOTENCY_CONFLICT');
   }
@@ -1755,7 +1755,7 @@ Modern Node.js packages use the `exports` field so bundlers can tree-shake prope
 
 ```json
 {
-  "name": "@token-wallet/core",
+  "name": "@murai/core",
   "version": "0.1.0",
   "type": "module",
   "exports": {
@@ -1853,7 +1853,7 @@ await wallet.topUp(userId, { amount: 1000, price: 5, currency: 'USD' });
 The builder picks one currency during initialization. All checkouts must use it.
 
 ```typescript
-const wallet = new TokenWallet({
+const wallet = new Murai({
   currency: 'IDR',  // Locked. All checkouts must be IDR.
   // ...
 });
@@ -1873,7 +1873,7 @@ await wallet.topUp(userId, { amount: 1000, price: 5, currency: 'USD' });
 Configure a **base currency** for reporting and accounting. Allow checkouts in any currency, but require the builder to provide the base-currency equivalent for each transaction. This keeps reporting clean while allowing payment flexibility.
 
 ```typescript
-const wallet = new TokenWallet({
+const wallet = new Murai({
   baseCurrency: 'IDR',    // All reports, margins, reconciliation in IDR
   // ...
 });
@@ -1905,7 +1905,7 @@ await wallet.topUp(userId, {
 ### How This Shows Up in the Config
 
 ```typescript
-const wallet = new TokenWallet({
+const wallet = new Murai({
   // Required
   gateway: 'midtrans',
   gatewayConfig: { ... },
@@ -1961,7 +1961,7 @@ Every library has boundaries. Being clear about what you DON'T support is just a
 
 **Should you add it?** Not in v1-v2. This fundamentally changes the system from a "prepaid billing tool" to a "virtual currency platform," which carries much heavier regulatory implications, especially in Indonesia where Bank Indonesia (BI) regulates e-money and stored-value instruments. Stay focused.
 
-**What to tell users:** "Token Wallet manages prepaid credits for service consumption. For user-to-user transfers, you'll need a virtual currency platform with appropriate financial licenses."
+**What to tell users:** "Murai manages prepaid credits for service consumption. For user-to-user transfers, you'll need a virtual currency platform with appropriate financial licenses."
 
 ### 2. Refunds Back to Original Payment Method
 
@@ -1999,7 +1999,7 @@ const refundRequest = await wallet.requestRefund(userId, {
 
 **Should you add it?** Not directly. This is a fundamentally different billing model (postpaid vs prepaid). However, you could hack around it: create a "virtual top-up" that gives the enterprise user a large balance (e.g., 1,000,000 tokens) at the start of the month with no payment, then reconcile at month end. But this is a workaround, not a proper solution.
 
-**What to tell users:** "Token Wallet is a prepaid credit system. For postpaid/invoice-based billing, consider Lago or build a postpaid layer on top of our ledger."
+**What to tell users:** "Murai is a prepaid credit system. For postpaid/invoice-based billing, consider Lago or build a postpaid layer on top of our ledger."
 
 ### 5. Real-Time Streaming Billing
 
@@ -2077,7 +2077,7 @@ await wallet.topUp(userId, {
 // Full audit trail preserved
 ```
 
-**What to tell users:** "Token Wallet supports optional token expiration. Builders must ensure their expiration policies comply with local consumer protection laws."
+**What to tell users:** "Murai supports optional token expiration. Builders must ensure their expiration policies comply with local consumer protection laws."
 
 ### 8. Crypto/Blockchain Token Integration
 
@@ -2087,7 +2087,7 @@ await wallet.topUp(userId, {
 
 **Should you add it?** No. This is a completely different domain. Mixing traditional billing with blockchain adds enormous complexity (wallet management, gas optimization, chain confirmations, MEV protection) with minimal benefit for the target use case.
 
-**What to tell users:** Clarify in the README: "Token Wallet manages application credits, not cryptocurrency. For blockchain-based tokens, look at [wagmi/viem] or similar Web3 libraries."
+**What to tell users:** Clarify in the README: "Murai manages application credits, not cryptocurrency. For blockchain-based tokens, look at [wagmi/viem] or similar Web3 libraries."
 
 ### 9. Multi-Product / Multi-Wallet Per User
 
@@ -2116,7 +2116,7 @@ await wallet.spend(userId, 50, { product: 'chatbot', reason: 'gpt-4o-prompt' });
 
 ```typescript
 // Future API: Free tier config
-const wallet = new TokenWallet({
+const wallet = new Murai({
   // ...
   freeTier: {
     enabled: true,

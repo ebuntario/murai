@@ -1,10 +1,10 @@
-# Contributing to Token Wallet
+# Contributing to Murai
 
 ## Setup
 
 ```bash
-git clone https://github.com/user/token-wallet.git
-cd token-wallet
+git clone https://github.com/user/murai.git
+cd murai
 pnpm install
 pnpm build
 pnpm test
@@ -23,7 +23,7 @@ Requires Node.js >= 22 and pnpm >= 10.
 
 - **Functional DI** — factory functions with injected dependencies, no class hierarchies
 - **Every exported function needs a test**
-- **Domain errors** extend `TokenWalletError` with a typed `code` string
+- **Domain errors** extend `MuraiError` with a typed `code` string
 - **No `any`** — Biome enforces this as an error
 - **Tabs** for indentation, line width 100
 - **Append-only ledger** — never update or delete transaction entries
@@ -33,7 +33,7 @@ Requires Node.js >= 22 and pnpm >= 10.
 Storage integration tests run against a real PostgreSQL database (e.g. Neon):
 
 ```bash
-DATABASE_URL=postgres://user:pass@host/db pnpm --filter @token-wallet/storage-drizzle test
+DATABASE_URL=postgres://user:pass@host/db pnpm --filter @murai/storage-drizzle test
 ```
 
 Without `DATABASE_URL`, integration tests are automatically skipped.

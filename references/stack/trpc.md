@@ -11,7 +11,7 @@
 - **Contributor credits** — names the core maintainers
 - **Badges** — stars, build status, license
 
-## What Token Wallet Can Copy
+## What Murai Can Copy
 
 - Keep the README short and scannable
 - Lead with a single clear sentence explaining what it is

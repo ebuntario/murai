@@ -1,10 +1,10 @@
-// @token-wallet/gateway-stripe
+// @murai/gateway-stripe
 // Stripe Checkout payment gateway adapter
 
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { randomUUID } from 'node:crypto';
-import { GatewayError } from '@token-wallet/core';
-import type { CheckoutSession, PaymentGatewayAdapter, WebhookStatus } from '@token-wallet/core';
+import { GatewayError } from '@murai/core';
+import type { CheckoutSession, PaymentGatewayAdapter, WebhookStatus } from '@murai/core';
 
 export interface StripeConfig {
 	secretKey: string;

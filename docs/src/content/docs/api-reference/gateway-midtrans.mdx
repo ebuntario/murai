@@ -1,6 +1,6 @@
 ---
 title: "Gateway: Midtrans"
-description: "API reference for @token-wallet/gateway-midtrans — Midtrans Snap adapter"
+description: "API reference for @murai/gateway-midtrans — Midtrans Snap adapter"
 ---
 
 ## `createMidtransGateway(config)`
@@ -8,7 +8,7 @@ description: "API reference for @token-wallet/gateway-midtrans — Midtrans Snap
 Creates a Midtrans Snap payment gateway adapter.
 
 ```ts
-import { createMidtransGateway } from 'token-wallet';
+import { createMidtransGateway } from 'murai';
 
 const gateway = createMidtransGateway({
   serverKey: process.env.MIDTRANS_SERVER_KEY!,
@@ -73,7 +73,7 @@ Extracts order ID, status, and amount from the webhook body.
 
 Status mapping:
 
-| Midtrans status | Token Wallet status |
+| Midtrans status | Murai status |
 |---|---|
 | `settlement` | `success` |
 | `capture` | `success` |

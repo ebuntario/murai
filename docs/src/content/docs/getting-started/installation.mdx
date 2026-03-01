@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: Install Token Wallet and set up your database
+description: Install Murai and set up your database
 ---
 
 ## Prerequisites
@@ -13,25 +13,25 @@ description: Install Token Wallet and set up your database
 
 ```bash
 # Single package — includes core, both gateways, and Drizzle storage
-npm install token-wallet drizzle-orm postgres
+npm install murai drizzle-orm postgres
 ```
 
 ```bash
 # Or with pnpm
-pnpm add token-wallet drizzle-orm postgres
+pnpm add murai drizzle-orm postgres
 ```
 
 If you only need specific packages:
 
 ```bash
 # Core only (bring your own storage and gateway)
-npm install @token-wallet/core
+npm install @murai/core
 
 # Individual adapters
-npm install @token-wallet/gateway-midtrans
-npm install @token-wallet/gateway-xendit
-npm install @token-wallet/gateway-stripe
-npm install @token-wallet/storage-drizzle
+npm install @murai/gateway-midtrans
+npm install @murai/gateway-xendit
+npm install @murai/gateway-stripe
+npm install @murai/storage-drizzle
 ```
 
 ## Create the database tables

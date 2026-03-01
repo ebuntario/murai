@@ -1,8 +1,8 @@
 {
-	"name": "@token-wallet/gateway-stripe",
+	"name": "@murai/gateway-stripe",
 	"version": "1.0.0",
 	"type": "module",
-	"description": "Stripe Checkout payment gateway adapter for token-wallet",
+	"description": "Stripe Checkout payment gateway adapter for murai",
 	"license": "MIT",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
@@ -29,7 +29,7 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@token-wallet/core": "workspace:*"
+		"@murai/core": "workspace:*"
 	},
 	"engines": {
 		"node": ">=22"

@@ -1,6 +1,6 @@
 ---
 title: "Gateway: Xendit"
-description: "API reference for @token-wallet/gateway-xendit — Xendit Checkout adapter"
+description: "API reference for @murai/gateway-xendit — Xendit Checkout adapter"
 ---
 
 ## `createXenditGateway(config)`
@@ -8,7 +8,7 @@ description: "API reference for @token-wallet/gateway-xendit — Xendit Checkout
 Creates a Xendit Checkout payment gateway adapter.
 
 ```ts
-import { createXenditGateway } from 'token-wallet';
+import { createXenditGateway } from 'murai';
 
 const gateway = createXenditGateway({
   secretKey: process.env.XENDIT_SECRET_KEY!,
@@ -68,7 +68,7 @@ Extracts external ID, status, and amount from the webhook body.
 
 Status mapping:
 
-| Xendit status | Token Wallet status |
+| Xendit status | Murai status |
 |---|---|
 | `PAID` | `success` |
 | `SETTLED` | `success` |

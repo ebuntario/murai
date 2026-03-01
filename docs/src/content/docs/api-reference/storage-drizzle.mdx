@@ -1,6 +1,6 @@
 ---
 title: "Storage: Drizzle"
-description: "API reference for @token-wallet/storage-drizzle — Drizzle ORM PostgreSQL adapter"
+description: "API reference for @murai/storage-drizzle — Drizzle ORM PostgreSQL adapter"
 ---
 
 ## `createDrizzleStorage(db)`
@@ -10,7 +10,7 @@ Creates a `StorageAdapter` backed by Drizzle ORM and PostgreSQL.
 ```ts
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { createDrizzleStorage } from 'token-wallet';
+import { createDrizzleStorage } from 'murai';
 
 const sql = postgres(process.env.DATABASE_URL!);
 const db = drizzle(sql);

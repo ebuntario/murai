@@ -58,49 +58,49 @@ importers:
 
   packages/gateway-midtrans:
     dependencies:
-      '@token-wallet/core':
+      '@murai/core':
         specifier: workspace:*
         version: link:../core
 
   packages/gateway-stripe:
     dependencies:
-      '@token-wallet/core':
+      '@murai/core':
         specifier: workspace:*
         version: link:../core
 
   packages/gateway-xendit:
     dependencies:
-      '@token-wallet/core':
+      '@murai/core':
         specifier: workspace:*
         version: link:../core
 
+  packages/murai:
+    dependencies:
+      '@murai/core':
+        specifier: workspace:*
+        version: link:../core
+      '@murai/gateway-midtrans':
+        specifier: workspace:*
+        version: link:../gateway-midtrans
+      '@murai/gateway-stripe':
+        specifier: workspace:*
+        version: link:../gateway-stripe
+      '@murai/gateway-xendit':
+        specifier: workspace:*
+        version: link:../gateway-xendit
+      '@murai/storage-drizzle':
+        specifier: workspace:*
+        version: link:../storage-drizzle
+
   packages/storage-drizzle:
     dependencies:
-      '@token-wallet/core':
+      '@murai/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
       drizzle-orm:
         specifier: '>=0.30.0'
         version: 0.45.1
-
-  packages/token-wallet:
-    dependencies:
-      '@token-wallet/core':
-        specifier: workspace:*
-        version: link:../core
-      '@token-wallet/gateway-midtrans':
-        specifier: workspace:*
-        version: link:../gateway-midtrans
-      '@token-wallet/gateway-stripe':
-        specifier: workspace:*
-        version: link:../gateway-stripe
-      '@token-wallet/gateway-xendit':
-        specifier: workspace:*
-        version: link:../gateway-xendit
-      '@token-wallet/storage-drizzle':
-        specifier: workspace:*
-        version: link:../storage-drizzle
 
 packages:
 

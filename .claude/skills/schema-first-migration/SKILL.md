@@ -1,6 +1,6 @@
 ---
 name: schema-first-migration
-description: "Step-by-step guide for Drizzle ORM data migrations in the token-wallet monorepo: update schema → inspect diff → generate migration file → review SQL → apply safely."
+description: "Step-by-step guide for Drizzle ORM data migrations in the murai monorepo: update schema → inspect diff → generate migration file → review SQL → apply safely."
 license: MIT
 ---
 
@@ -8,7 +8,7 @@ license: MIT
 
 ## Overview
 
-This skill guides you through the full data migration workflow for the `@token-wallet/storage-drizzle` package using Drizzle ORM. Always follow these steps in order — skipping steps risks data loss or drift between schema and database.
+This skill guides you through the full data migration workflow for the `@murai/storage-drizzle` package using Drizzle ORM. Always follow these steps in order — skipping steps risks data loss or drift between schema and database.
 
 ---
 
@@ -51,7 +51,7 @@ export const ledgerEntries = pgTable(
 After editing, run a typecheck to catch errors early:
 
 ```bash
-pnpm --filter @token-wallet/storage-drizzle typecheck
+pnpm --filter @murai/storage-drizzle typecheck
 ```
 
 ---
@@ -62,7 +62,7 @@ Before generating a migration, preview what Drizzle will produce:
 
 ```bash
 # Show pending schema changes (dry run)
-pnpm --filter @token-wallet/storage-drizzle exec drizzle-kit diff
+pnpm --filter @murai/storage-drizzle exec drizzle-kit diff
 ```
 
 Or if using the project's drizzle config:
@@ -90,7 +90,7 @@ npx drizzle-kit diff --config=packages/storage-drizzle/drizzle.config.ts
 ## Step 3 — Generate the Migration File
 
 ```bash
-pnpm --filter @token-wallet/storage-drizzle exec drizzle-kit generate
+pnpm --filter @murai/storage-drizzle exec drizzle-kit generate
 ```
 
 Or via the config:
@@ -144,7 +144,7 @@ Generate two separate migration files for each phase.
 **Development / test environment:**
 
 ```bash
-pnpm --filter @token-wallet/storage-drizzle exec drizzle-kit migrate
+pnpm --filter @murai/storage-drizzle exec drizzle-kit migrate
 ```
 
 **Production — checklist before running:**
@@ -162,8 +162,8 @@ pnpm --filter @token-wallet/storage-drizzle exec drizzle-kit migrate
 After applying:
 
 ```bash
-pnpm --filter @token-wallet/storage-drizzle test
-pnpm --filter @token-wallet/storage-drizzle typecheck
+pnpm --filter @murai/storage-drizzle test
+pnpm --filter @murai/storage-drizzle typecheck
 pnpm lint
 ```
 
@@ -230,10 +230,10 @@ LIMIT  1000;
 
 ```bash
 # Typecheck storage package
-pnpm --filter @token-wallet/storage-drizzle typecheck
+pnpm --filter @murai/storage-drizzle typecheck
 
 # Run storage tests
-pnpm --filter @token-wallet/storage-drizzle test
+pnpm --filter @murai/storage-drizzle test
 
 # Preview schema changes (dry run)
 npx drizzle-kit diff --config=packages/storage-drizzle/drizzle.config.ts

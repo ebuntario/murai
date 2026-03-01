@@ -15,7 +15,7 @@
 
 Hono is a small, simple, and ultrafast web framework built on Web Standards. Operates across multiple JavaScript runtimes. The router RegExpRouter is really fast, not using linear loops. Built-in, custom, and third-party middleware support. Super clean APIs with first-class TypeScript support. 2,550+ commits, active Discord and X community.
 
-## What Token Wallet Can Copy
+## What Murai Can Copy
 
 - Give the project a memorable identity (name meaning, emoji, visual brand)
 - Show the absolute minimum code example first — 5-10 lines max

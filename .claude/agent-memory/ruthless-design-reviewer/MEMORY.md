@@ -1,4 +1,4 @@
-# Token Wallet - Design Review Memory
+# Murai - Design Review Memory
 
 ## Architecture
 - Monorepo: pnpm workspaces + Turborepo + tsup + Biome + Vitest
@@ -12,7 +12,7 @@
 - `/packages/core/src/ledger.ts` - createLedger() with credit/debit, idempotency check BEFORE appendEntry (TOCTOU)
 - `/packages/core/src/wallet.ts` - createWallet() with optimistic balance check in spend() (TOCTOU)
 - `/packages/core/src/checkout.ts` - createCheckoutManager() with handleWebhook, returns WebhookResult
-- `/packages/core/src/errors.ts` - TokenWalletError hierarchy (5 error classes)
+- `/packages/core/src/errors.ts` - MuraiError hierarchy (5 error classes)
 - `/packages/core/src/__tests__/helpers.ts` - createMockStorage() in-memory StorageAdapter (NOT publicly exported)
 - `/packages/storage-drizzle/src/index.ts` - Drizzle PG impl with SELECT FOR UPDATE, BIGINT, atomic appendEntry
 - `/packages/gateway-midtrans/src/index.ts` - Midtrans Snap, SHA512 timing-safe verify, dual hosts
@@ -68,9 +68,9 @@
 - CLAUDE.md still references deleted schemas.ts (flagged in v0.2.0 review, never fixed)
 - Changesets config: linked=[], fixed=[], updateInternalDependencies=patch, access=public
 - release.yml uses changesets/action - creates Release PR, then publishes on merge
-- expireTokens/getCheckouts/getTransactions throw bare Error, not TokenWalletError
+- expireTokens/getCheckouts/getTransactions throw bare Error, not MuraiError
 - InvalidAmountError reused for pagination validation (semantic mismatch)
-- token-wallet meta-package description/keywords don't mention Stripe
+- murai meta-package description/keywords don't mention Stripe
 - CHANGELOG.md is in .gitignore - needs git add -f
 - Benchmark files at monorepo root won't work without Turborepo bench task + vitest bench config
 - In-memory mock not exported - benchmarks can't import without fragile relative paths

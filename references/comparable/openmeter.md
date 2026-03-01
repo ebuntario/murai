@@ -17,7 +17,7 @@
 
 OpenMeter provides flexible Billing and Metering for AI and DevTool companies with real-time insights and usage limit enforcement. Quickstart with `docker compose up -d`. REST API exposed with OpenAPI spec. SDKs for JavaScript, Python, Go. Development uses Nix and direnv. Make commands: `make up`, `make run`, `make test`, `make lint`. Docker Compose with dev profile for Kafka and ClickHouse UIs. Apache 2.0 licensed.
 
-## What Token Wallet Can Copy
+## What Murai Can Copy
 
 - Security badges are important for payment-related projects — add OpenSSF scorecard
 - Multiple "Try It" paths (local quickstart, hosted demo, production deploy)

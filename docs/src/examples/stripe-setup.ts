@@ -1,12 +1,12 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
 import {
 	createCheckoutManager,
 	createDrizzleStorage,
 	createLedger,
 	createStripeGateway,
 	createWallet,
-} from 'token-wallet';
+} from 'murai';
+import postgres from 'postgres';
 
 // biome-ignore lint/style/noNonNullAssertion: env vars validated at startup
 const sql = postgres(process.env.DATABASE_URL!);

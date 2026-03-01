@@ -2,8 +2,8 @@
 
 import { randomUUID } from 'node:crypto';
 import { checkout, wallet } from '@/lib/wallet';
+import { InsufficientBalanceError } from 'murai';
 import { redirect } from 'next/navigation';
-import { InsufficientBalanceError } from 'token-wallet';
 
 export async function createTopUp(formData: FormData) {
 	const userId = formData.get('userId') as string;

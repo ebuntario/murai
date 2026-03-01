@@ -1,4 +1,4 @@
-# @token-wallet/gateway-midtrans
+# @murai/gateway-midtrans
 
 ## 1.0.0
 
@@ -9,4 +9,4 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @token-wallet/core@1.0.0
+  - @murai/core@1.0.0

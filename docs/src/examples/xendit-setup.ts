@@ -1,12 +1,12 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
 import {
 	createCheckoutManager,
 	createDrizzleStorage,
 	createLedger,
 	createWallet,
 	createXenditGateway,
-} from 'token-wallet';
+} from 'murai';
+import postgres from 'postgres';
 
 // Xendit uses a callback token instead of signature hashing
 const gateway = createXenditGateway({

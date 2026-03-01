@@ -1,4 +1,4 @@
-# @token-wallet/core
+# @murai/core
 
 ## 1.0.0
 

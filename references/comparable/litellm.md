@@ -15,7 +15,7 @@
 
 LiteLLM is a Python SDK and AI Gateway (Proxy Server) for calling 100+ LLM APIs in OpenAI format. Supports Bedrock, Azure, OpenAI, VertexAI, Cohere, Anthropic, Sagemaker, HuggingFace, VLLM, NVIDIA NIM. Features: cost tracking, guardrails, load balancing, comprehensive logging. AI Gateway provides centralized authentication, multi-tenant cost tracking. Python SDK provides direct integration with Router for retry/fallback.
 
-## What Token Wallet Can Copy
+## What Murai Can Copy
 
 - "Call X using Y format" is a powerful README pattern — e.g., "Add token billing to any AI app in 5 minutes"
 - Show real adopters/users as early as possible

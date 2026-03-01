@@ -11,7 +11,7 @@
 - **"Serverless-ready by design"** positioning
 - **Sponsor section** — shows community investment
 
-## What Token Wallet Can Copy
+## What Murai Can Copy
 
 - List every compatible technology explicitly (databases, frameworks, runtimes)
 - Show the ecosystem — adapters for Midtrans/Xendit/Postgres/MySQL listed prominently

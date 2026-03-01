@@ -1,8 +1,8 @@
 {
-	"name": "@token-wallet/gateway-xendit",
+	"name": "@murai/gateway-xendit",
 	"version": "1.0.0",
 	"type": "module",
-	"description": "Xendit Checkout payment gateway adapter for token-wallet",
+	"description": "Xendit Checkout payment gateway adapter for murai",
 	"license": "MIT",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
@@ -29,6 +29,6 @@
 		"clean": "rm -rf dist"
 	},
 	"dependencies": {
-		"@token-wallet/core": "workspace:*"
+		"@murai/core": "workspace:*"
 	}
 }

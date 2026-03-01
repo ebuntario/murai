@@ -6,14 +6,14 @@ description: Full walkthrough — wallet, top-up, webhooks, and spending in Next
 import { Code } from '@astrojs/starlight/components';
 import setupCode from '../../../examples/quickstart-setup.ts?raw';
 
-This guide walks through building a complete token wallet integration with Next.js 15 App Router. A working example app is available at [`examples/nextjs/`](https://github.com/user/token-wallet/tree/main/examples/nextjs).
+This guide walks through building a complete token wallet integration with Next.js 15 App Router. A working example app is available at [`examples/nextjs/`](https://github.com/user/murai/tree/main/examples/nextjs).
 
 ## 1. Project setup
 
 ```bash
 npx create-next-app@latest my-app --typescript --tailwind --app
 cd my-app
-pnpm add token-wallet drizzle-orm postgres
+pnpm add murai drizzle-orm postgres
 ```
 
 Create the [database tables](/getting-started/installation#create-the-database-tables) and set up your `.env.local`:
@@ -67,7 +67,7 @@ export async function createTopUp(formData: FormData) {
 
 ```ts title="src/app/api/webhooks/midtrans/route.ts"
 import { checkout } from '@/lib/wallet';
-import { WebhookVerificationError } from 'token-wallet';
+import { WebhookVerificationError } from 'murai';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -110,7 +110,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto max-w-md p-8">
-      <h1 className="text-2xl font-bold">Token Wallet</h1>
+      <h1 className="text-2xl font-bold">Murai</h1>
       <p className="mt-4 text-4xl font-mono">
         {balance.toLocaleString('id-ID')} tokens
       </p>
@@ -136,7 +136,7 @@ export default async function DashboardPage() {
 'use server';
 
 import { wallet } from '@/lib/wallet';
-import { InsufficientBalanceError } from 'token-wallet';
+import { InsufficientBalanceError } from 'murai';
 import { randomUUID } from 'crypto';
 
 export async function spendTokens(userId: string, amount: number) {
@@ -158,7 +158,7 @@ If you're using Hono instead of Next.js, here's the equivalent webhook handler:
 
 ```ts title="src/webhooks.ts"
 import { Hono } from 'hono';
-import { WebhookVerificationError } from 'token-wallet';
+import { WebhookVerificationError } from 'murai';
 
 const app = new Hono();
 
@@ -182,4 +182,4 @@ app.post('/webhooks/midtrans', async (c) => {
 
 ## Example app
 
-See the complete working example at [`examples/nextjs/`](https://github.com/user/token-wallet/tree/main/examples/nextjs) — includes dashboard, top-up flow, webhook handler, and spend action.
+See the complete working example at [`examples/nextjs/`](https://github.com/user/murai/tree/main/examples/nextjs) — includes dashboard, top-up flow, webhook handler, and spend action.

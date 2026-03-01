@@ -4,10 +4,10 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
 	integrations: [
 		starlight({
-			title: 'Token Wallet',
+			title: 'Murai',
 			description: 'Payment-gateway-agnostic token wallet for AI/SaaS applications',
 			social: {
-				github: 'https://github.com/user/token-wallet',
+				github: 'https://github.com/user/murai',
 			},
 			sidebar: [
 				{
