@@ -1,4 +1,4 @@
-import type { Wallet } from 'murai';
+import type { Wallet } from '@murai-wallet/murai';
 
 async function getUserDashboard(wallet: Wallet, userId: string) {
 	// Current balance

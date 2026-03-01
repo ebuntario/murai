@@ -1,11 +1,11 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
 import {
 	createCheckoutManager,
 	createDrizzleStorage,
 	createLedger,
 	createMidtransGateway,
 	createWallet,
-} from 'murai';
+} from '@murai-wallet/murai';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
 // Singleton pattern for development hot reloading

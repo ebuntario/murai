@@ -10,7 +10,7 @@
 			"@murai-wallet/gateway-xendit",
 			"@murai-wallet/gateway-stripe",
 			"@murai-wallet/storage-drizzle",
-			"murai"
+			"@murai-wallet/murai"
 		]
 	],
 	"access": "public",

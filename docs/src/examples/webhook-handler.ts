@@ -1,4 +1,4 @@
-import type { CheckoutManager, WebhookResult } from 'murai';
+import type { CheckoutManager, WebhookResult } from '@murai-wallet/murai';
 
 // Example: Express / Hono / any framework
 async function handleMidtransWebhook(

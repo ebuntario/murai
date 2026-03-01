@@ -1,5 +1,5 @@
+import { createDrizzleStorage, createWallet } from '@murai-wallet/murai';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { createDrizzleStorage, createWallet } from 'murai';
 import postgres from 'postgres';
 
 // biome-ignore lint/style/noNonNullAssertion: env vars validated at startup

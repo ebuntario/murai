@@ -30,7 +30,7 @@ Thrown when a spend/debit exceeds the user's available balance.
 | `available` | `number` | Balance at time of check |
 
 ```ts
-import { InsufficientBalanceError } from 'murai';
+import { InsufficientBalanceError } from '@murai-wallet/murai';
 
 try {
   await wallet.spend('user_123', 50_000, 'key-1');
@@ -54,7 +54,7 @@ Thrown when a duplicate idempotency key is used for a ledger operation.
 | `idempotencyKey` | `string` | The duplicate key |
 
 ```ts
-import { IdempotencyConflictError } from 'murai';
+import { IdempotencyConflictError } from '@murai-wallet/murai';
 
 try {
   await wallet.spend('user_123', 1000, 'same-key');
@@ -79,7 +79,7 @@ Thrown when a webhook's signature verification fails.
 | `code` | `'WEBHOOK_VERIFICATION_FAILED'` | Error code |
 
 ```ts
-import { WebhookVerificationError } from 'murai';
+import { WebhookVerificationError } from '@murai-wallet/murai';
 
 try {
   await checkout.handleWebhook({ payload, signature });
@@ -115,7 +115,7 @@ Thrown when an `expiresAt` date is not in the future.
 | `expiresAt` | `Date` | The invalid expiration date |
 
 ```ts
-import { InvalidExpirationError } from 'murai';
+import { InvalidExpirationError } from '@murai-wallet/murai';
 
 try {
   await wallet.topUp('user_123', 10_000, 'key-1', {
@@ -139,7 +139,7 @@ Thrown when the `metadata` string exceeds the allowed length or is otherwise inv
 | `metadata` | `string` | The invalid metadata value |
 
 ```ts
-import { InvalidMetadataError } from 'murai';
+import { InvalidMetadataError } from '@murai-wallet/murai';
 
 try {
   await wallet.spend('user_123', 1000, 'key-1', {
@@ -165,7 +165,7 @@ Thrown when a payment gateway API call fails.
 | `cause` | `unknown` | Original error (if any) |
 
 ```ts
-import { GatewayError } from 'murai';
+import { GatewayError } from '@murai-wallet/murai';
 
 try {
   await checkout.createSession({ /* ... */ });
@@ -183,7 +183,7 @@ try {
 Use the base class to catch all domain errors:
 
 ```ts
-import { MuraiError } from 'murai';
+import { MuraiError } from '@murai-wallet/murai';
 
 try {
   await wallet.spend(userId, amount, key);

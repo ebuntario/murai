@@ -48,7 +48,7 @@ import {
   createLedger,
   createDrizzleStorage,
   createMidtransGateway,
-} from 'murai';
+} from '@murai-wallet/murai';
 
 const storage = createDrizzleStorage(db);
 const gateway = createMidtransGateway({ serverKey, clientKey, sandbox: true });

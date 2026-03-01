@@ -10,7 +10,7 @@ The core package provides three factory functions that compose into a complete w
 Creates the main wallet interface for balance queries and spending.
 
 ```ts
-import { createWallet } from 'murai';
+import { createWallet } from '@murai-wallet/murai';
 
 const wallet = createWallet({ storage });
 ```
@@ -41,7 +41,7 @@ const wallet = createWallet({ storage });
 Creates the low-level ledger for credit/debit operations. Most apps use `createWallet` instead — the ledger is needed only for `createCheckoutManager`.
 
 ```ts
-import { createLedger } from 'murai';
+import { createLedger } from '@murai-wallet/murai';
 
 const ledger = createLedger(storage);
 ```
@@ -72,7 +72,7 @@ const ledger = createLedger(storage);
 Creates the checkout manager that bridges a payment gateway with the ledger. Handles checkout session creation and webhook processing.
 
 ```ts
-import { createCheckoutManager, createLedger } from 'murai';
+import { createCheckoutManager, createLedger } from '@murai-wallet/murai';
 
 const ledger = createLedger(storage);
 const checkout = createCheckoutManager(gateway, ledger, storage);

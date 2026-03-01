@@ -104,7 +104,7 @@ buckets. Here is a minimal example:
 
 ```ts
 // cron-expire.ts — run via cron (e.g., daily at midnight)
-import { createDrizzleStorage, createWallet } from 'murai';
+import { createDrizzleStorage, createWallet } from '@murai-wallet/murai';
 
 const storage = createDrizzleStorage(db);
 const wallet = createWallet({ storage });

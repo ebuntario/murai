@@ -9,7 +9,7 @@ Murai is a monorepo with five packages. You can install the meta-package for con
 
 | Package | npm | Purpose |
 |---|---|---|
-| `murai` | [![npm](https://img.shields.io/npm/v/murai)](https://www.npmjs.com/package/murai) | Meta-package — single install, re-exports everything |
+| `@murai-wallet/murai` | [![npm](https://img.shields.io/npm/v/@murai-wallet/murai)](https://www.npmjs.com/package/@murai-wallet/murai) | Meta-package — single install, re-exports everything |
 | `@murai-wallet/core` | [![npm](https://img.shields.io/npm/v/@murai-wallet/core)](https://www.npmjs.com/package/@murai-wallet/core) | Wallet, ledger, checkout manager, types, errors |
 | `@murai-wallet/gateway-midtrans` | [![npm](https://img.shields.io/npm/v/@murai-wallet/gateway-midtrans)](https://www.npmjs.com/package/@murai-wallet/gateway-midtrans) | Midtrans Snap adapter |
 | `@murai-wallet/gateway-xendit` | [![npm](https://img.shields.io/npm/v/@murai-wallet/gateway-xendit)](https://www.npmjs.com/package/@murai-wallet/gateway-xendit) | Xendit Checkout adapter |
@@ -60,7 +60,7 @@ Domain errors that extend `MuraiError`: `InsufficientBalanceError`, `Idempotency
 ## Dependency graph
 
 ```
-murai (meta-package)
+@murai-wallet/murai (meta-package)
 ├── @murai-wallet/core
 ├── @murai-wallet/gateway-midtrans  → depends on core
 ├── @murai-wallet/gateway-xendit    → depends on core

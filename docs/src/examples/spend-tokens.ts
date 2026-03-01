@@ -1,5 +1,5 @@
-import { InsufficientBalanceError } from 'murai';
-import type { Wallet } from 'murai';
+import { InsufficientBalanceError } from '@murai-wallet/murai';
+import type { Wallet } from '@murai-wallet/murai';
 
 async function handleAIRequest(wallet: Wallet, userId: string, cost: number, requestId: string) {
 	// 1. Check balance before calling the AI provider

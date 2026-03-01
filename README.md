@@ -5,8 +5,8 @@
 Add credit-based billing to any app in under 30 minutes — with first-class support for Indonesian payment gateways.
 
 [![CI](https://github.com/ebuntario/murai/actions/workflows/ci.yml/badge.svg)](https://github.com/ebuntario/murai/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/murai.svg)](https://www.npmjs.com/package/murai)
-[![npm downloads](https://img.shields.io/npm/dm/murai.svg)](https://www.npmjs.com/package/murai)
+[![npm](https://img.shields.io/npm/v/@murai-wallet/murai.svg)](https://www.npmjs.com/package/@murai-wallet/murai)
+[![npm downloads](https://img.shields.io/npm/dm/@murai-wallet/murai.svg)](https://www.npmjs.com/package/@murai-wallet/murai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
@@ -45,9 +45,9 @@ Custom gateways can be added by implementing the `PaymentGatewayAdapter` interfa
 ### Install
 
 ```bash
-npm install murai drizzle-orm postgres
+npm install @murai-wallet/murai drizzle-orm postgres
 # or
-pnpm add murai drizzle-orm postgres
+pnpm add @murai-wallet/murai drizzle-orm postgres
 ```
 
 ### Create the database tables

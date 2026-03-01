@@ -1,11 +1,11 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
 import {
 	createCheckoutManager,
 	createDrizzleStorage,
 	createLedger,
 	createWallet,
 	createXenditGateway,
-} from 'murai';
+} from '@murai-wallet/murai';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
 // Xendit uses a callback token instead of signature hashing

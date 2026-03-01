@@ -7,7 +7,7 @@ This is the convenience meta-package that re-exports all [Murai](https://github.
 ## Install
 
 ```bash
-npm install murai drizzle-orm postgres
+npm install @murai-wallet/murai drizzle-orm postgres
 ```
 
 ## Usage

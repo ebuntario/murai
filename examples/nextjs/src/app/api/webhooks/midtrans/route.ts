@@ -1,5 +1,5 @@
 import { checkout } from '@/lib/wallet';
-import { WebhookVerificationError } from 'murai';
+import { WebhookVerificationError } from '@murai-wallet/murai';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {

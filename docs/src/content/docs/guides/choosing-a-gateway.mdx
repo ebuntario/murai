@@ -54,7 +54,7 @@ import {
   createStripeGateway,
   createCheckoutManager,
   createLedger,
-} from 'murai';
+} from '@murai-wallet/murai';
 
 const midtrans = createMidtransGateway({ /* config */ });
 const xendit = createXenditGateway({ /* config */ });
@@ -80,7 +80,7 @@ function pickCheckout(preference: string) {
 Stripe is now built-in as of v0.4.0. If you need a different payment provider (DOKU, PayMongo, etc.), implement the `PaymentGatewayAdapter` interface:
 
 ```ts
-import type { PaymentGatewayAdapter } from 'murai';
+import type { PaymentGatewayAdapter } from '@murai-wallet/murai';
 
 const myGateway: PaymentGatewayAdapter = {
   async createCheckout(params) {

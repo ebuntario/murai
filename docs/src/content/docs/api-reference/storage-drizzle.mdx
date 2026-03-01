@@ -10,7 +10,7 @@ Creates a `StorageAdapter` backed by Drizzle ORM and PostgreSQL.
 ```ts
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { createDrizzleStorage } from 'murai';
+import { createDrizzleStorage } from '@murai-wallet/murai';
 
 const sql = postgres(process.env.DATABASE_URL!);
 const db = drizzle(sql);

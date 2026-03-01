@@ -2,7 +2,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { checkout, wallet } from '@/lib/wallet';
-import { InsufficientBalanceError } from 'murai';
+import { InsufficientBalanceError } from '@murai-wallet/murai';
 import { redirect } from 'next/navigation';
 
 export async function createTopUp(formData: FormData) {
