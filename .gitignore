@@ -35,3 +35,6 @@ npm-debug.log*
 
 # Changesets (only ignore generated files, not config)
 CHANGELOG.md
+
+# Claude Code
+.claude/
