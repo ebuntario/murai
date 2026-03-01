@@ -1,5 +1,11 @@
 # @murai-wallet/core
 
+## 1.0.2
+
+### Patch Changes
+
+- [`d220758`](https://github.com/ebuntario/murai/commit/d220758f99bdd47a06336c829e929ac68c46665a) Thanks [@ethanbuntario](https://github.com/ethanbuntario)! - Rename npm scope from @murai to @murai-wallet for initial public release.
+
 ## 1.0.1
 
 ### Patch Changes
