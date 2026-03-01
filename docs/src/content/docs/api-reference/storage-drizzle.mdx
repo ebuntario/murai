@@ -1,0 +1,122 @@
+---
+title: "Storage: Drizzle"
+description: "API reference for @token-wallet/storage-drizzle — Drizzle ORM PostgreSQL adapter"
+---
+
+## `createDrizzleStorage(db)`
+
+Creates a `StorageAdapter` backed by Drizzle ORM and PostgreSQL.
+
+```ts
+import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { createDrizzleStorage } from 'token-wallet';
+
+const sql = postgres(process.env.DATABASE_URL!);
+const db = drizzle(sql);
+const storage = createDrizzleStorage(db);
+```
+
+### Parameters
+
+| Param | Type | Description |
+|---|---|---|
+| `db` | `PgDatabase<HKT>` | Any Drizzle PostgreSQL database instance |
+
+Works with both `postgres.js` and `node-postgres` drivers:
+
+```ts
+// postgres.js
+import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
+const db = drizzle(postgres(url));
+
+// node-postgres
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+const db = drizzle(new Pool({ connectionString: url }));
+```
+
+### Database schema
+
+Three tables are required:
+
+```sql
+CREATE TABLE wallets (
+  user_id TEXT PRIMARY KEY,
+  balance BIGINT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE transactions (
+  id UUID PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  amount BIGINT NOT NULL,
+  idempotency_key TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ NOT NULL,
+  expires_at TIMESTAMPTZ,
+  remaining BIGINT,
+  expired_at TIMESTAMPTZ,
+  metadata TEXT
+);
+
+CREATE TABLE checkouts (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  amount BIGINT NOT NULL,
+  redirect_url TEXT NOT NULL,
+  status TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+);
+```
+
+### Why BIGINT?
+
+Indonesian Rupiah amounts can exceed PostgreSQL's `INTEGER` limit (~2.1 billion). A single top-up of IDR 10,000,000 is well within range, but accumulated balances and high-volume systems can exceed it. `BIGINT` handles up to ~9.2 quintillion.
+
+### SELECT FOR UPDATE
+
+The `appendEntry` method uses a database transaction with `SELECT ... FOR UPDATE` to prevent concurrent overdrafts:
+
+1. **Upsert wallet row** — safe for first-time users
+2. **Lock row** — `SELECT ... FOR UPDATE` on the wallet
+3. **Check balance** — reject debits that exceed balance
+4. **Update balance** — atomic increment/decrement
+5. **Insert entry** — `UNIQUE(idempotency_key)` enforces idempotency
+
+If two concurrent requests try to debit the same user, one will wait for the other's transaction to complete, then re-read the balance.
+
+### Idempotency enforcement
+
+The `UNIQUE` constraint on `idempotency_key` is the storage-level safety net. If a duplicate key is inserted, PostgreSQL raises error code `23505` (unique violation), which the adapter catches and converts to `IdempotencyConflictError`.
+
+### Implemented methods
+
+| Method | Description |
+|---|---|
+| `getBalance(userId)` | Returns balance from `wallets` table (0 for new users) |
+| `appendEntry(entry)` | Atomic credit/debit with row locking |
+| `findEntry(idempotencyKey)` | Lookup by idempotency key |
+| `saveCheckout(session)` | Persist a new checkout session |
+| `findCheckout(id)` | Lookup by session ID |
+| `updateCheckoutStatus(id, status)` | Update status and `updated_at` |
+| `getTransactions(userId, query)` | Paginated, filterable by type (credit/debit) and date range |
+| `getCheckouts(userId, query)` | Paginated, filterable by status |
+| `expireCredits(userId)` | Expire all credits past their `expires_at` for a user. Sets `expired_at` and deducts from balance |
+| `getUsersWithExpirableCredits()` | Returns user IDs that have unexpired credits past their `expires_at` |
+
+### Migration from v0.3
+
+If you are upgrading from v0.3.x, run the following migration to add the new columns:
+
+```sql
+-- Add token expiration and metadata columns to transactions
+ALTER TABLE transactions ADD COLUMN expires_at TIMESTAMPTZ;
+ALTER TABLE transactions ADD COLUMN remaining BIGINT;
+ALTER TABLE transactions ADD COLUMN expired_at TIMESTAMPTZ;
+ALTER TABLE transactions ADD COLUMN metadata TEXT;
+```
+
+:::note
+Existing rows will have `NULL` for all four new columns, which is correct. Credits without `expires_at` never expire. The `remaining` column is only populated for new credits that have an `expiresAt` set.
+:::

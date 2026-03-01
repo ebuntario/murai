@@ -1,0 +1,140 @@
+---
+title: Token Expiration
+description: FIFO bucket-based expiration for time-limited credits
+---
+
+import { Code } from '@astrojs/starlight/components';
+import expirationCode from '../../../examples/token-expiration.ts?raw';
+
+Credits don't last forever. Promotional tokens, trial balances, and time-limited
+top-ups all need expiration dates. Token Wallet handles this with a FIFO
+bucket-based expiration system that integrates seamlessly with the append-only
+ledger.
+
+## How it works
+
+### Buckets
+
+Every call to `topUp` creates a **bucket** -- a record of how many tokens were
+added, how many remain, and when they expire. Each bucket tracks:
+
+| Field | Description |
+|---|---|
+| `userId` | Owner of the bucket |
+| `amount` | Original credit amount |
+| `remaining` | Unspent tokens in this bucket |
+| `expiresAt` | When the bucket expires (`null` = never expires) |
+| `createdAt` | When the bucket was created |
+
+```ts
+// Non-expiring top-up (no expiresAt)
+await wallet.topUp('user_123', 5_000, 'purchase-001');
+
+// Expiring top-up (30 days)
+const thirtyDays = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+await wallet.topUp('user_123', 10_000, 'promo-002', {
+	expiresAt: thirtyDays,
+});
+```
+
+### FIFO spend ordering
+
+When a user spends tokens, the system consumes from buckets in order:
+
+1. **Earliest-expiring buckets first** -- tokens that expire soonest are used
+   first
+2. **Non-expiring buckets last** -- buckets with `expiresAt: null` are used only
+   after all expiring buckets are exhausted (`NULLS LAST` ordering)
+3. **Within the same expiration date** -- buckets are consumed in creation order
+
+This ensures that expiring tokens are always used before permanent ones,
+minimizing waste for the user.
+
+```
+Bucket A: 3,000 remaining, expires Jan 15  <- consumed first
+Bucket B: 5,000 remaining, expires Feb 20  <- consumed second
+Bucket C: 2,000 remaining, never expires   <- consumed last
+```
+
+:::tip[Users keep their permanent tokens]
+FIFO ordering means promotional or trial credits are consumed before purchased
+tokens. This is the fairest approach for users -- they never lose paid tokens
+while free ones sit unused.
+:::
+
+## Expiring tokens
+
+### The `expireTokens` function
+
+Expired buckets are not automatically removed from the balance. Instead, you
+call `expireTokens(userId)` to atomically debit any remaining tokens from
+expired buckets.
+
+```ts
+const result = await wallet.expireTokens('user_123');
+// result.expiredCount  — number of buckets expired
+// result.expiredAmount — total tokens debited
+```
+
+This function:
+1. Finds all buckets where `expiresAt < now` and `remaining > 0`
+2. Creates a debit ledger entry for each bucket's remaining balance
+3. Sets `remaining = 0` on each expired bucket
+4. Returns an [`ExpireResult`](/api-reference/types) with the totals
+
+All steps happen inside a single transaction with `SELECT FOR UPDATE` locking,
+so it is safe to call concurrently.
+
+### Balance semantics
+
+`getBalance()` returns the **materialized** balance -- the sum of all ledger
+entries. Expired-but-not-yet-processed buckets are still counted in the balance
+until `expireTokens` runs and creates the corresponding debit entries.
+
+:::caution[Balance includes not-yet-expired tokens]
+If a bucket expired at midnight but `expireTokens` hasn't run yet, the user's
+balance still includes those tokens. They could even spend them. Run
+`expireTokens` frequently enough for your use case (hourly or daily is typical).
+:::
+
+## Running via cron
+
+In production, run `expireTokens` on a schedule for all users with expiring
+buckets. Here is a minimal example:
+
+```ts
+// cron-expire.ts — run via cron (e.g., daily at midnight)
+import { createDrizzleStorage, createWallet } from 'token-wallet';
+
+const storage = createDrizzleStorage(db);
+const wallet = createWallet({ storage });
+
+// Get all user IDs with expiring buckets (your own query)
+const userIds = await getUsersWithExpiringBuckets();
+
+for (const userId of userIds) {
+	const result = await wallet.expireTokens(userId);
+	if (result.expiredAmount > 0) {
+		console.log(
+			`${userId}: expired ${result.expiredCount} buckets,` +
+			` ${result.expiredAmount} tokens`
+		);
+	}
+}
+```
+
+:::tip[Cron frequency]
+Daily is sufficient for most applications. If you need tighter guarantees (e.g.,
+tokens expire at a specific hour), run hourly. Calling `expireTokens` on a user
+with no expired buckets is a no-op.
+:::
+
+## Full example
+
+<Code code={expirationCode} lang="ts" title="lib/expiration.ts" />
+
+## What's next?
+
+- [Types reference](/api-reference/types) -- see `ExpireResult` and `TopUpOptions`
+- [Architecture](/guides/architecture) -- how the append-only ledger and locking work
+- [Usage Reporting](/guides/usage-reporting) -- track provider costs alongside spends

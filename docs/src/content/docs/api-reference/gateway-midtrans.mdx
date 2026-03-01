@@ -1,0 +1,100 @@
+---
+title: "Gateway: Midtrans"
+description: "API reference for @token-wallet/gateway-midtrans — Midtrans Snap adapter"
+---
+
+## `createMidtransGateway(config)`
+
+Creates a Midtrans Snap payment gateway adapter.
+
+```ts
+import { createMidtransGateway } from 'token-wallet';
+
+const gateway = createMidtransGateway({
+  serverKey: process.env.MIDTRANS_SERVER_KEY!,
+  clientKey: process.env.MIDTRANS_CLIENT_KEY!,
+  sandbox: true,
+});
+```
+
+### Configuration
+
+```ts
+interface MidtransConfig {
+  serverKey: string;      // Midtrans server key (starts with SB-Mid-server- for sandbox)
+  clientKey: string;      // Midtrans client key (starts with SB-Mid-client- for sandbox)
+  sandbox?: boolean;      // Defaults to true — set false for production
+  timeoutMs?: number;     // Fetch timeout in ms — defaults to 30000
+}
+```
+
+:::caution[Sandbox default]
+`sandbox` defaults to `true`. You must explicitly set `sandbox: false` for production. This prevents accidentally hitting production APIs during development.
+:::
+
+### Sandbox vs Production hosts
+
+| Environment | Snap API | Status API |
+|---|---|---|
+| Sandbox | `app.sandbox.midtrans.com` | `api.sandbox.midtrans.com` |
+| Production | `app.midtrans.com` | `api.midtrans.com` |
+
+### Methods
+
+**`createCheckout(params)`**
+
+Creates a Snap transaction and returns a redirect URL.
+
+```ts
+const session = await gateway.createCheckout({
+  userId: 'user_123',
+  amount: 100_000,
+  successRedirectUrl: 'https://yourapp.com/success',
+  failureRedirectUrl: 'https://yourapp.com/fail',
+});
+// session.redirectUrl → https://app.sandbox.midtrans.com/snap/v2/vtweb/...
+```
+
+The `orderId` is auto-generated as `{userId}-{uuid}`.
+
+**`verifyWebhook(payload, signature)`**
+
+Verifies the SHA512 signature. Uses `crypto.timingSafeEqual` to prevent timing attacks.
+
+```ts
+const isValid = await gateway.verifyWebhook(body, body.signature_key);
+```
+
+The signature is computed as: `SHA512(order_id + status_code + gross_amount + server_key)`.
+
+**`parseWebhookPayload(payload)`**
+
+Extracts order ID, status, and amount from the webhook body.
+
+Status mapping:
+
+| Midtrans status | Token Wallet status |
+|---|---|
+| `settlement` | `success` |
+| `capture` | `success` |
+| `cancel` | `failed` |
+| `deny` | `failed` |
+| `expire` | `expired` |
+| `pending` | `pending` |
+
+**`getPaymentStatus(orderId)`**
+
+Polls the Midtrans Status API for the current payment status.
+
+```ts
+const status = await gateway.getPaymentStatus('user_123-abc-def');
+// 'success' | 'failed' | 'expired' | 'pending'
+```
+
+### Getting sandbox credentials
+
+1. Go to [Midtrans Sandbox Dashboard](https://dashboard.sandbox.midtrans.com/)
+2. Create an account or sign in
+3. Navigate to **Settings → Access Keys**
+4. Copy the **Server Key** and **Client Key**
+5. Set the webhook notification URL under **Settings → Payment → Notification URL**

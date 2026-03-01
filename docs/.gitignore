@@ -1,0 +1,4 @@
+# Astro generated files
+.astro/
+dist/
+node_modules/

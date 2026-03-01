@@ -1,0 +1,96 @@
+---
+title: Installation
+description: Install Token Wallet and set up your database
+---
+
+## Prerequisites
+
+- **Node.js 22+** ([download](https://nodejs.org/))
+- **PostgreSQL** — any provider: [Neon](https://neon.tech/) (free tier), [Supabase](https://supabase.com/), local Docker, etc.
+- **Payment gateway credentials** — [Midtrans Sandbox](https://dashboard.sandbox.midtrans.com/) or [Xendit Dashboard](https://dashboard.xendit.co/)
+
+## Install packages
+
+```bash
+# Single package — includes core, both gateways, and Drizzle storage
+npm install token-wallet drizzle-orm postgres
+```
+
+```bash
+# Or with pnpm
+pnpm add token-wallet drizzle-orm postgres
+```
+
+If you only need specific packages:
+
+```bash
+# Core only (bring your own storage and gateway)
+npm install @token-wallet/core
+
+# Individual adapters
+npm install @token-wallet/gateway-midtrans
+npm install @token-wallet/gateway-xendit
+npm install @token-wallet/gateway-stripe
+npm install @token-wallet/storage-drizzle
+```
+
+## Create the database tables
+
+Run this SQL against your PostgreSQL database:
+
+```sql
+CREATE TABLE wallets (
+  user_id TEXT PRIMARY KEY,
+  balance BIGINT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE transactions (
+  id UUID PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  amount BIGINT NOT NULL,
+  idempotency_key TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ NOT NULL,
+  expires_at TIMESTAMPTZ,
+  remaining BIGINT,
+  expired_at TIMESTAMPTZ,
+  metadata TEXT
+);
+
+CREATE TABLE checkouts (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  amount BIGINT NOT NULL,
+  redirect_url TEXT NOT NULL,
+  status TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+);
+```
+
+:::tip[Why BIGINT?]
+Indonesian Rupiah amounts can exceed JavaScript's 32-bit integer limit (~2.1 billion). `BIGINT` safely handles amounts up to 9.2 quintillion.
+:::
+
+## Environment variables
+
+Add these to your `.env`:
+
+```bash
+DATABASE_URL=postgres://user:pass@host/dbname
+
+# Midtrans (if using)
+MIDTRANS_SERVER_KEY=SB-Mid-server-...
+MIDTRANS_CLIENT_KEY=SB-Mid-client-...
+
+# Xendit (if using)
+XENDIT_SECRET_KEY=xnd_development_...
+XENDIT_CALLBACK_TOKEN=your-callback-token
+
+# Stripe (if using)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+## Next steps
+
+Continue to the [Quick Start](/getting-started/quickstart) to wire up your first wallet.

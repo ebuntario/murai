@@ -1,0 +1,71 @@
+---
+title: Quick Start
+description: Zero to working wallet in 5 minutes
+---
+
+import { Code } from '@astrojs/starlight/components';
+import setupCode from '../../../examples/quickstart-setup.ts?raw';
+import spendCode from '../../../examples/spend-tokens.ts?raw';
+import webhookCode from '../../../examples/webhook-handler.ts?raw';
+import queryCode from '../../../examples/query-history.ts?raw';
+
+This guide takes you from zero to a working token wallet in 5 minutes. You'll set up storage, connect a payment gateway, and handle your first top-up.
+
+## 1. Wire up the wallet
+
+Create a `lib/wallet.ts` file in your project:
+
+<Code code={setupCode} lang="ts" title="lib/wallet.ts" />
+
+This gives you two objects:
+- **`wallet`** — balance queries and spending (`getBalance`, `canSpend`, `spend`)
+- **`checkout`** — top-ups via payment gateway (`createSession`, `handleWebhook`)
+
+## 2. Create a top-up session
+
+When a user wants to buy tokens, create a checkout session and redirect them:
+
+```ts
+const session = await checkout.createSession({
+  userId: 'user_123',
+  amount: 100_000, // IDR 100,000
+  successRedirectUrl: 'https://yourapp.com/success',
+  failureRedirectUrl: 'https://yourapp.com/fail',
+});
+
+// Redirect user to session.redirectUrl
+// They'll complete payment on the gateway's hosted page
+```
+
+## 3. Handle webhooks
+
+After payment, the gateway sends a webhook to your server. Set up an endpoint:
+
+<Code code={webhookCode} lang="ts" title="api/webhooks/midtrans.ts" />
+
+:::caution[Read the raw body]
+Most frameworks parse the request body as JSON by default. For Midtrans, you need the parsed JSON body. For Xendit, the signature is in the `x-callback-token` header, not the body.
+:::
+
+## 4. Spend tokens
+
+Deduct tokens when your user consumes a service (e.g., an AI API call):
+
+<Code code={spendCode} lang="ts" title="lib/spend.ts" />
+
+The **idempotency key** (`ai-${requestId}`) prevents double-charges if your code retries.
+
+## 5. Query history
+
+Build a "my usage" dashboard with transaction and checkout history:
+
+<Code code={queryCode} lang="ts" title="lib/dashboard.ts" />
+
+## What's next?
+
+- [Project Structure](/getting-started/project-structure) — understand the package layout
+- [Next.js Integration](/guides/nextjs-integration) — full walkthrough with a working example app
+- [Webhook Verification](/guides/webhook-verification) — deep dive into security
+- [Architecture](/guides/architecture) — understand the ledger, idempotency, and race condition handling
+- [Token Expiration](/guides/token-expiration) — set expiry dates on credits and run expiration jobs
+- [Usage Reporting](/guides/usage-reporting) — generate usage reports and track spending over time

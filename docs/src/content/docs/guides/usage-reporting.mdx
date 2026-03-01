@@ -1,0 +1,129 @@
+---
+title: Usage Reporting
+description: Track provider costs and compute margins with spend metadata
+---
+
+import { Code } from '@astrojs/starlight/components';
+import usageCode from '../../../examples/usage-report.ts?raw';
+
+When you resell AI or SaaS services, you need to know what you're paying
+upstream providers versus what you're charging users. Token Wallet's usage
+reporting lets you attach cost metadata to spends and aggregate it into
+reports.
+
+## Attaching metadata to spends
+
+Pass a `metadata` string (JSON) as the fourth argument to `spend`:
+
+```ts
+await wallet.spend('user_123', 500, 'ai-req-001', {
+	metadata: JSON.stringify({ cost: 0.05, model: 'gpt-4o' }),
+});
+```
+
+The metadata is stored alongside the ledger entry and used by
+`getUsageReport` to compute provider cost totals.
+
+### Metadata conventions
+
+The metadata field is a JSON string representing an object. The following
+fields are recognized:
+
+| Field | Type | Description |
+|---|---|---|
+| `cost` | `number` | Provider cost for this operation (non-negative) |
+| `model` | `string` | Optional model or service identifier |
+
+You can include any additional fields -- only `cost` is used for aggregation.
+
+### Validation rules
+
+Token Wallet validates metadata before storing it:
+
+| Rule | Error |
+|---|---|
+| Must be valid JSON | `ValidationError` |
+| Must parse as an object (not array/string/number) | `ValidationError` |
+| `cost` must be a non-negative finite number | `ValidationError` |
+| Total size must be under 4 KB | `ValidationError` |
+
+```ts
+// Valid
+{ "cost": 0.05 }
+{ "cost": 0.05, "model": "gpt-4o", "tokens": 1500 }
+{ "model": "claude-sonnet" }   // cost is optional
+
+// Invalid
+"just a string"                // not an object
+{ "cost": -0.05 }              // negative cost
+{ "cost": Infinity }           // non-finite cost
+[1, 2, 3]                      // array, not object
+```
+
+:::note[Metadata is optional]
+You can call `spend` without metadata. Spends without a `cost` field
+contribute zero to the provider cost total in reports.
+:::
+
+## Generating usage reports
+
+Use `getUsageReport` to aggregate a user's activity over a time range:
+
+```ts
+const report = await wallet.getUsageReport('user_123', {
+	from: new Date('2025-01-01'),
+	to: new Date('2025-01-31'),
+});
+```
+
+The returned [`UsageReport`](/api-reference/types) contains:
+
+| Field | Type | Description |
+|---|---|---|
+| `totalCredits` | `number` | Sum of all credit (top-up) amounts |
+| `totalDebits` | `number` | Sum of all debit (spend) amounts (positive) |
+| `totalProviderCost` | `number` | Sum of all `cost` values from metadata |
+| `transactionCount` | `number` | Number of transactions in the range |
+
+### Computing your margin
+
+Your margin is the difference between what you charged (in token units) and
+what the upstream provider charged you (in currency units):
+
+```ts
+const margin = report.totalDebits - report.totalProviderCost;
+console.log(`Margin: ${margin}`);
+```
+
+:::tip[Unit alignment]
+`totalDebits` is in token units (e.g., 500 tokens). `totalProviderCost` is in
+whatever currency unit you store in `cost` (e.g., USD). Make sure your token
+pricing aligns these units. For example, if 1 token = $0.001, then 500 tokens =
+$0.50, and a provider cost of $0.05 gives a margin of $0.45.
+:::
+
+### Date range filtering
+
+Both `from` and `to` are inclusive boundaries on the transaction's `createdAt`
+timestamp. If omitted, the report covers all time:
+
+```ts
+// All time
+const allTime = await wallet.getUsageReport('user_123', {});
+
+// Last 7 days
+const week = await wallet.getUsageReport('user_123', {
+	from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+	to: new Date(),
+});
+```
+
+## Full example
+
+<Code code={usageCode} lang="ts" title="lib/usage.ts" />
+
+## What's next?
+
+- [Types reference](/api-reference/types) -- see `UsageReport` and `SpendOptions`
+- [Token Expiration](/guides/token-expiration) -- FIFO bucket-based expiration
+- [Architecture](/guides/architecture) -- append-only ledger and locking

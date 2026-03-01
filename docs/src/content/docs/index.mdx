@@ -1,0 +1,69 @@
+---
+title: Token Wallet
+description: Payment-gateway-agnostic token wallet for AI/SaaS applications
+template: splash
+hero:
+  tagline: Add credit-based billing to any app in under 30 minutes — with first-class support for Indonesian payment gateways.
+  actions:
+    - text: Get Started
+      link: /getting-started/installation/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/user/token-wallet
+      icon: external
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Features
+
+<CardGrid stagger>
+	<Card title="Atomic Balance" icon="approve-check">
+		No overdrafts, no double-charges. SELECT FOR UPDATE ensures safe concurrent spending.
+	</Card>
+	<Card title="Append-only Ledger" icon="document">
+		Every transaction is permanently recorded. Auditable, replayable, and tamper-evident.
+	</Card>
+	<Card title="Idempotent Webhooks" icon="rocket">
+		Dual idempotency guards handle retry storms from any payment gateway.
+	</Card>
+	<Card title="Gateway-agnostic" icon="puzzle">
+		Midtrans Snap, Xendit Checkout, and Stripe built-in. Add your own with a simple interface.
+	</Card>
+	<Card title="Token Expiration" icon="warning">
+		Set expiry dates on credits. Run expiration jobs to automatically reclaim unused tokens.
+	</Card>
+	<Card title="Usage Reporting" icon="bars">
+		Generate per-user usage reports with aggregated credits, debits, and transaction counts over any date range.
+	</Card>
+</CardGrid>
+
+## Quick example
+
+```ts
+import {
+  createWallet,
+  createCheckoutManager,
+  createLedger,
+  createDrizzleStorage,
+  createMidtransGateway,
+} from 'token-wallet';
+
+const storage = createDrizzleStorage(db);
+const gateway = createMidtransGateway({ serverKey, clientKey, sandbox: true });
+const wallet = createWallet({ storage });
+const ledger = createLedger(storage);
+const checkout = createCheckoutManager(gateway, ledger, storage);
+
+// Top up
+const session = await checkout.createSession({
+  userId: 'user_123',
+  amount: 100_000,
+  successRedirectUrl: 'https://yourapp.com/success',
+  failureRedirectUrl: 'https://yourapp.com/fail',
+});
+
+// Spend
+await wallet.spend('user_123', 5_000, 'usage-key');
+```

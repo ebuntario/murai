@@ -1,0 +1,70 @@
+---
+title: Project Structure
+description: What each package does and how they fit together
+---
+
+Token Wallet is a monorepo with five packages. You can install the meta-package for convenience or pick individual packages.
+
+## Package overview
+
+| Package | npm | Purpose |
+|---|---|---|
+| `token-wallet` | [![npm](https://img.shields.io/npm/v/token-wallet)](https://www.npmjs.com/package/token-wallet) | Meta-package — single install, re-exports everything |
+| `@token-wallet/core` | [![npm](https://img.shields.io/npm/v/@token-wallet/core)](https://www.npmjs.com/package/@token-wallet/core) | Wallet, ledger, checkout manager, types, errors |
+| `@token-wallet/gateway-midtrans` | [![npm](https://img.shields.io/npm/v/@token-wallet/gateway-midtrans)](https://www.npmjs.com/package/@token-wallet/gateway-midtrans) | Midtrans Snap adapter |
+| `@token-wallet/gateway-xendit` | [![npm](https://img.shields.io/npm/v/@token-wallet/gateway-xendit)](https://www.npmjs.com/package/@token-wallet/gateway-xendit) | Xendit Checkout adapter |
+| `@token-wallet/storage-drizzle` | [![npm](https://img.shields.io/npm/v/@token-wallet/storage-drizzle)](https://www.npmjs.com/package/@token-wallet/storage-drizzle) | Drizzle ORM storage (PostgreSQL) |
+
+## Architecture diagram
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────────┐
+│   Your App   │────▶│    Wallet    │────▶│  Ledger (core)   │
+│              │     │   (core)     │     │  append-only log │
+└──────────────┘     └──────────────┘     └──────────────────┘
+                            │                      │
+                     ┌──────┴──────┐        ┌──────┴──────┐
+                     │  Checkout   │        │   Storage   │
+                     │  Manager    │        │   Adapter   │
+                     └──────┬──────┘        └──────┬──────┘
+                            │                      │
+                     ┌──────┴──────┐        ┌──────┴──────┐
+                     │   Gateway   │        │   Drizzle   │
+                     │   Adapter   │        │ PostgreSQL  │
+                     └─────────────┘        └─────────────┘
+                     Midtrans │ Xendit
+```
+
+## Core module breakdown
+
+### `wallet.ts` — Public API
+
+The `createWallet` factory returns the main interface: `getBalance`, `canSpend`, `spend`, `topUp`, `getTransactions`, `getCheckouts`. This is what most application code interacts with.
+
+### `ledger.ts` — Append-only transaction log
+
+The ledger enforces the core invariants: positive amounts only, idempotency keys on every mutation, and delegation to the storage adapter for atomic balance updates. Ledger entries are never updated or deleted.
+
+### `checkout.ts` — Payment gateway abstraction
+
+The `createCheckoutManager` factory bridges the gateway adapter with the ledger. It creates checkout sessions and handles webhooks with a 7-step verification flow including dual idempotency guards.
+
+### `types.ts` — Public interfaces
+
+All exported TypeScript interfaces: `Wallet`, `StorageAdapter`, `PaymentGatewayAdapter`, `LedgerEntry`, `CheckoutSession`, `WebhookResult`, and query types.
+
+### `errors.ts` — Typed error hierarchy
+
+Domain errors that extend `TokenWalletError`: `InsufficientBalanceError`, `IdempotencyConflictError`, `WebhookVerificationError`, `InvalidAmountError`, `GatewayError`. Each has a typed `code` string for programmatic error handling.
+
+## Dependency graph
+
+```
+token-wallet (meta-package)
+├── @token-wallet/core
+├── @token-wallet/gateway-midtrans  → depends on core
+├── @token-wallet/gateway-xendit    → depends on core
+└── @token-wallet/storage-drizzle   → depends on core
+```
+
+Gateway and storage adapters depend only on `@token-wallet/core` for its types and errors. They have no dependency on each other, so you can use Midtrans without Xendit and vice versa.

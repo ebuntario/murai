@@ -1,0 +1,112 @@
+---
+title: Webhook Verification
+description: SHA512 vs callback token, timing-safe comparison, and idempotency
+---
+
+Webhook verification is the most security-critical part of payment integration. A forged webhook could credit a user's balance without real payment.
+
+## How each gateway verifies
+
+### Midtrans — SHA512 signature
+
+Midtrans sends a `signature_key` in the webhook body, computed as:
+
+```
+SHA512(order_id + status_code + gross_amount + server_key)
+```
+
+Token Wallet recomputes this hash from the payload fields and your server key, then compares using `crypto.timingSafeEqual`:
+
+```ts
+const hash = createHash('sha512')
+  .update(order_id + status_code + gross_amount + serverKey)
+  .digest('hex');
+
+// Timing-safe comparison — prevents timing attacks
+const hashBuf = Buffer.from(hash, 'hex');
+const sigBuf = Buffer.from(signature, 'hex');
+if (hashBuf.length !== sigBuf.length) return false;
+return timingSafeEqual(hashBuf, sigBuf);
+```
+
+**Webhook endpoint setup:**
+
+```ts
+// The signature is INSIDE the JSON body
+const body = await request.json();
+const result = await checkout.handleWebhook({
+  payload: body,
+  signature: body.signature_key,
+});
+```
+
+### Xendit — Callback token
+
+Xendit uses a simpler approach: a shared secret sent in the `x-callback-token` header. Token Wallet compares it using `crypto.timingSafeEqual`:
+
+```ts
+const sigBuf = Buffer.from(signature);
+const tokenBuf = Buffer.from(callbackToken);
+if (sigBuf.length !== tokenBuf.length) return false;
+return timingSafeEqual(sigBuf, tokenBuf);
+```
+
+**Webhook endpoint setup:**
+
+```ts
+// The signature is in a HEADER, not the body
+const body = await request.json();
+const result = await checkout.handleWebhook({
+  payload: body,
+  signature: request.headers.get('x-callback-token') ?? '',
+});
+```
+
+## Why timing-safe comparison?
+
+A naive `===` comparison returns `false` at the first mismatched byte. An attacker can measure response times to guess the correct signature byte-by-byte.
+
+```
+'abc' === 'axc'  → fails at byte 2 (fast)
+'abc' === 'abx'  → fails at byte 3 (slower)
+'abc' === 'abc'  → matches all 3 (slowest)
+```
+
+`timingSafeEqual` always compares all bytes, making response time constant regardless of how many bytes match.
+
+## Handling non-success webhooks
+
+Not all webhooks mean "payment succeeded." Gateways send webhooks for expired, failed, and pending statuses too.
+
+Token Wallet handles these automatically:
+- **`success`** → credit the ledger, mark checkout as `paid`
+- **`expired` / `failed`** → mark checkout as `failed` (no credit)
+- **`pending`** → skip (no action needed)
+
+## Responding to webhooks
+
+Always return `200 OK` to acknowledge receipt, even if you skip the webhook:
+
+```ts
+const result = await checkout.handleWebhook({ payload, signature });
+// result.action: 'credited' | 'skipped' | 'duplicate'
+
+// Always 200 — the gateway will retry if it gets anything else
+return new Response(JSON.stringify(result), { status: 200 });
+```
+
+:::caution[Don't return errors for skipped webhooks]
+If you return 4xx/5xx for a skipped webhook, the gateway will keep retrying it. Return 200 for all successfully verified webhooks, regardless of the action taken.
+:::
+
+## Testing webhooks locally
+
+Both gateways provide sandbox environments. Use a tunnel to expose your local server:
+
+```bash
+# ngrok
+ngrok http 3000
+
+# Then configure your webhook URL in the gateway dashboard:
+# https://abc123.ngrok.io/api/webhooks/midtrans
+```

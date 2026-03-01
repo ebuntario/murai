@@ -1,0 +1,185 @@
+---
+title: Next.js Integration
+description: Full walkthrough — wallet, top-up, webhooks, and spending in Next.js App Router
+---
+
+import { Code } from '@astrojs/starlight/components';
+import setupCode from '../../../examples/quickstart-setup.ts?raw';
+
+This guide walks through building a complete token wallet integration with Next.js 15 App Router. A working example app is available at [`examples/nextjs/`](https://github.com/user/token-wallet/tree/main/examples/nextjs).
+
+## 1. Project setup
+
+```bash
+npx create-next-app@latest my-app --typescript --tailwind --app
+cd my-app
+pnpm add token-wallet drizzle-orm postgres
+```
+
+Create the [database tables](/getting-started/installation#create-the-database-tables) and set up your `.env.local`:
+
+```bash
+DATABASE_URL=postgres://...
+MIDTRANS_SERVER_KEY=SB-Mid-server-...
+MIDTRANS_CLIENT_KEY=SB-Mid-client-...
+```
+
+## 2. Wallet singleton
+
+Create a shared wallet instance. This file runs on the server only.
+
+<Code code={setupCode} lang="ts" title="src/lib/wallet.ts" />
+
+:::tip[Singleton pattern]
+In Next.js development mode, hot reloading re-executes module-level code. Wrap your database connection in a singleton to avoid creating new connections on every reload:
+
+```ts
+const globalForDb = globalThis as unknown as { sql: ReturnType<typeof postgres> };
+const sql = globalForDb.sql ?? postgres(process.env.DATABASE_URL!);
+if (process.env.NODE_ENV === 'development') globalForDb.sql = sql;
+```
+:::
+
+## 3. Top-up via Server Action
+
+```ts title="src/app/actions.ts"
+'use server';
+
+import { checkout } from '@/lib/wallet';
+import { redirect } from 'next/navigation';
+
+export async function createTopUp(formData: FormData) {
+  const userId = formData.get('userId') as string;
+  const amount = Number(formData.get('amount'));
+
+  const session = await checkout.createSession({
+    userId,
+    amount,
+    successRedirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
+    failureRedirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/`,
+  });
+
+  redirect(session.redirectUrl);
+}
+```
+
+## 4. Webhook Route Handler
+
+```ts title="src/app/api/webhooks/midtrans/route.ts"
+import { checkout } from '@/lib/wallet';
+import { WebhookVerificationError } from 'token-wallet';
+import { NextResponse } from 'next/server';
+
+export async function POST(request: Request) {
+  const body = await request.json();
+
+  try {
+    const result = await checkout.handleWebhook({
+      payload: body,
+      signature: body.signature_key,
+    });
+    return NextResponse.json(result);
+  } catch (error) {
+    if (error instanceof WebhookVerificationError) {
+      return NextResponse.json(
+        { error: 'Invalid signature' },
+        { status: 401 },
+      );
+    }
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 },
+    );
+  }
+}
+```
+
+:::caution[Don't use middleware on webhook routes]
+If you have authentication middleware, make sure it excludes `/api/webhooks/*`. The gateway cannot provide your auth tokens.
+:::
+
+## 5. Balance display (Server Component)
+
+```tsx title="src/app/page.tsx"
+import { wallet } from '@/lib/wallet';
+import { createTopUp } from './actions';
+
+export default async function DashboardPage() {
+  const userId = 'user_123'; // Replace with your auth
+  const balance = await wallet.getBalance(userId);
+
+  return (
+    <main className="mx-auto max-w-md p-8">
+      <h1 className="text-2xl font-bold">Token Wallet</h1>
+      <p className="mt-4 text-4xl font-mono">
+        {balance.toLocaleString('id-ID')} tokens
+      </p>
+
+      <form action={createTopUp} className="mt-8">
+        <input type="hidden" name="userId" value={userId} />
+        <input type="hidden" name="amount" value="100000" />
+        <button
+          type="submit"
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          Top Up IDR 100,000
+        </button>
+      </form>
+    </main>
+  );
+}
+```
+
+## 6. Spend action
+
+```ts title="src/app/spend-action.ts"
+'use server';
+
+import { wallet } from '@/lib/wallet';
+import { InsufficientBalanceError } from 'token-wallet';
+import { randomUUID } from 'crypto';
+
+export async function spendTokens(userId: string, amount: number) {
+  try {
+    await wallet.spend(userId, amount, `spend-${randomUUID()}`);
+    return { success: true };
+  } catch (error) {
+    if (error instanceof InsufficientBalanceError) {
+      return { success: false, error: 'Insufficient balance' };
+    }
+    throw error;
+  }
+}
+```
+
+## 7. Hono alternative
+
+If you're using Hono instead of Next.js, here's the equivalent webhook handler:
+
+```ts title="src/webhooks.ts"
+import { Hono } from 'hono';
+import { WebhookVerificationError } from 'token-wallet';
+
+const app = new Hono();
+
+app.post('/webhooks/midtrans', async (c) => {
+  const body = await c.req.json();
+
+  try {
+    const result = await checkout.handleWebhook({
+      payload: body,
+      signature: body.signature_key,
+    });
+    return c.json(result, 200);
+  } catch (error) {
+    if (error instanceof WebhookVerificationError) {
+      return c.json({ error: 'Invalid signature' }, 401);
+    }
+    throw error;
+  }
+});
+```
+
+## Example app
+
+See the complete working example at [`examples/nextjs/`](https://github.com/user/token-wallet/tree/main/examples/nextjs) — includes dashboard, top-up flow, webhook handler, and spend action.

@@ -1,0 +1,108 @@
+---
+title: Choosing a Gateway
+description: Midtrans vs Xendit vs Stripe — feature comparison for payment integration
+---
+
+Token Wallet ships with three built-in gateway adapters: Midtrans Snap, Xendit Checkout, and Stripe Checkout. This guide helps you choose the right one for your app.
+
+## Feature comparison
+
+| Feature | Midtrans Snap | Xendit Checkout | Stripe Checkout |
+|---|---|---|---|
+| **Payment page** | Hosted popup (Snap) | Hosted invoice page | Hosted checkout page |
+| **GoPay** | Yes | No | No |
+| **ShopeePay** | Yes | Yes | No |
+| **OVO** | No | Yes | No |
+| **DANA** | No | Yes | No |
+| **QRIS** | Yes | Yes | No |
+| **Bank transfer** | Yes | Yes (virtual accounts) | Yes (ACH, SEPA) |
+| **Credit card** | Yes | Yes | Yes (global) |
+| **Webhook verification** | SHA512 signature in body | Callback token in header | Stripe-Signature header (HMAC) |
+| **Sandbox** | Yes (separate dashboard) | Yes (same dashboard, test mode) | Yes (test mode with test keys) |
+| **Minimum payout** | IDR 10,000 | IDR 10,000 | Varies by currency |
+| **API style** | REST with Snap token | REST with invoice URL | REST with Session URL |
+| **Global coverage** | Indonesia | Indonesia, Philippines, SEA | 195+ countries |
+
+## When to choose Midtrans
+
+- You need **GoPay** support (the most popular e-wallet in Indonesia)
+- You prefer the **Snap popup** experience (payment stays on your domain)
+- Your users are primarily on **desktop** (Snap popup works well)
+
+## When to choose Xendit
+
+- You need **OVO** or **DANA** support
+- You prefer a **redirect-based** flow (simpler to implement)
+- You want a **single dashboard** for sandbox and production
+- Your users are primarily on **mobile** (redirect flow works better)
+
+## When to choose Stripe
+
+- You need **global coverage** beyond Southeast Asia
+- Your users pay with **international credit cards**, Apple Pay, or Google Pay
+- You want a **single provider** for subscriptions, invoicing, and one-time payments
+- You are building a SaaS product targeting **US, EU, or global** markets
+
+## Using multiple gateways
+
+Token Wallet is gateway-agnostic — you can use multiple gateways in the same app:
+
+```ts
+import {
+  createMidtransGateway,
+  createXenditGateway,
+  createStripeGateway,
+  createCheckoutManager,
+  createLedger,
+} from 'token-wallet';
+
+const midtrans = createMidtransGateway({ /* config */ });
+const xendit = createXenditGateway({ /* config */ });
+const stripe = createStripeGateway({ /* config */ });
+
+const ledger = createLedger(storage);
+
+// Separate checkout managers — same ledger and storage
+const midtransCheckout = createCheckoutManager(midtrans, ledger, storage);
+const xenditCheckout = createCheckoutManager(xendit, ledger, storage);
+const stripeCheckout = createCheckoutManager(stripe, ledger, storage);
+
+// Use the right one based on user preference or region
+function pickCheckout(preference: string) {
+  if (preference === 'gopay') return midtransCheckout;
+  if (preference === 'ovo' || preference === 'dana') return xenditCheckout;
+  return stripeCheckout; // default to Stripe for international
+}
+```
+
+## Implementing a custom gateway
+
+Stripe is now built-in as of v0.4.0. If you need a different payment provider (DOKU, PayMongo, etc.), implement the `PaymentGatewayAdapter` interface:
+
+```ts
+import type { PaymentGatewayAdapter } from 'token-wallet';
+
+const myGateway: PaymentGatewayAdapter = {
+  async createCheckout(params) {
+    // Call your gateway's API to create a payment session
+    // Return a CheckoutSession with redirectUrl
+  },
+
+  async verifyWebhook(payload, signature) {
+    // Verify the webhook signature
+    // Return true if valid, false otherwise
+  },
+
+  parseWebhookPayload(payload) {
+    // Extract orderId, status, and grossAmount from the webhook body
+    // Return null if the payload is unrecognizable
+  },
+
+  // Optional: poll the gateway for payment status
+  async getPaymentStatus(id) {
+    // Return 'success' | 'failed' | 'pending' | 'expired'
+  },
+};
+```
+
+See the [Types reference](/api-reference/types) for the full `PaymentGatewayAdapter` interface.

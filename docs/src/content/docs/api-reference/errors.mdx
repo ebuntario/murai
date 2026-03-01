@@ -1,0 +1,204 @@
+---
+title: Errors
+description: Typed error hierarchy and error codes
+---
+
+All domain errors extend the abstract `TokenWalletError` base class, which provides a typed `code` property for programmatic error handling.
+
+## Error hierarchy
+
+```
+TokenWalletError (abstract)
+├── InsufficientBalanceError    code: 'INSUFFICIENT_BALANCE'
+├── IdempotencyConflictError    code: 'IDEMPOTENCY_CONFLICT'
+├── WebhookVerificationError    code: 'WEBHOOK_VERIFICATION_FAILED'
+├── InvalidAmountError          code: 'INVALID_AMOUNT'
+├── InvalidExpirationError     code: 'INVALID_EXPIRATION'
+├── InvalidMetadataError       code: 'INVALID_METADATA'
+└── GatewayError                code: 'GATEWAY_ERROR'
+```
+
+## `InsufficientBalanceError`
+
+Thrown when a spend/debit exceeds the user's available balance.
+
+| Property | Type | Description |
+|---|---|---|
+| `code` | `'INSUFFICIENT_BALANCE'` | Error code |
+| `userId` | `string` | The user whose balance is insufficient |
+| `requested` | `number` | Amount requested |
+| `available` | `number` | Balance at time of check |
+
+```ts
+import { InsufficientBalanceError } from 'token-wallet';
+
+try {
+  await wallet.spend('user_123', 50_000, 'key-1');
+} catch (error) {
+  if (error instanceof InsufficientBalanceError) {
+    console.log(error.userId);    // 'user_123'
+    console.log(error.requested); // 50000
+    console.log(error.available); // 10000
+    console.log(error.code);      // 'INSUFFICIENT_BALANCE'
+  }
+}
+```
+
+## `IdempotencyConflictError`
+
+Thrown when a duplicate idempotency key is used for a ledger operation.
+
+| Property | Type | Description |
+|---|---|---|
+| `code` | `'IDEMPOTENCY_CONFLICT'` | Error code |
+| `idempotencyKey` | `string` | The duplicate key |
+
+```ts
+import { IdempotencyConflictError } from 'token-wallet';
+
+try {
+  await wallet.spend('user_123', 1000, 'same-key');
+  await wallet.spend('user_123', 1000, 'same-key'); // throws
+} catch (error) {
+  if (error instanceof IdempotencyConflictError) {
+    console.log(error.idempotencyKey); // 'same-key'
+  }
+}
+```
+
+:::tip
+This is a safety feature. If you receive this error, the operation was already completed successfully. You can safely ignore it or return the cached result.
+:::
+
+## `WebhookVerificationError`
+
+Thrown when a webhook's signature verification fails.
+
+| Property | Type | Description |
+|---|---|---|
+| `code` | `'WEBHOOK_VERIFICATION_FAILED'` | Error code |
+
+```ts
+import { WebhookVerificationError } from 'token-wallet';
+
+try {
+  await checkout.handleWebhook({ payload, signature });
+} catch (error) {
+  if (error instanceof WebhookVerificationError) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+}
+```
+
+## `InvalidAmountError`
+
+Thrown when an amount is not a positive integer.
+
+| Property | Type | Description |
+|---|---|---|
+| `code` | `'INVALID_AMOUNT'` | Error code |
+| `amount` | `number` | The invalid amount |
+
+```ts
+await wallet.spend('user_123', -100, 'key'); // throws InvalidAmountError
+await wallet.spend('user_123', 0, 'key');    // throws InvalidAmountError
+await wallet.spend('user_123', 1.5, 'key');  // throws InvalidAmountError
+```
+
+## `InvalidExpirationError`
+
+Thrown when an `expiresAt` date is not in the future.
+
+| Property | Type | Description |
+|---|---|---|
+| `code` | `'INVALID_EXPIRATION'` | Error code |
+| `expiresAt` | `Date` | The invalid expiration date |
+
+```ts
+import { InvalidExpirationError } from 'token-wallet';
+
+try {
+  await wallet.topUp('user_123', 10_000, 'key-1', {
+    expiresAt: new Date('2020-01-01'), // in the past
+  });
+} catch (error) {
+  if (error instanceof InvalidExpirationError) {
+    console.log(error.code);      // 'INVALID_EXPIRATION'
+    console.log(error.expiresAt); // 2020-01-01T00:00:00.000Z
+  }
+}
+```
+
+## `InvalidMetadataError`
+
+Thrown when the `metadata` string exceeds the allowed length or is otherwise invalid.
+
+| Property | Type | Description |
+|---|---|---|
+| `code` | `'INVALID_METADATA'` | Error code |
+| `metadata` | `string` | The invalid metadata value |
+
+```ts
+import { InvalidMetadataError } from 'token-wallet';
+
+try {
+  await wallet.spend('user_123', 1000, 'key-1', {
+    metadata: 'x'.repeat(10_001), // exceeds max length
+  });
+} catch (error) {
+  if (error instanceof InvalidMetadataError) {
+    console.log(error.code); // 'INVALID_METADATA'
+  }
+}
+```
+
+## `GatewayError`
+
+Thrown when a payment gateway API call fails.
+
+| Property | Type | Description |
+|---|---|---|
+| `code` | `'GATEWAY_ERROR'` | Error code |
+| `gatewayName` | `string` | `'midtrans'`, `'xendit'`, or `'stripe'` |
+| `httpStatus` | `number \| undefined` | HTTP status code from the gateway |
+| `gatewayMessage` | `string` | Error message from the gateway |
+| `cause` | `unknown` | Original error (if any) |
+
+```ts
+import { GatewayError } from 'token-wallet';
+
+try {
+  await checkout.createSession({ /* ... */ });
+} catch (error) {
+  if (error instanceof GatewayError) {
+    console.log(error.gatewayName);    // 'midtrans'
+    console.log(error.httpStatus);     // 401
+    console.log(error.gatewayMessage); // 'Invalid server key'
+  }
+}
+```
+
+## Catching any Token Wallet error
+
+Use the base class to catch all domain errors:
+
+```ts
+import { TokenWalletError } from 'token-wallet';
+
+try {
+  await wallet.spend(userId, amount, key);
+} catch (error) {
+  if (error instanceof TokenWalletError) {
+    // error.code is typed — use it for programmatic handling
+    switch (error.code) {
+      case 'INSUFFICIENT_BALANCE':
+        return { error: 'Not enough tokens' };
+      case 'IDEMPOTENCY_CONFLICT':
+        return { error: 'Already processed' };
+      default:
+        return { error: 'Something went wrong' };
+    }
+  }
+  throw error; // Re-throw unexpected errors
+}
+```

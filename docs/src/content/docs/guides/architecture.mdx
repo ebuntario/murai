@@ -1,0 +1,112 @@
+---
+title: Architecture
+description: Append-only ledger, SELECT FOR UPDATE, and idempotency flow
+---
+
+Token Wallet's design centers on three invariants that prevent data corruption in concurrent payment systems.
+
+## Invariant 1: Append-only ledger
+
+Transactions are **never updated or deleted**. Every balance change — credit or debit — is a new row in the `transactions` table. The current balance is the sum of all entries for a user (cached in the `wallets` table for performance).
+
+```
+Time →
+┌──────────┬──────────┬──────────┬──────────┐
+│ +100,000 │  -5,000  │  -3,000  │ +50,000  │
+│  top-up  │   spend  │   spend  │  top-up  │
+└──────────┴──────────┴──────────┴──────────┘
+                                    Balance: 142,000
+```
+
+**Why?** Append-only logs are auditable, replayable, and immune to "lost update" bugs. If the cached balance ever drifts, you can recompute it from the log.
+
+## Invariant 2: SELECT FOR UPDATE
+
+Every balance mutation locks the user's wallet row before reading the balance:
+
+```sql
+BEGIN;
+  -- Lock this user's row — other transactions wait here
+  SELECT * FROM wallets WHERE user_id = $1 FOR UPDATE;
+
+  -- Safe to read balance — no other transaction can modify it
+  -- Guard: reject if balance < debit amount
+  UPDATE wallets SET balance = balance + $amount WHERE user_id = $1;
+  INSERT INTO transactions (...) VALUES (...);
+COMMIT;
+```
+
+**Why?** Without row-level locking, two concurrent debits could both read the same balance, both pass the check, and both deduct — causing an overdraft.
+
+```
+Without locking (WRONG):
+  Thread A: read balance = 100    Thread B: read balance = 100
+  Thread A: 100 >= 80 ✓           Thread B: 100 >= 80 ✓
+  Thread A: balance = 20          Thread B: balance = 20
+  Result: -60 overdraft!
+
+With SELECT FOR UPDATE (CORRECT):
+  Thread A: lock + read = 100     Thread B: waits...
+  Thread A: 100 >= 80 ✓
+  Thread A: balance = 20, unlock
+                                  Thread B: lock + read = 20
+                                  Thread B: 20 >= 80 ✗ → InsufficientBalanceError
+```
+
+## Invariant 3: Idempotent webhooks
+
+Payment gateways retry webhooks when they don't receive a 200 response. Without idempotency, a retry could credit the user's balance twice.
+
+Token Wallet uses **dual idempotency guards**:
+
+### Guard 1: Checkout status check
+
+```
+Webhook arrives → findCheckout(orderId)
+  ├── status = 'pending'  → proceed to credit
+  ├── status = 'paid'     → skip (already_processed)
+  └── status = 'failed'   → skip (already_processed)
+```
+
+### Guard 2: Ledger idempotency key
+
+Even if Guard 1 passes (e.g., the status update failed on a prior delivery), the ledger enforces uniqueness:
+
+```
+credit(userId, amount, 'webhook:order-123')
+  ├── idempotency_key not found → insert entry ✓
+  └── idempotency_key exists    → IdempotencyConflictError → update status to 'paid' for consistency
+```
+
+The `UNIQUE` constraint on `idempotency_key` in the `transactions` table is the ultimate safety net.
+
+## Webhook processing flow
+
+```
+1. verifyWebhook(payload, signature)        → 401 if invalid
+2. parseWebhookPayload(payload)             → skip if unparseable
+3. Check status !== 'success'               → skip (update to 'failed' if expired/failed)
+4. findCheckout(orderId)                    → skip if not found
+5. Check session.status !== 'pending'       → skip if already processed
+6. ledger.credit(userId, amount, key)       → catch IdempotencyConflictError
+7. updateCheckoutStatus(orderId, 'paid')    → mark complete
+```
+
+## Factory pattern: Functional DI
+
+Token Wallet uses factory functions with dependency injection instead of class hierarchies:
+
+```ts
+// No classes — just functions that return objects
+const storage = createDrizzleStorage(db);
+const gateway = createMidtransGateway(config);
+const wallet = createWallet({ storage });
+const ledger = createLedger(storage);
+const checkout = createCheckoutManager(gateway, ledger, storage);
+```
+
+**Why not classes?**
+- Easier to test — inject mock storage/gateway without class inheritance
+- No `this` binding issues
+- Tree-shakeable — unused methods can be eliminated by bundlers
+- Composable — swap any layer without changing the rest

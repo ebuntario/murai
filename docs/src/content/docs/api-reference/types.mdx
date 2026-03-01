@@ -1,0 +1,218 @@
+---
+title: Types
+description: All exported TypeScript interfaces from @token-wallet/core
+---
+
+## Wallet
+
+The main interface returned by `createWallet`.
+
+```ts
+interface Wallet {
+  getBalance(userId: string): Promise<number>;
+  canSpend(userId: string, amount: number): Promise<boolean>;
+  spend(
+    userId: string,
+    amount: number,
+    idempotencyKey: string,
+    options?: { metadata?: string },
+  ): Promise<void>;
+  topUp(
+    userId: string,
+    amount: number,
+    idempotencyKey: string,
+    options?: { expiresAt?: Date; metadata?: string },
+  ): Promise<void>;
+  expireTokens(userId: string): Promise<ExpireResult>;
+  getUsageReport(
+    userId: string,
+    dateRange: { from: Date; to: Date },
+  ): Promise<UsageReport>;
+  getTransactions(userId: string, query?: TransactionQuery): Promise<LedgerEntry[]>;
+  getCheckouts(userId: string, query?: CheckoutQuery): Promise<CheckoutSession[]>;
+}
+```
+
+## WalletConfig
+
+```ts
+interface WalletConfig {
+  storage: StorageAdapter;
+}
+```
+
+## LedgerEntry
+
+A single transaction in the append-only ledger.
+
+```ts
+interface LedgerEntry {
+  id: string;
+  userId: string;
+  /** Positive = credit, negative = debit */
+  amount: number;
+  idempotencyKey: string;
+  createdAt: Date;
+  /** When this credit expires (credits only) */
+  expiresAt?: Date;
+  /** Remaining unexpired amount (credits only, decremented on spend) */
+  remaining?: number;
+  /** When this credit was expired by expireTokens */
+  expiredAt?: Date;
+  /** Free-form audit metadata */
+  metadata?: string;
+}
+```
+
+## CheckoutSession
+
+A payment session created by the checkout manager.
+
+```ts
+interface CheckoutSession {
+  id: string;
+  userId: string;
+  amount: number;
+  redirectUrl: string;
+  status: 'pending' | 'paid' | 'failed';
+  createdAt: Date;
+}
+```
+
+## TransactionQuery
+
+Query parameters for `getTransactions`.
+
+```ts
+interface TransactionQuery {
+  limit?: number;   // 1-100, default 50
+  offset?: number;  // >= 0, default 0
+  type?: 'credit' | 'debit';
+  from?: Date;      // filter entries created at or after this date
+  to?: Date;        // filter entries created before this date
+}
+```
+
+## CheckoutQuery
+
+Query parameters for `getCheckouts`.
+
+```ts
+interface CheckoutQuery {
+  limit?: number;   // 1-100, default 50
+  offset?: number;  // >= 0, default 0
+  status?: 'pending' | 'paid' | 'failed';
+}
+```
+
+## WebhookResult
+
+Returned by `handleWebhook`.
+
+```ts
+interface WebhookResult {
+  action: WebhookAction;
+  reason?: WebhookSkipReason;
+}
+
+type WebhookAction = 'credited' | 'skipped' | 'duplicate';
+
+type WebhookSkipReason =
+  | 'unparseable'
+  | 'non_success_status'
+  | 'session_not_found'
+  | 'already_processed';
+```
+
+## WebhookStatus
+
+Gateway-agnostic payment status.
+
+```ts
+type WebhookStatus = 'success' | 'failed' | 'pending' | 'expired';
+```
+
+## ExpireResult
+
+Returned by `wallet.expireTokens`.
+
+```ts
+interface ExpireResult {
+  /** Number of ledger entries that were expired */
+  expiredCount: number;
+  /** Total token amount that was expired */
+  expiredAmount: number;
+}
+```
+
+## UsageReport
+
+Returned by `wallet.getUsageReport`.
+
+```ts
+interface UsageReport {
+  /** Total credits added in the date range */
+  totalCredits: number;
+  /** Total debits in the date range */
+  totalDebits: number;
+  /** Net change (credits - debits) */
+  netChange: number;
+  /** Number of transactions in the date range */
+  transactionCount: number;
+}
+```
+
+## StorageAdapter
+
+Interface for storage backends. Implement this to use a different database.
+
+```ts
+interface StorageAdapter {
+  getBalance(userId: string): Promise<number>;
+  appendEntry(entry: Omit<LedgerEntry, 'id' | 'createdAt'>): Promise<LedgerEntry>;
+  findEntry(idempotencyKey: string): Promise<LedgerEntry | null>;
+  saveCheckout(session: CheckoutSession): Promise<CheckoutSession>;
+  findCheckout(id: string): Promise<CheckoutSession | null>;
+  updateCheckoutStatus(id: string, status: CheckoutSession['status']): Promise<void>;
+  getTransactions?(userId: string, query?: TransactionQuery): Promise<LedgerEntry[]>;
+  getCheckouts?(userId: string, query?: CheckoutQuery): Promise<CheckoutSession[]>;
+
+  /** Expire all credits past their expiresAt for a user. Optional — throws if not implemented. */
+  expireCredits?(userId: string): Promise<ExpireResult>;
+  /** Return user IDs that have credits past their expiresAt. Optional. */
+  getUsersWithExpirableCredits?(): Promise<string[]>;
+}
+```
+
+:::note[`appendEntry` requirements]
+Implementations **must**:
+- Enforce `idempotencyKey` uniqueness (throw `IdempotencyConflictError` on conflict)
+- For negative amounts (debit): throw `InsufficientBalanceError` if balance is insufficient
+- Lock the wallet row (`SELECT FOR UPDATE` or equivalent) before reading balance
+:::
+
+## PaymentGatewayAdapter
+
+Interface for payment gateways. Implement this to add a new payment provider.
+
+```ts
+interface PaymentGatewayAdapter {
+  createCheckout(params: {
+    userId: string;
+    amount: number;
+    successRedirectUrl: string;
+    failureRedirectUrl: string;
+  }): Promise<CheckoutSession>;
+
+  verifyWebhook(payload: unknown, signature: string, rawBody?: string | Buffer): Promise<boolean>;
+
+  parseWebhookPayload(payload: unknown): {
+    orderId: string;
+    status: WebhookStatus;
+    grossAmount: number;
+  } | null;
+
+  /** Optional — poll gateway for payment status */
+  getPaymentStatus?(id: string): Promise<WebhookStatus>;
+}
+```

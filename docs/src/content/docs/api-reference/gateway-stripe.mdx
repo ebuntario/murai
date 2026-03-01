@@ -1,0 +1,178 @@
+---
+title: "Gateway: Stripe"
+description: "API reference for @token-wallet/gateway-stripe -- Stripe Checkout adapter"
+---
+
+import { Code } from '@astrojs/starlight/components';
+import stripeCode from '../../../examples/stripe-setup.ts?raw';
+
+## `createStripeGateway(config)`
+
+Creates a Stripe Checkout payment gateway adapter.
+
+```ts
+import { createStripeGateway } from 'token-wallet';
+
+const gateway = createStripeGateway({
+	secretKey: process.env.STRIPE_SECRET_KEY!,
+	webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+});
+```
+
+### Configuration
+
+```ts
+interface StripeConfig {
+	secretKey: string;       // Stripe secret key (starts with sk_test_ or sk_live_)
+	webhookSecret: string;   // Webhook signing secret (starts with whsec_)
+	timeoutMs?: number;      // Fetch timeout in ms -- defaults to 30000
+}
+```
+
+:::caution[Bearer authentication]
+Unlike Midtrans (Basic auth with server key) and Xendit (Basic auth with secret
+key), Stripe uses `Bearer` token authentication with the secret key. Token
+Wallet handles this automatically -- just provide your secret key.
+:::
+
+### API host
+
+Stripe uses the same base URL for both test and live mode:
+`https://api.stripe.com`. The mode is determined by your API key (`sk_test_`
+for test mode, `sk_live_` for production).
+
+### Methods
+
+**`createCheckout(params)`**
+
+Creates a Stripe Checkout Session and returns the session URL.
+
+```ts
+const session = await gateway.createCheckout({
+	userId: 'user_123',
+	amount: 5_000, // $50.00 (amount in cents)
+	successRedirectUrl: 'https://yourapp.com/success',
+	failureRedirectUrl: 'https://yourapp.com/cancel',
+});
+// session.redirectUrl -> https://checkout.stripe.com/c/pay/...
+```
+
+The request is sent as `application/x-www-form-urlencoded` to
+`POST /v1/checkout/sessions`. The `client_reference_id` is set to
+`{userId}-{uuid}` and used as the session identifier.
+
+**`verifyWebhook(payload, signature)`**
+
+Verifies the Stripe webhook signature using HMAC-SHA256. Requires the **raw
+request body** (not parsed JSON) and the `stripe-signature` header.
+
+```ts
+const isValid = await gateway.verifyWebhook(
+	rawBody,     // raw string body, NOT parsed JSON
+	signatureHeader,
+);
+```
+
+The signature header contains a timestamp and one or more signatures:
+
+```
+t=1614556828,v1=abc123...,v0=def456...
+```
+
+Token Wallet validates the `v1` signature and enforces a **5-minute timestamp
+tolerance** to prevent replay attacks.
+
+:::caution[Raw body required]
+Stripe webhook verification requires the raw request body as a string. If your
+framework parses the body as JSON, the signature check will fail. See the
+webhook endpoint example below.
+:::
+
+**`parseWebhookPayload(payload)`**
+
+Extracts session ID, status, and amount from the webhook event.
+
+Handled event types:
+
+| Stripe event | Token Wallet status |
+|---|---|
+| `checkout.session.completed` | `success` |
+| `checkout.session.expired` | `expired` |
+
+Events that don't match these types return `null` (skipped).
+
+**`getPaymentStatus(sessionId)`**
+
+Polls the Stripe Checkout Sessions API for the current payment status.
+
+```ts
+const status = await gateway.getPaymentStatus('cs_test_abc123');
+// 'success' | 'failed' | 'expired' | 'pending'
+```
+
+Status mapping:
+
+| Stripe `payment_status` | Token Wallet status |
+|---|---|
+| `paid` | `success` |
+| `no_payment_required` | `success` |
+| `unpaid` | `pending` |
+
+### Handling rawBody in your webhook endpoint
+
+Most frameworks parse the request body automatically. You need to access the
+raw body for Stripe signature verification:
+
+```ts
+// Next.js App Router (route.ts)
+export async function POST(request: Request) {
+	const rawBody = await request.text();
+	const signature =
+		request.headers.get('stripe-signature') ?? '';
+
+	const result = await checkout.handleWebhook({
+		payload: rawBody,
+		signature,
+		rawBody,
+	});
+
+	return Response.json(result, { status: 200 });
+}
+```
+
+```ts
+// Express / Node.js
+app.post(
+	'/api/webhooks/stripe',
+	express.raw({ type: 'application/json' }),
+	async (req, res) => {
+		const rawBody = req.body.toString();
+		const signature =
+			req.headers['stripe-signature'] ?? '';
+
+		const result = await checkout.handleWebhook({
+			payload: rawBody,
+			signature,
+			rawBody,
+		});
+
+		res.status(200).json(result);
+	}
+);
+```
+
+### Setup example
+
+<Code code={stripeCode} lang="ts" title="lib/stripe-wallet.ts" />
+
+### Getting your Stripe credentials
+
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com/)
+2. Create an account or sign in
+3. Toggle **Test Mode** in the top-right for sandbox credentials
+4. Navigate to **Developers -> API keys** for the secret key
+5. Navigate to **Developers -> Webhooks -> Add endpoint**
+6. Set your webhook URL and select `checkout.session.completed` and
+   `checkout.session.expired` events
+7. After creating the endpoint, click **Reveal** to copy the webhook signing
+   secret (`whsec_...`)

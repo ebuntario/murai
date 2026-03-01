@@ -1,0 +1,109 @@
+---
+title: "Core"
+description: "API reference for @token-wallet/core — createWallet, createLedger, createCheckoutManager"
+---
+
+The core package provides three factory functions that compose into a complete wallet system.
+
+## `createWallet(config)`
+
+Creates the main wallet interface for balance queries and spending.
+
+```ts
+import { createWallet } from 'token-wallet';
+
+const wallet = createWallet({ storage });
+```
+
+**Parameters:**
+
+| Param | Type | Description |
+|---|---|---|
+| `config.storage` | `StorageAdapter` | Storage backend (e.g., from `createDrizzleStorage`) |
+
+**Returns:** `Wallet`
+
+| Method | Signature | Description |
+|---|---|---|
+| `getBalance` | `(userId: string) => Promise<number>` | Current token balance |
+| `canSpend` | `(userId: string, amount: number) => Promise<boolean>` | Check if balance is sufficient |
+| `spend` | `(userId: string, amount: number, idempotencyKey: string, options?: { metadata?: string }) => Promise<void>` | Deduct tokens. Throws `InsufficientBalanceError`. Optional metadata for audit context |
+| `topUp` | `(userId: string, amount: number, idempotencyKey: string, options?: { expiresAt?: Date; metadata?: string }) => Promise<void>` | Add tokens directly (bypasses checkout). Optional expiration and metadata |
+| `expireTokens` | `(userId: string) => Promise<ExpireResult>` | Expire tokens past their `expiresAt`. Throws if storage doesn't implement `expireCredits` |
+| `getUsageReport` | `(userId: string, dateRange: { from: Date; to: Date }) => Promise<UsageReport>` | Aggregate credits, debits, and provider cost |
+| `getTransactions` | `(userId: string, query?: TransactionQuery) => Promise<LedgerEntry[]>` | Paginated transaction history |
+| `getCheckouts` | `(userId: string, query?: CheckoutQuery) => Promise<CheckoutSession[]>` | Paginated checkout history |
+
+---
+
+## `createLedger(storage)`
+
+Creates the low-level ledger for credit/debit operations. Most apps use `createWallet` instead — the ledger is needed only for `createCheckoutManager`.
+
+```ts
+import { createLedger } from 'token-wallet';
+
+const ledger = createLedger(storage);
+```
+
+**Parameters:**
+
+| Param | Type | Description |
+|---|---|---|
+| `storage` | `StorageAdapter` | Storage backend |
+
+**Returns:** `Ledger`
+
+| Method | Signature | Description |
+|---|---|---|
+| `credit` | `(userId: string, amount: number, idempotencyKey: string, options?: { expiresAt?: Date; metadata?: string }) => Promise<LedgerEntry>` | Add tokens (positive entry). Optional expiration and metadata |
+| `debit` | `(userId: string, amount: number, idempotencyKey: string, options?: { metadata?: string }) => Promise<LedgerEntry>` | Remove tokens (negative entry). Throws `InsufficientBalanceError`. Optional metadata |
+| `getBalance` | `(userId: string) => Promise<number>` | Current balance |
+| `getTransactions` | `(userId: string, query?: TransactionQuery) => Promise<LedgerEntry[]>` | Paginated history |
+
+:::note
+`amount` must be a positive integer for both `credit` and `debit`. The ledger stores debits as negative values internally.
+:::
+
+---
+
+## `createCheckoutManager(gateway, ledger, storage)`
+
+Creates the checkout manager that bridges a payment gateway with the ledger. Handles checkout session creation and webhook processing.
+
+```ts
+import { createCheckoutManager, createLedger } from 'token-wallet';
+
+const ledger = createLedger(storage);
+const checkout = createCheckoutManager(gateway, ledger, storage);
+```
+
+**Parameters:**
+
+| Param | Type | Description |
+|---|---|---|
+| `gateway` | `PaymentGatewayAdapter` | Gateway adapter (e.g., from `createMidtransGateway`) |
+| `ledger` | `Ledger` | Ledger instance from `createLedger` |
+| `storage` | `StorageAdapter` | Storage backend |
+
+**Returns:** `CheckoutManager`
+
+| Method | Signature | Description |
+|---|---|---|
+| `createSession` | `(params: { userId, amount, successRedirectUrl, failureRedirectUrl }) => Promise<CheckoutSession>` | Create a payment session and persist it |
+| `handleWebhook` | `(params: { payload: unknown, signature: string, rawBody?: string \| Buffer }) => Promise<WebhookResult>` | Verify, parse, and process a gateway webhook |
+
+### `handleWebhook` return values
+
+| `action` | `reason` | Meaning |
+|---|---|---|
+| `'credited'` | — | Balance credited successfully |
+| `'skipped'` | `'unparseable'` | Payload couldn't be parsed |
+| `'skipped'` | `'non_success_status'` | Payment not successful (expired/failed/pending) |
+| `'skipped'` | `'session_not_found'` | No matching checkout session |
+| `'skipped'` | `'already_processed'` | Checkout already paid |
+| `'duplicate'` | — | Ledger already credited (idempotency catch) |
+
+### Error handling
+
+`handleWebhook` throws `WebhookVerificationError` if the signature is invalid. All other cases return a `WebhookResult` — they do not throw.

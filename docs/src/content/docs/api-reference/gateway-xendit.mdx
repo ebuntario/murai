@@ -1,0 +1,94 @@
+---
+title: "Gateway: Xendit"
+description: "API reference for @token-wallet/gateway-xendit — Xendit Checkout adapter"
+---
+
+## `createXenditGateway(config)`
+
+Creates a Xendit Checkout payment gateway adapter.
+
+```ts
+import { createXenditGateway } from 'token-wallet';
+
+const gateway = createXenditGateway({
+  secretKey: process.env.XENDIT_SECRET_KEY!,
+  callbackToken: process.env.XENDIT_CALLBACK_TOKEN!,
+  sandbox: true,
+});
+```
+
+### Configuration
+
+```ts
+interface XenditConfig {
+  secretKey: string;        // Xendit secret API key
+  callbackToken: string;    // Webhook verification token (from dashboard)
+  sandbox?: boolean;        // Defaults to true — set false for production
+  timeoutMs?: number;       // Fetch timeout in ms — defaults to 30000
+}
+```
+
+:::caution[Sandbox default]
+`sandbox` defaults to `true`. You must explicitly set `sandbox: false` for production.
+:::
+
+### API host
+
+Xendit uses the same base URL for both sandbox and production: `https://api.xendit.co`. The mode is determined by your API key (test keys start with `xnd_development_`).
+
+### Methods
+
+**`createCheckout(params)`**
+
+Creates a Xendit invoice and returns the invoice URL.
+
+```ts
+const session = await gateway.createCheckout({
+  userId: 'user_123',
+  amount: 100_000,
+  successRedirectUrl: 'https://yourapp.com/success',
+  failureRedirectUrl: 'https://yourapp.com/fail',
+});
+// session.redirectUrl → https://checkout.xendit.co/web/...
+```
+
+The `external_id` (used as the session identifier) is auto-generated as `{userId}-{uuid}`.
+
+**`verifyWebhook(payload, signature)`**
+
+Compares the `x-callback-token` header against the configured callback token using `crypto.timingSafeEqual`.
+
+```ts
+const isValid = await gateway.verifyWebhook(body, callbackTokenHeader);
+```
+
+**`parseWebhookPayload(payload)`**
+
+Extracts external ID, status, and amount from the webhook body.
+
+Status mapping:
+
+| Xendit status | Token Wallet status |
+|---|---|
+| `PAID` | `success` |
+| `SETTLED` | `success` |
+| `EXPIRED` | `expired` |
+| `PENDING` | `pending` |
+
+**`getPaymentStatus(id)`**
+
+Polls the Xendit Invoice API for the current payment status. Uses the most recent invoice matching the `external_id`.
+
+```ts
+const status = await gateway.getPaymentStatus('user_123-abc-def');
+// 'success' | 'failed' | 'expired' | 'pending'
+```
+
+### Getting sandbox credentials
+
+1. Go to [Xendit Dashboard](https://dashboard.xendit.co/)
+2. Create an account or sign in
+3. Switch to **Test Mode** (toggle in the top-right)
+4. Navigate to **Settings → API Keys** for the secret key
+5. Navigate to **Settings → Callbacks** for the callback verification token
+6. Set the webhook URL under **Settings → Callbacks → Invoice paid**
