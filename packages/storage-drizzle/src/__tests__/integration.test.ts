@@ -18,12 +18,13 @@ describeIf('storage-drizzle integration (PostgreSQL)', () => {
 	let storage: StorageAdapter;
 
 	beforeAll(async () => {
+		if (!DATABASE_URL) return;
 		// @ts-expect-error — postgres types not in devDeps; only runs when DATABASE_URL is set
 		const { default: postgres } = await import('postgres');
 		const { drizzle } = await import('drizzle-orm/postgres-js');
 		const { createDrizzleStorage } = await import('../index.js');
 
-		sqlClient = postgres(DATABASE_URL as string);
+		sqlClient = postgres(DATABASE_URL);
 		const db = drizzle(sqlClient);
 		// biome-ignore lint/suspicious/noExplicitAny: drizzle generic mismatch at compile time
 		storage = createDrizzleStorage(db as any);
@@ -62,10 +63,12 @@ describeIf('storage-drizzle integration (PostgreSQL)', () => {
 	});
 
 	afterEach(async () => {
+		if (!sqlClient) return;
 		await sqlClient`TRUNCATE wallets, transactions, checkouts`;
 	});
 
 	afterAll(async () => {
+		if (!sqlClient) return;
 		await sqlClient`DROP TABLE IF EXISTS transactions`;
 		await sqlClient`DROP TABLE IF EXISTS checkouts`;
 		await sqlClient`DROP TABLE IF EXISTS wallets`;
