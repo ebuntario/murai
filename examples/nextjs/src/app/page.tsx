@@ -22,7 +22,7 @@ export default async function DashboardPage() {
 					<p className="mt-1 text-sm text-gray-500">Next.js + Midtrans Snap example</p>
 				</div>
 				<a
-					href="https://github.com/user/murai/tree/main/examples/nextjs"
+					href="https://github.com/ebuntario/murai/tree/main/examples/nextjs"
 					className="text-xs text-blue-600 hover:underline"
 					target="_blank"
 					rel="noopener noreferrer"
