@@ -17,9 +17,7 @@ export class InsufficientBalanceError extends MuraiError {
 		public readonly requested: number,
 		public readonly available: number,
 	) {
-		super(
-			`Insufficient balance for user ${userId}: requested ${requested}, available ${available}`,
-		);
+		super('Insufficient balance');
 	}
 }
 
@@ -72,7 +70,7 @@ export class GatewayError extends MuraiError {
 		public readonly gatewayMessage: string,
 		cause?: unknown,
 	) {
-		super(`${gatewayName} error: ${gatewayMessage}`);
+		super(`Payment gateway error (${gatewayName})`);
 		this.cause = cause;
 	}
 }

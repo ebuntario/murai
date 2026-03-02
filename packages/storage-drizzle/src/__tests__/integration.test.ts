@@ -41,7 +41,11 @@ describeIf('storage-drizzle integration (PostgreSQL)', () => {
 				user_id TEXT NOT NULL,
 				amount BIGINT NOT NULL,
 				idempotency_key TEXT NOT NULL UNIQUE,
-				created_at TIMESTAMPTZ NOT NULL
+				created_at TIMESTAMPTZ NOT NULL,
+				expires_at TIMESTAMPTZ,
+				remaining BIGINT,
+				expired_at TIMESTAMPTZ,
+				metadata TEXT
 			)
 		`;
 		await sqlClient`
@@ -181,6 +185,98 @@ describeIf('storage-drizzle integration (PostgreSQL)', () => {
 			type: 'debit',
 		});
 		expect(debits).toHaveLength(1);
+	});
+
+	it('FIFO: earliest-expiring bucket consumed first', async () => {
+		const later = new Date(Date.now() + 86400000);
+		const soon = new Date(Date.now() + 3600000);
+
+		await storage.appendEntry({
+			userId: 'user1',
+			amount: 500,
+			idempotencyKey: 'top-later',
+			expiresAt: later,
+			remaining: 500,
+		});
+		await storage.appendEntry({
+			userId: 'user1',
+			amount: 300,
+			idempotencyKey: 'top-soon',
+			expiresAt: soon,
+			remaining: 300,
+		});
+
+		await storage.appendEntry({ userId: 'user1', amount: -200, idempotencyKey: 'debit-1' });
+
+		const soonEntry = await storage.findEntry('top-soon');
+		const laterEntry = await storage.findEntry('top-later');
+		expect(soonEntry?.remaining).toBe(100); // 300 - 200
+		expect(laterEntry?.remaining).toBe(500); // untouched
+	});
+
+	it('FIFO: concurrent debits are serialized correctly', async () => {
+		const future = new Date(Date.now() + 86400000);
+		await storage.appendEntry({
+			userId: 'user1',
+			amount: 100,
+			idempotencyKey: 'top-1',
+			expiresAt: future,
+			remaining: 100,
+		});
+
+		const debit1 = storage.appendEntry({
+			userId: 'user1',
+			amount: -60,
+			idempotencyKey: 'debit-1',
+		});
+		const debit2 = storage.appendEntry({
+			userId: 'user1',
+			amount: -60,
+			idempotencyKey: 'debit-2',
+		});
+
+		const results = await Promise.allSettled([debit1, debit2]);
+		const successes = results.filter((r) => r.status === 'fulfilled');
+		const failures = results.filter((r) => r.status === 'rejected');
+
+		expect(successes).toHaveLength(1);
+		expect(failures).toHaveLength(1);
+
+		const balance = await storage.getBalance('user1');
+		expect(balance).toBe(40);
+	});
+
+	it('expireCredits expires buckets and creates debit entries', async () => {
+		const past = new Date(Date.now() - 3600000);
+		// Insert a credit with expires_at in the past
+		await storage.appendEntry({
+			userId: 'user1',
+			amount: 500,
+			idempotencyKey: 'top-expiring',
+			expiresAt: past,
+			remaining: 500,
+		});
+
+		// biome-ignore lint/style/noNonNullAssertion: expireCredits is guaranteed by createDrizzleStorage
+		const result = await storage.expireCredits!('user1', new Date());
+		expect(result.expiredCount).toBe(1);
+		expect(result.expiredAmount).toBe(500);
+
+		const balance = await storage.getBalance('user1');
+		expect(balance).toBe(0);
+	});
+
+	it('metadata round-trip: stores and retrieves metadata', async () => {
+		const meta = '{"cost": 0.05, "model": "gpt-4"}';
+		await storage.appendEntry({
+			userId: 'user1',
+			amount: 100,
+			idempotencyKey: 'meta-1',
+			metadata: meta,
+		});
+
+		const entry = await storage.findEntry('meta-1');
+		expect(entry?.metadata).toBe(meta);
 	});
 
 	it('getCheckouts filters by status', async () => {

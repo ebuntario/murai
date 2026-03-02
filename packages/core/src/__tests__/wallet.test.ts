@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	GatewayError,
 	IdempotencyConflictError,
 	InsufficientBalanceError,
 	InvalidAmountError,
@@ -35,6 +36,22 @@ describe('createWallet', () => {
 	it('spend throws InsufficientBalanceError when balance is less than amount', async () => {
 		const wallet = createWallet({ storage: createMockStorage() });
 		await expect(wallet.spend('user1', 100, 'spend-1')).rejects.toThrow(InsufficientBalanceError);
+	});
+
+	it('InsufficientBalanceError.message does not leak userId or balance', async () => {
+		const wallet = createWallet({ storage: createMockStorage() });
+		try {
+			await wallet.spend('secret-user-42', 100, 'spend-leak');
+			expect.unreachable('should have thrown');
+		} catch (err) {
+			expect(err).toBeInstanceOf(InsufficientBalanceError);
+			const e = err as InsufficientBalanceError;
+			expect(e.message).toBe('Insufficient balance');
+			expect(e.message).not.toContain('secret-user-42');
+			expect(e.userId).toBe('secret-user-42');
+			expect(e.requested).toBe(100);
+			expect(e.available).toBe(0);
+		}
 	});
 
 	it('spend deducts balance correctly', async () => {
@@ -429,6 +446,27 @@ describe('createWallet', () => {
 			expect(report.totalProviderCost).toBe(0);
 		});
 
+		it('getUsageReport paginates beyond 100 transactions', async () => {
+			const storage = createMockStorage();
+			const wallet = createWallet({ storage });
+
+			// Create 120 credits of 10 each
+			await wallet.topUp('user1', 100000, 'top-seed');
+			for (let i = 0; i < 120; i++) {
+				await wallet.spend('user1', 1, `spend-${i}`, { metadata: '{"cost": 0.01}' });
+			}
+
+			const report = await wallet.getUsageReport('user1', {
+				from: new Date(Date.now() - 86400000),
+				to: new Date(Date.now() + 86400000),
+			});
+
+			// 1 credit + 120 debits = 121 transactions
+			expect(report.transactionCount).toBe(121);
+			expect(report.totalDebits).toBe(120);
+			expect(report.totalProviderCost).toBeCloseTo(1.2);
+		});
+
 		it('getUsageReport with empty date range returns zeros', async () => {
 			const wallet = createWallet({ storage: createMockStorage() });
 			await wallet.topUp('user1', 1000, 'top-1');
@@ -442,6 +480,17 @@ describe('createWallet', () => {
 			expect(report.totalDebits).toBe(0);
 			expect(report.totalProviderCost).toBe(0);
 			expect(report.transactionCount).toBe(0);
+		});
+	});
+
+	describe('error message sanitization', () => {
+		it('GatewayError.message does not leak raw gateway response', () => {
+			const err = new GatewayError('stripe', 500, 'sk_live_secret_key_leaked in response body');
+			expect(err.message).toBe('Payment gateway error (stripe)');
+			expect(err.message).not.toContain('sk_live');
+			expect(err.gatewayMessage).toBe('sk_live_secret_key_leaked in response body');
+			expect(err.gatewayName).toBe('stripe');
+			expect(err.httpStatus).toBe(500);
 		});
 	});
 });

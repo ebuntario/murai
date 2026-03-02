@@ -110,6 +110,28 @@ describe('createXenditGateway', () => {
 	// ---------------------------------------------------------------------------
 
 	describe('createCheckout', () => {
+		it('sends requests to api.xendit.co regardless of sandbox flag', async () => {
+			const mockResponse = {
+				ok: true,
+				json: async () => ({ invoice_url: 'https://checkout.xendit.co/web/abc123' }),
+			};
+			const fetchSpy = vi
+				.spyOn(globalThis, 'fetch')
+				.mockResolvedValueOnce(mockResponse as Response);
+
+			await gateway.createCheckout({
+				userId: 'user1',
+				amount: 100000,
+				successRedirectUrl: 'https://example.com/success',
+				failureRedirectUrl: 'https://example.com/fail',
+			});
+
+			const calledUrl = fetchSpy.mock.calls[0]?.[0] as string;
+			expect(calledUrl).toBe('https://api.xendit.co/v2/invoices');
+
+			fetchSpy.mockRestore();
+		});
+
 		it('calls Xendit API and returns CheckoutSession with external_id as id', async () => {
 			const mockResponse = {
 				ok: true,

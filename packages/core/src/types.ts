@@ -48,12 +48,20 @@ export interface UsageReport {
 export interface Wallet {
 	getBalance(userId: string): Promise<number>;
 	canSpend(userId: string, amount: number): Promise<boolean>;
+	/**
+	 * @param idempotencyKey Globally scoped (not per-user). Must be unpredictable
+	 * (e.g. UUIDv4) to prevent cross-user collisions and enumeration attacks.
+	 */
 	spend(
 		userId: string,
 		amount: number,
 		idempotencyKey: string,
 		options?: { metadata?: string },
 	): Promise<void>;
+	/**
+	 * @param idempotencyKey Globally scoped (not per-user). Must be unpredictable
+	 * (e.g. UUIDv4) to prevent cross-user collisions and enumeration attacks.
+	 */
 	topUp(
 		userId: string,
 		amount: number,
@@ -102,6 +110,9 @@ export interface StorageAdapter {
 	 *  - Lock the wallet row (SELECT FOR UPDATE or equivalent) before reading balance
 	 *  - For credits with `remaining`: store remaining tokens in bucket
 	 *  - For debits when FIFO is enabled: consume from earliest-expiring buckets first
+	 *
+	 * @param entry.idempotencyKey Globally scoped (not per-user). Must be unpredictable
+	 * (e.g. UUIDv4) to prevent cross-user collisions and enumeration attacks.
 	 */
 	appendEntry(entry: Omit<LedgerEntry, 'id' | 'createdAt'>): Promise<LedgerEntry>;
 	findEntry(idempotencyKey: string): Promise<LedgerEntry | null>;

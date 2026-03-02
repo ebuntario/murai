@@ -69,6 +69,8 @@ export function createWallet(config: WalletConfig): Wallet {
 		if (options?.metadata !== undefined) {
 			validateMetadata(options.metadata);
 		}
+		// Advisory pre-check: avoids a storage-layer round-trip for obvious failures.
+		// NOT a safety mechanism — the storage adapter re-checks under lock (SELECT FOR UPDATE).
 		const balance = await ledger.getBalance(userId);
 		if (balance < amount) {
 			throw new InsufficientBalanceError(userId, amount, balance);
@@ -122,34 +124,44 @@ export function createWallet(config: WalletConfig): Wallet {
 		userId: string,
 		dateRange: { from: Date; to: Date },
 	): Promise<UsageReport> {
-		const txns = await ledger.getTransactions(userId, {
-			from: dateRange.from,
-			to: dateRange.to,
-			limit: 100,
-		});
-
+		const pageSize = 100;
 		let totalCredits = 0;
 		let totalDebits = 0;
 		let totalProviderCost = 0;
-		const transactionCount = txns.length;
+		let transactionCount = 0;
+		let offset = 0;
 
-		for (const txn of txns) {
-			if (txn.amount > 0) {
-				totalCredits += txn.amount;
-			} else {
-				totalDebits += Math.abs(txn.amount);
-				if (txn.metadata) {
-					try {
-						const meta = JSON.parse(txn.metadata) as MetadataShape;
-						const cost = meta.cost;
-						if (typeof cost === 'number' && Number.isFinite(cost)) {
-							totalProviderCost += cost;
+		for (;;) {
+			const txns = await ledger.getTransactions(userId, {
+				from: dateRange.from,
+				to: dateRange.to,
+				limit: pageSize,
+				offset,
+			});
+
+			transactionCount += txns.length;
+
+			for (const txn of txns) {
+				if (txn.amount > 0) {
+					totalCredits += txn.amount;
+				} else {
+					totalDebits += Math.abs(txn.amount);
+					if (txn.metadata) {
+						try {
+							const meta = JSON.parse(txn.metadata) as MetadataShape;
+							const cost = meta.cost;
+							if (typeof cost === 'number' && Number.isFinite(cost)) {
+								totalProviderCost += cost;
+							}
+						} catch {
+							// ignore invalid metadata in aggregation
 						}
-					} catch {
-						// ignore invalid metadata in aggregation
 					}
 				}
 			}
+
+			if (txns.length < pageSize) break;
+			offset += pageSize;
 		}
 
 		return { totalCredits, totalDebits, totalProviderCost, transactionCount };

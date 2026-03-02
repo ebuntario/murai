@@ -9,7 +9,10 @@ import type { CheckoutSession, PaymentGatewayAdapter, WebhookStatus } from '@mur
 export interface XenditConfig {
 	secretKey: string;
 	callbackToken: string;
-	/** Defaults to true — must explicitly set false for production */
+	/**
+	 * @deprecated Xendit routes sandbox vs production by API key prefix
+	 * (`xnd_development_` vs `xnd_production_`). This field has no effect.
+	 */
 	sandbox?: boolean;
 	/** Fetch timeout in ms — defaults to 30000 */
 	timeoutMs?: number;
@@ -31,8 +34,8 @@ const statusMap: Record<string, WebhookStatus> = {
 export function createXenditGateway(config: XenditConfig): PaymentGatewayAdapter & {
 	getPaymentStatus(id: string): Promise<WebhookStatus>;
 } {
-	const sandbox = config.sandbox !== false;
-	const baseUrl = sandbox ? 'https://api.xendit.co' : 'https://api.xendit.co';
+	// Xendit uses a single base URL — sandbox vs production is determined by API key prefix
+	const baseUrl = 'https://api.xendit.co';
 	const timeoutMs = config.timeoutMs ?? 30000;
 	const authHeader = `Basic ${btoa(`${config.secretKey}:`)}`;
 
