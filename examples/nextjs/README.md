@@ -24,7 +24,7 @@ cd examples/nextjs
 pnpm install
 ```
 
-2. **Create `.env.local`** (copy from `.env.example`):
+1. **Create `.env.local`** (copy from `.env.example`):
 
 ```bash
 DATABASE_URL=postgres://user:pass@host/dbname
@@ -33,7 +33,7 @@ MIDTRANS_CLIENT_KEY=SB-Mid-client-...
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
 
-3. **Create database tables:**
+1. **Create database tables:**
 
 ```sql
 CREATE TABLE wallets (
@@ -60,7 +60,7 @@ CREATE TABLE checkouts (
 );
 ```
 
-4. **Run:**
+1. **Run:**
 
 ```bash
 pnpm dev
