@@ -62,12 +62,12 @@ const checkouts = pgTable('checkouts', {
 const PG_UNIQUE_VIOLATION = '23505';
 
 function isUniqueViolation(error: unknown): boolean {
-	return (
-		typeof error === 'object' &&
-		error !== null &&
-		'code' in error &&
-		(error as { code: unknown }).code === PG_UNIQUE_VIOLATION
-	);
+	if (typeof error !== 'object' || error === null) return false;
+	// Direct PostgresError (has .code on itself)
+	if ('code' in error && (error as { code: unknown }).code === PG_UNIQUE_VIOLATION) return true;
+	// Drizzle wraps DB errors — check .cause
+	if ('cause' in error) return isUniqueViolation((error as { cause: unknown }).cause);
+	return false;
 }
 
 function toLedgerEntry(row: typeof transactions.$inferSelect): LedgerEntry {
