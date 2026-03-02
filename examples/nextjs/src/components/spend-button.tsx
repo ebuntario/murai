@@ -20,10 +20,12 @@ export function SpendButton({ userId, amount, label, disabled }: SpendButtonProp
 	const [success, setSuccess] = useState(false);
 	const router = useRouter();
 
-	async function handleSubmit(formData: FormData) {
+	async function handleSubmit(e: { preventDefault(): void; currentTarget: HTMLFormElement }) {
+		e.preventDefault();
 		setIsLoading(true);
 		setError(null);
 
+		const formData = new FormData(e.currentTarget);
 		const result = await spendTokens(formData);
 
 		if (result.success) {
@@ -39,7 +41,7 @@ export function SpendButton({ userId, amount, label, disabled }: SpendButtonProp
 
 	return (
 		<div>
-			<form action={handleSubmit}>
+			<form onSubmit={handleSubmit}>
 				<input type="hidden" name="userId" value={userId} />
 				<input type="hidden" name="amount" value={amount} />
 				<motion.button

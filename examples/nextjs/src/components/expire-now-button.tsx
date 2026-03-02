@@ -17,11 +17,13 @@ export function ExpireNowButton({ userId }: ExpireNowButtonProps) {
 	const [result, setResult] = useState<string | null>(null);
 	const router = useRouter();
 
-	async function handleSubmit(formData: FormData) {
+	async function handleSubmit(e: { preventDefault(): void; currentTarget: HTMLFormElement }) {
+		e.preventDefault();
 		setIsLoading(true);
 		setResult(null);
 
 		try {
+			const formData = new FormData(e.currentTarget);
 			const res = await expireTokens(formData);
 			setIsLoading(false);
 			if (res.expiredCount === 0) {
@@ -41,7 +43,7 @@ export function ExpireNowButton({ userId }: ExpireNowButtonProps) {
 
 	return (
 		<div>
-			<form action={handleSubmit}>
+			<form onSubmit={handleSubmit}>
 				<input type="hidden" name="userId" value={userId} />
 				<motion.button
 					type="submit"

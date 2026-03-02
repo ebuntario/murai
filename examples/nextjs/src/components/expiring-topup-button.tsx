@@ -19,11 +19,13 @@ export function ExpiringTopupButton({ userId, amount, label }: ExpiringTopupButt
 	const [error, setError] = useState<string | null>(null);
 	const router = useRouter();
 
-	async function handleSubmit(formData: FormData) {
+	async function handleSubmit(e: { preventDefault(): void; currentTarget: HTMLFormElement }) {
+		e.preventDefault();
 		setIsLoading(true);
 		setError(null);
 
 		try {
+			const formData = new FormData(e.currentTarget);
 			await createExpiringTopUp(formData);
 			setSuccess(true);
 			setIsLoading(false);
@@ -37,7 +39,7 @@ export function ExpiringTopupButton({ userId, amount, label }: ExpiringTopupButt
 
 	return (
 		<div>
-			<form action={handleSubmit}>
+			<form onSubmit={handleSubmit}>
 				<input type="hidden" name="userId" value={userId} />
 				<input type="hidden" name="amount" value={amount} />
 				<motion.button
