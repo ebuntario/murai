@@ -1,6 +1,9 @@
 {
 	"name": "@murai-wallet/storage-drizzle",
 	"version": "1.0.3",
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
 	"type": "module",
 	"description": "Drizzle ORM storage adapter for murai (PostgreSQL)",
 	"license": "MIT",

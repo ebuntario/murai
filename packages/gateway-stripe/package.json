@@ -1,6 +1,9 @@
 {
 	"name": "@murai-wallet/gateway-stripe",
 	"version": "1.0.3",
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
 	"type": "module",
 	"description": "Stripe Checkout payment gateway adapter for murai",
 	"license": "MIT",

@@ -1,6 +1,9 @@
 {
 	"name": "@murai-wallet/murai",
 	"version": "1.0.3",
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
 	"type": "module",
 	"description": "Lightweight token wallet library for AI/SaaS apps — with Midtrans, Xendit & Stripe support",
 	"license": "MIT",

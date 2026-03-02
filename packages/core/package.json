@@ -1,6 +1,9 @@
 {
 	"name": "@murai-wallet/core",
 	"version": "1.0.3",
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
 	"type": "module",
 	"description": "Core wallet, ledger, and checkout manager for murai",
 	"license": "MIT",
