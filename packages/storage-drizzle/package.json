@@ -43,7 +43,8 @@
 		"@murai-wallet/core": "workspace:*"
 	},
 	"devDependencies": {
-		"drizzle-orm": ">=0.30.0 <1.0.0"
+		"drizzle-orm": ">=0.30.0 <1.0.0",
+		"postgres": "^3.4.7"
 	},
 	"peerDependencies": {
 		"drizzle-orm": ">=0.30.0 <1.0.0"

@@ -19,7 +19,6 @@ describeIf('storage-drizzle integration (PostgreSQL)', () => {
 
 	beforeAll(async () => {
 		if (!DATABASE_URL) return;
-		// @ts-expect-error — postgres types not in devDeps; only runs when DATABASE_URL is set
 		const { default: postgres } = await import('postgres');
 		const { drizzle } = await import('drizzle-orm/postgres-js');
 		const { createDrizzleStorage } = await import('../index.js');
