@@ -102,6 +102,7 @@ npx drizzle-kit generate --config=packages/storage-drizzle/drizzle.config.ts
 This writes a new SQL file to `packages/storage-drizzle/migrations/` with a timestamped name like `0001_add_checkout_sessions.sql`.
 
 **Never:**
+
 - Edit generated SQL files directly (re-generate instead)
 - Delete or rename existing migration files
 - Reorder migration files
@@ -168,6 +169,7 @@ pnpm lint
 ```
 
 Confirm:
+
 - [ ] All tests pass (`failed=0`)
 - [ ] No TypeScript errors
 - [ ] No lint errors
