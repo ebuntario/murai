@@ -5,9 +5,15 @@ import { checkout, wallet } from '@/lib/wallet';
 import { InsufficientBalanceError } from '@murai-wallet/murai';
 import { redirect } from 'next/navigation';
 
+function parseFormFields(formData: FormData) {
+	return {
+		userId: formData.get('userId') as string,
+		amount: Number(formData.get('amount')),
+	};
+}
+
 export async function createTopUp(formData: FormData) {
-	const userId = formData.get('userId') as string;
-	const amount = Number(formData.get('amount'));
+	const { userId, amount } = parseFormFields(formData);
 
 	const session = await checkout.createSession({
 		userId,
@@ -19,9 +25,21 @@ export async function createTopUp(formData: FormData) {
 	redirect(session.redirectUrl);
 }
 
-export async function spendTokens(formData: FormData) {
+export async function createExpiringTopUp(formData: FormData) {
+	const { userId, amount } = parseFormFields(formData);
+	const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+	await wallet.topUp(userId, amount, `expiring-topup-${randomUUID()}`, { expiresAt });
+}
+
+export async function expireTokens(formData: FormData) {
 	const userId = formData.get('userId') as string;
-	const amount = Number(formData.get('amount'));
+	const result = await wallet.expireTokens(userId);
+	return { expiredCount: result.expiredCount, expiredAmount: result.expiredAmount };
+}
+
+export async function spendTokens(formData: FormData) {
+	const { userId, amount } = parseFormFields(formData);
 
 	try {
 		await wallet.spend(userId, amount, `spend-${randomUUID()}`);

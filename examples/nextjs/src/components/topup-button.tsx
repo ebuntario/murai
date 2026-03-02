@@ -1,6 +1,7 @@
 'use client';
 
 import { createTopUp } from '@/app/actions';
+import { Spinner } from '@/components/spinner';
 import { motion } from 'motion/react';
 import { useFormStatus } from 'react-dom';
 
@@ -38,22 +39,5 @@ export function TopupButton({ userId, amount, label }: TopupButtonProps) {
 			<input type="hidden" name="amount" value={amount} />
 			<SubmitButton label={label} />
 		</form>
-	);
-}
-
-function Spinner() {
-	return (
-		<motion.svg
-			aria-hidden="true"
-			width="16"
-			height="16"
-			viewBox="0 0 16 16"
-			fill="none"
-			animate={{ rotate: 360 }}
-			transition={{ duration: 0.7, repeat: Number.POSITIVE_INFINITY, ease: 'linear' }}
-		>
-			<circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" opacity="0.25" />
-			<path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-		</motion.svg>
 	);
 }

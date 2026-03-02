@@ -14,7 +14,7 @@ const globalForDb = globalThis as unknown as {
 };
 
 // biome-ignore lint/style/noNonNullAssertion: validated below
-const sql = globalForDb.sql ?? postgres(process.env.DATABASE_URL!);
+export const sql = globalForDb.sql ?? postgres(process.env.DATABASE_URL!);
 if (process.env.NODE_ENV === 'development') {
 	globalForDb.sql = sql;
 }

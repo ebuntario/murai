@@ -89,6 +89,18 @@
 - All packages at 1.0.0 now but never published
 - tsup.config.ts identical across all 6 packages - no external config anywhere
 
+## Example App Dashboard Review Key Findings
+- Current example: 6 files, single page + /success, hardcoded USER_ID='demo-user'
+- Wallet singleton in lib/wallet.ts exports wallet + checkout (db instance NOT exported)
+- Drizzle schema tables (wallets, transactions, checkouts) are module-private in storage-drizzle
+- CheckoutSession has NO updatedAt, NO gateway reference fields
+- handleWebhook() discards raw payload/signature - no webhook event persistence
+- Credit consumption provenance NOT tracked - debit decrements bucket.remaining but no join/link
+- LedgerEntry HAS remaining/expiresAt/expiredAt but current topUp flow NEVER sets expiresAt
+- getTransactions limit capped at 100 per call (ledger.ts line 87)
+- CheckoutSession.status is 'pending'|'paid'|'failed' - NO 'expired' status
+- Spinner component duplicated in topup-button.tsx and spend-button.tsx
+
 ## Patterns & Conventions
 - Error codes: SCREAMING_SNAKE_CASE on readonly `code` field
 - All mutations require idempotencyKey
@@ -100,7 +112,7 @@
 - pnpm-workspace.yaml: packages/*, apps/*, docs (no examples/*)
 - Vitest bench available (v3.2.4) but not configured in vitest.config.ts
 - No external config in any tsup.config.ts - relies on auto-externalization
-- All packages at version 1.0.0 but never published to npm
+- All packages at version 1.0.0+ but never published to npm
 
 ## Security Audit Review Key Findings
 - Existing concurrent debit test in integration.test.ts (line 96) proves storage-layer safety already
