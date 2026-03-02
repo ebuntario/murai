@@ -81,7 +81,7 @@ export function ExpiringTopupButton({ userId, amount, label }: ExpiringTopupButt
 								exit={{ opacity: 0, y: -6 }}
 								transition={{ duration: 0.15 }}
 							>
-								{label} (5 min)
+								{label} (30s)
 							</motion.span>
 						)}
 					</AnimatePresence>

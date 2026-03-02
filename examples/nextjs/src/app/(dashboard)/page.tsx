@@ -1,6 +1,7 @@
 import { BalanceDisplay } from '@/components/balance-display';
 import { ExpireNowButton } from '@/components/expire-now-button';
 import { ExpiringTopupButton } from '@/components/expiring-topup-button';
+import { ExpiryCountdown } from '@/components/expiry-countdown';
 import { SpendButton } from '@/components/spend-button';
 import { TopupButton } from '@/components/topup-button';
 import { USER_ID } from '@/lib/constants';
@@ -10,10 +11,20 @@ import { wallet } from '@/lib/wallet';
 export const dynamic = 'force-dynamic';
 
 export default async function WalletPage() {
-	const balance = await wallet.getBalance(USER_ID);
-	const recentTransactions = await wallet.getTransactions(USER_ID, {
-		limit: 5,
-	});
+	const [balance, recentTransactions] = await Promise.all([
+		wallet.getBalance(USER_ID),
+		wallet.getTransactions(USER_ID, { limit: 5 }),
+	]);
+
+	// Find active expiring credit buckets for the countdown
+	const allCredits = await wallet.getTransactions(USER_ID, { type: 'credit', limit: 50 });
+	const now = new Date();
+	const expiringBuckets = allCredits
+		.filter((tx) => tx.expiresAt && tx.remaining && tx.remaining > 0 && tx.expiresAt > now)
+		.map((tx) => ({
+			amount: tx.remaining as number,
+			expiresAt: (tx.expiresAt as Date).toISOString(),
+		}));
 
 	return (
 		<div className="max-w-md">
@@ -36,7 +47,7 @@ export default async function WalletPage() {
 			<div className="mt-6 space-y-3">
 				<h2 className="text-sm font-medium text-gray-700">Expiring Top-Up</h2>
 				<p className="text-xs text-gray-400">
-					Credits that expire in 5 minutes. Demonstrates FIFO bucket expiry.
+					Credits that expire in 30 seconds. Demonstrates FIFO bucket expiry.
 				</p>
 				<div className="grid grid-cols-2 gap-3">
 					<ExpiringTopupButton userId={USER_ID} amount={10_000} label="IDR 10,000" />
@@ -71,6 +82,7 @@ export default async function WalletPage() {
 					Expire all credits past their expiry date. Creates debit entries to zero out expired
 					buckets.
 				</p>
+				<ExpiryCountdown userId={USER_ID} buckets={expiringBuckets} />
 				<ExpireNowButton userId={USER_ID} />
 			</div>
 

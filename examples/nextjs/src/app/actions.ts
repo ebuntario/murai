@@ -27,7 +27,7 @@ export async function createTopUp(formData: FormData) {
 
 export async function createExpiringTopUp(formData: FormData) {
 	const { userId, amount } = parseFormFields(formData);
-	const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+	const expiresAt = new Date(Date.now() + 30 * 1000); // 30 seconds
 
 	await wallet.topUp(userId, amount, `expiring-topup-${randomUUID()}`, { expiresAt });
 }
