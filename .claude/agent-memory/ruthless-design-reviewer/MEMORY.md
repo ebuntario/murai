@@ -101,3 +101,16 @@
 - Vitest bench available (v3.2.4) but not configured in vitest.config.ts
 - No external config in any tsup.config.ts - relies on auto-externalization
 - All packages at version 1.0.0 but never published to npm
+
+## Security Audit Review Key Findings
+- Existing concurrent debit test in integration.test.ts (line 96) proves storage-layer safety already
+- wallet.ts spend() pre-check is redundant but NOT exploitable with Drizzle adapter (appendEntry rechecks under lock)
+- ledger.ts findEntry() TOCTOU is also redundant - DB UNIQUE constraint is final arbiter
+- The wallet-layer TOCTOU is a UX problem (stale error message), not a security problem
+- InsufficientBalanceError leaks exact balance in .message AND .available property
+- GatewayError.gatewayMessage contains raw res.text() from all 3 gateways (6 throw sites)
+- Idempotency keys are globally scoped (UNIQUE on idempotency_key alone, not per-user)
+- getUsageReport hardcoded limit:100 still present - produces incorrect reports for active users
+- Integration test table creation (integration.test.ts) missing expires_at, remaining, expired_at, metadata columns
+- Xendit sandbox/production use same base URL (api.xendit.co) - sandbox flag is a no-op
+- Packages now at 1.0.3 (storage-drizzle per package.json)

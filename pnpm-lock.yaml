@@ -108,7 +108,7 @@ importers:
         version: link:../core
     devDependencies:
       drizzle-orm:
-        specifier: '>=0.30.0'
+        specifier: '>=0.30.0 <1.0.0'
         version: 0.45.1
 
 packages:
